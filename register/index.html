@@ -365,8 +365,11 @@ select.cc:focus{border-color:var(--accent);background:#0f151a;box-shadow:0 0 0 3
     go.disabled = true;
     go.textContent = 'Registering you...';
 
-    var src = '';
-    try { src = (new URLSearchParams(window.location.search)).get('src') || ''; } catch(e2){}
+    // Defaults to 'landing' so signups from the domain-hosted landing page are
+    // distinguishable in Supabase from the netlify jarvis-aiagency page, which is
+    // still live and still taking the link-in-bio traffic. ?src= still overrides.
+    var src = 'landing';
+    try { src = (new URLSearchParams(window.location.search)).get('src') || 'landing'; } catch(e2){}
 
     fetch(URL_ + '/rest/v1/waitlist', {
       method: 'POST',
@@ -409,7 +412,7 @@ select.cc:focus{border-color:var(--accent);background:#0f151a;box-shadow:0 0 0 3
     if(!localStorage.getItem('aia_pv')){
       localStorage.setItem('aia_pv', '1');
       var vsrc = '';
-      try{ vsrc = (new URLSearchParams(window.location.search)).get('src') || 'direct'; }catch(e9){ vsrc = 'direct'; }
+      try{ vsrc = (new URLSearchParams(window.location.search)).get('src') || 'landing'; }catch(e9){ vsrc = 'landing'; }
       fetch(URL_ + '/rest/v1/waitlist_events', {
         method: 'POST',
         headers: {'Content-Type':'application/json','apikey':KEY,'Authorization':'Bearer '+KEY,'Prefer':'return=minimal'},
