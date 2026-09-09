@@ -246,6 +246,14 @@ select.cc:focus{border-color:var(--accent);background:#0f151a;box-shadow:0 0 0 3
 
       <label for="email">Your email</label>
       <input id="email" name="email" type="email" placeholder="Your email" autocomplete="email" inputmode="email" autocapitalize="off" autocorrect="off" spellcheck="false" tabindex="-1" required>
+
+      <label for="phone">Your number</label>
+      <div class="phonerow">
+        <div class="ccwrap">
+          <select class="cc" id="cc" aria-label="Country code" tabindex="-1"></select>
+        </div>
+        <input id="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="Your number" tabindex="-1" required>
+      </div>
     </div></div>
 
     <button id="go" type="submit">Register</button>
@@ -253,7 +261,7 @@ select.cc:focus{border-color:var(--accent);background:#0f151a;box-shadow:0 0 0 3
   </form>
 
   <div class="q" id="q1">
-    <div class="dots"><i></i><i></i><i></i></div>
+    <div class="dots"><i></i><i></i></div>
     <div class="peek">Picture this</div>
     <div class="qlines">
       <p>Your Jarvis <em class="g">finds the businesses</em>.</p>
@@ -269,9 +277,9 @@ select.cc:focus{border-color:var(--accent);background:#0f151a;box-shadow:0 0 0 3
   </div>
 
   <div class="q" id="q2">
-    <div class="dots"><i class="done"></i><i></i><i></i></div>
+    <div class="dots"><i class="done"></i><i></i></div>
     <div class="peek">The course is 100% free</div>
-    <h2 class="qhead">Do you have at least <em class="g">$150</em> to get your <em class="g">Jarvis</em> set up and running your entire AI agency?</h2>
+    <h2 class="qhead">Do you have at least <em class="g">$50</em> to get your <em class="g">Jarvis</em> set up and running your entire AI agency?</h2>
     <p class="qsub">That covers the platform your Jarvis runs on. None of it comes to me.</p>
     <div class="opts">
       <button type="button" class="opt" data-v="Yes ready">Yes, I'm ready</button>
@@ -279,21 +287,6 @@ select.cc:focus{border-color:var(--accent);background:#0f151a;box-shadow:0 0 0 3
     </div>
   </div>
 
-  <div class="q" id="q3">
-    <div class="dots"><i class="done"></i><i class="done"></i><i></i></div>
-    <h2 class="qhead">Last step. If you qualify, this is <em class="g">where we reach you</em>.</h2>
-    <p class="qsub">Only a limited number of people get into the free course where you build your own Jarvis to run your entire AI agency. If you qualify, you hear from us first, on this number.</p>
-    <div class="opts">
-      <div class="phonerow">
-        <div class="ccwrap">
-          <select class="cc" id="cc" aria-label="Country code"></select>
-        </div>
-        <input id="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="Your number">
-      </div>
-      <button type="button" class="opt" id="phonego" style="text-align:center;font-family:var(--display);font-weight:800;background:var(--accent);color:#04140f;border-color:var(--accent)">Lock my spot</button>
-    </div>
-    <p class="phoneerr" id="phoneerr" hidden>Pop your number in so we can give you a call.</p>
-  </div>
 
   <div class="done" id="done">
     <div class="tick" aria-hidden="true">
@@ -352,6 +345,8 @@ select.cc:focus{border-color:var(--accent);background:#0f151a;box-shadow:0 0 0 3
       var n = document.getElementById('name');
       var em = document.getElementById('email');
       n.removeAttribute('tabindex'); em.removeAttribute('tabindex');
+      var ph0 = document.getElementById('phone'); if(ph0) ph0.removeAttribute('tabindex');
+      var cc0 = document.getElementById('cc'); if(cc0) cc0.removeAttribute('tabindex');
       try{ n.focus({preventScroll:true}); }catch(e0){ n.focus(); }
       return;
     }
@@ -362,12 +357,16 @@ select.cc:focus{border-color:var(--accent);background:#0f151a;box-shadow:0 0 0 3
     if(!name){ bad('Add your name.'); return; }
     if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)){ bad("That email doesn't look right."); return; }
 
+    var phoneRaw = document.getElementById('phone').value.trim();
+    if(phoneRaw.replace(/\D/g, '').length < 6){
+      bad('Pop your number in so we can give you a call.');
+      try{ document.getElementById('phone').focus(); }catch(e9){}
+      return;
+    }
+
     go.disabled = true;
     go.textContent = 'Registering you...';
 
-    // Defaults to 'landing' so signups from the domain-hosted landing page are
-    // distinguishable in Supabase from the netlify jarvis-aiagency page, which is
-    // still live and still taking the link-in-bio traffic. ?src= still overrides.
     var src = 'landing';
     try { src = (new URLSearchParams(window.location.search)).get('src') || 'landing'; } catch(e2){}
 
@@ -390,6 +389,11 @@ select.cc:focus{border-color:var(--accent);background:#0f151a;box-shadow:0 0 0 3
         f.classList.add('off');
         if(vsl) vsl.classList.add('off');
         JOINED = email; JOINED_NAME = name; SRC = src;
+        // Bank the number immediately. Even if they abandon at q1, this is a
+        // lead we can ring, which is the whole point of the funnel.
+        A.phone = (ccSel && ccSel.value ? ccSel.value + ' ' : '') + phoneRaw.replace(/^0+/, '');
+        logEvent('phone', A.phone);
+        saveAnswers(false);
         show('q1');
         window.setTimeout(function(){ try{ window.scrollTo(0,0); }catch(e5){} }, 60);
         try{ localStorage.setItem('waitlist.joined','1'); }catch(e3){}
@@ -412,7 +416,7 @@ select.cc:focus{border-color:var(--accent);background:#0f151a;box-shadow:0 0 0 3
     if(!localStorage.getItem('aia_pv')){
       localStorage.setItem('aia_pv', '1');
       var vsrc = '';
-      try{ vsrc = (new URLSearchParams(window.location.search)).get('src') || 'landing'; }catch(e9){ vsrc = 'landing'; }
+      try{ vsrc = (new URLSearchParams(window.location.search)).get('src') || 'direct'; }catch(e9){ vsrc = 'direct'; }
       fetch(URL_ + '/rest/v1/waitlist_events', {
         method: 'POST',
         headers: {'Content-Type':'application/json','apikey':KEY,'Authorization':'Bearer '+KEY,'Prefer':'return=minimal'},
@@ -486,15 +490,16 @@ select.cc:focus{border-color:var(--accent);background:#0f151a;box-shadow:0 0 0 3
     if(!JOINED) return;
     if(!A.would_use && !A.has_capital && !A.phone) return;
     sent = true;
+    // Column names must match waitlist_answers exactly or PostgREST 400s
+    // and the row is silently lost. has_capital lives in money_goal; the
+    // table has no timezone/locale columns, so those stay in events only.
     var body = JSON.stringify({
       email: JOINED,
       would_use: A.would_use,
-      has_capital: A.has_capital,
+      money_goal: A.has_capital,
       phone: A.phone,
       completed: !!finished,
-      source: SRC,
-      timezone: TZ,
-      locale: LOCALE
+      source: SRC
     });
     var url = URL_ + '/rest/v1/waitlist_answers';
     var hdrs = {
@@ -576,34 +581,26 @@ select.cc:focus{border-color:var(--accent);background:#0f151a;box-shadow:0 0 0 3
           A[field] = b.getAttribute('data-v');
           logEvent(field, A[field]);
           b.classList.add('picked');
-          window.setTimeout(function(){ show(next); }, 170);
+          window.setTimeout(function(){ if(next==='done'){ finish(); } else { show(next); } }, 170);
         });
       })(btns[i]);
     }
   }
   wire('q1','would_use','q2');
-  wire('q2','has_capital','q3');
+  wire('q2','has_capital','done');
 
   function finish(){
-    var v = document.getElementById('phone').value.trim();
-    var err = document.getElementById('phoneerr');
-    // Mandatory: the whole funnel is a call, so a lead without a number is a
-    // dead lead. Loose digit floor so international numbers still get through.
-    if(v.replace(/\D/g, '').length < 6){
-      if(err) err.hidden = false;
-      document.getElementById('phone').focus();
-      return;
-    }
-    if(err) err.hidden = true;
-    A.phone = ccSel.value + ' ' + v.replace(/^0+/, '');
-    logEvent('phone', A.phone);
+    // The number is captured on the first card now, so this is just the close.
     saveAnswers(true);
     try{ if(document.activeElement && document.activeElement.blur) document.activeElement.blur(); }catch(e){}
     show('done');
     celebrate();
   }
-  document.getElementById('phonego').addEventListener('click', finish);
-  document.getElementById('phone').addEventListener('keydown', function(e){ if(e.key === 'Enter'){ e.preventDefault(); finish(); } });
+  // Phone now lives on the first card, so Enter submits the form rather than
+  // jumping to the close.
+  document.getElementById('phone').addEventListener('keydown', function(e){
+    if(e.key === 'Enter'){ e.preventDefault(); try{ go.click(); }catch(e10){} }
+  });
 
   // if they wander off part way through, keep whatever they gave us
   window.addEventListener('pagehide', function(){ saveAnswers(false, true); });

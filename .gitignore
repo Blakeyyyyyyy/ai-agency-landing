@@ -1,0 +1,5 @@
+.env
+.env.*
+*.csv
+jacob-*.csv
+india-*.csv
