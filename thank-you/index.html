@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>You're in — answer your phone</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0a0a;          /* neutral black, no green tint */
+  --panel:#161616;
+  --line:#2c2c2c;
+  --white:#ffffff;
+  --body:#e6e6e6;        /* near-white body copy, not grey-green */
+  --green:#32d09f;
+  --f:'Archivo',Arial,Helvetica,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--body);font-family:var(--f);font-weight:600;
+  line-height:1.6;font-size:19px;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:920px;margin:0 auto;padding:0 24px}
+
+h1,h2,h3{color:var(--white);font-weight:900;text-transform:uppercase;letter-spacing:-.5px;line-height:1.05}
+h1{font-size:clamp(2.4rem,7vw,4rem);margin-bottom:24px}
+h2{font-size:clamp(1.7rem,4.6vw,2.6rem);margin-bottom:20px}
+h3{font-size:1.25rem;letter-spacing:0;margin-bottom:10px}
+p{font-size:1.06rem;line-height:1.7}
+p+p{margin-top:16px}
+.big{font-size:1.2rem;color:var(--white);font-weight:800}
+em{font-style:normal;color:var(--green)}
+
+section{padding:72px 0;border-top:2px solid var(--line)}
+
+/* hero */
+header{padding:72px 0 68px;text-align:center}
+.tick{width:74px;height:74px;border-radius:50%;background:var(--green);
+  display:flex;align-items:center;justify-content:center;margin:0 auto 30px}
+.tick svg{width:38px;height:38px}
+header p{max-width:660px;margin:0 auto;font-size:1.15rem}
+.ring{display:inline-block;margin-top:30px;background:var(--white);color:#000;
+  font-weight:900;text-transform:uppercase;letter-spacing:.02em;
+  font-size:1rem;padding:15px 26px;border-radius:10px}
+
+/* numbered steps */
+.step{display:flex;gap:22px;align-items:flex-start;padding:26px 0;border-bottom:1px solid var(--line)}
+.step:last-child{border-bottom:0}
+.step .n{flex:0 0 54px;height:54px;border-radius:12px;background:var(--white);color:#000;
+  display:flex;align-items:center;justify-content:center;font-weight:900;font-size:1.5rem}
+.step .t{flex:1}
+
+/* two-up */
+.two{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:30px}
+.box{background:var(--panel);border:2px solid var(--line);border-radius:16px;padding:28px 26px}
+.box h3{color:var(--green)}
+
+/* module list */
+.mods{margin-top:30px;border-top:2px solid var(--line)}
+.mod{display:flex;gap:20px;align-items:baseline;padding:16px 2px;border-bottom:1px solid var(--line)}
+.mod b{color:var(--green);font-weight:900;min-width:74px;font-size:1rem;text-transform:uppercase}
+.mod span{color:var(--white);font-weight:700;font-size:1.05rem}
+
+/* closing */
+.note{background:var(--panel);border:2px solid var(--green);border-radius:18px;padding:36px 32px}
+
+footer{padding:46px 0 64px;text-align:center;color:#8a8a8a;font-weight:800;
+  text-transform:uppercase;letter-spacing:.14em;font-size:.8rem}
+
+@media(max-width:760px){
+  body{font-size:18px}
+  section{padding:52px 0}
+  header{padding:52px 0 48px}
+  .two{grid-template-columns:1fr}
+  .step{gap:16px}
+  .step .n{flex:0 0 46px;height:46px;font-size:1.3rem}
+}
+</style>
+</head>
+<body>
+
+<header><div class="wrap">
+  <div class="tick" aria-hidden="true">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#0a0a0a" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M20 6L9 17l-5-5"/>
+    </svg>
+  </div>
+  <h1>You're in.<br>Now answer<br>your phone.</h1>
+  <p class="big">My team is going to call you. It will come from a number you don't recognise.</p>
+  <p>That call is how you get access. There is no login coming by email.</p>
+  <div class="ring">Keep your phone on you</div>
+</div></header>
+
+<section><div class="wrap">
+  <h2>Do these three things now</h2>
+  <p>Ten seconds. Most people who miss out simply had their phone on silent.</p>
+
+  <div style="margin-top:26px">
+    <div class="step">
+      <div class="n">1</div>
+      <div class="t">
+        <h3>Turn off Do Not Disturb</h3>
+        <p>Check silent mode and any focus mode as well. If your phone is face down, turn it over now.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="n">2</div>
+      <div class="t">
+        <h3>Answer the unknown number</h3>
+        <p>It will not be saved in your contacts. If you miss it we will try again, but we cannot chase it forever.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="n">3</div>
+      <div class="t">
+        <h3>Be somewhere you can talk</h3>
+        <p>It is a real conversation, not a script. Five minutes is enough.</p>
+      </div>
+    </div>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <h2>What the call is for</h2>
+  <p>Nobody is going to read you a pitch. You have already seen the offer.</p>
+  <div class="two">
+    <div class="box">
+      <h3>Are you a fit</h3>
+      <p>This is a real business. You will talk to real business owners. Better we both find that out in ten minutes than in three weeks.</p>
+    </div>
+    <div class="box">
+      <h3>Your first client</h3>
+      <p>How you actually land the first one. That is the part that pays you, and the part nobody explains.</p>
+    </div>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <h2>What you're getting</h2>
+  <p>You build your own super agent first. Then it builds the services you sell. Every module is free.</p>
+  <div class="mods">
+    <div class="mod"><b>Setup</b><span>Build your Jarvis. Copy, paste, done in 30 minutes</span></div>
+    <div class="mod"><b>One</b><span>How an AI agency actually works</span></div>
+    <div class="mod"><b>Two</b><span>Setting up your business</span></div>
+    <div class="mod"><b>Three</b><span>Finding local businesses every night while you sleep</span></div>
+    <div class="mod"><b>Four</b><span>Websites, built in front of you in minutes</span></div>
+    <div class="mod"><b>Five</b><span>AI walkthrough videos for real estate</span></div>
+    <div class="mod"><b>Six</b><span>AI receptionists that answer the phone and book the job</span></div>
+    <div class="mod"><b>Seven</b><span>The call. How you land the client</span></div>
+    <div class="mod"><b>Eight</b><span>Delivering the work and getting paid</span></div>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <div class="note">
+    <h2>One thing to remember</h2>
+    <p>There is no countdown on this page and no fake deadline. But my team can only take so many calls in a week, and when we are full, we are full.</p>
+    <p class="big">Keep your phone on you. The call is the only way in.</p>
+  </div>
+</div></section>
+
+<footer>AI Agency &nbsp;—&nbsp; See you on the phone</footer>
+
+</body>
+</html>

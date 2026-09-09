@@ -156,6 +156,30 @@ body.closed .closedbox{display:block}
 @media(min-width:760px){.proofstrip{grid-template-columns:1fr 1fr}.proofstrip .proofwide{grid-column:1/-1}}
 .proofstrip .proofimg img{width:100%}
 footer{border-top:1px solid var(--line);padding:34px 0;text-align:center;font-family:var(--mono);font-size:.7rem;color:var(--dim);letter-spacing:.06em}
+
+/* claim modal */
+#mwrap{position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.82);padding:20px;overflow-y:auto}
+#mwrap.on{display:flex}
+#mcard{background:#141414;border:2px solid #2e2e2e;border-radius:20px;width:100%;max-width:520px;padding:34px 30px;position:relative;font-family:var(--display);animation:mrise .28s cubic-bezier(.2,.7,.3,1) both}
+@keyframes mrise{from{transform:translateY(14px);opacity:0}to{transform:none;opacity:1}}
+#mcard h3{color:#fff;font-weight:900;text-transform:uppercase;letter-spacing:-.4px;font-size:1.72rem;line-height:1.1;margin:0 0 22px;padding-right:44px}
+#mx{position:absolute;top:20px;right:20px;width:34px;height:34px;border-radius:50%;background:#242424;border:1px solid #383838;color:#fff;font-size:1.15rem;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.mf{width:100%;background:#0d0d0d;border:2px solid #333;border-radius:12px;color:#fff;font-family:var(--display);font-weight:700;font-size:1.02rem;padding:16px;margin-bottom:12px;outline:none}
+.mf::placeholder{color:#7d7d7d;font-weight:600}
+.mf:focus{border-color:var(--green)}
+.mrow{display:grid;grid-template-columns:118px 1fr;gap:10px}
+.mchk{display:flex;gap:12px;align-items:flex-start;background:#0d0d0d;border:2px solid #333;border-radius:12px;padding:15px 16px;margin-bottom:12px;cursor:pointer}
+.mchk input{appearance:none;-webkit-appearance:none;flex:0 0 22px;height:22px;margin-top:1px;border:2px solid #555;border-radius:6px;background:#141414;cursor:pointer;position:relative}
+.mchk input:checked{background:var(--green);border-color:var(--green)}
+.mchk input:checked::after{content:'';position:absolute;left:6px;top:2px;width:6px;height:11px;border:solid #0a0a0a;border-width:0 3px 3px 0;transform:rotate(45deg)}
+.mchk span{color:#dcdcdc;font-size:.88rem;line-height:1.5;font-weight:600}
+#msend{width:100%;background:var(--green);color:#04140f;border:0;border-radius:12px;font-family:var(--display);font-weight:900;font-size:1.12rem;text-transform:uppercase;padding:19px;cursor:pointer;margin-top:6px}
+#msend:disabled{opacity:.55;cursor:default}
+#mnote{text-align:center;color:#9a9a9a;font-size:.82rem;margin-top:14px;font-weight:600}
+#merr{color:#ff8a7a;font-size:.9rem;min-height:1.2em;margin-bottom:8px;font-weight:700}
+#mfine{text-align:center;color:#767676;font-size:.74rem;line-height:1.5;margin-top:12px}
+@media(max-width:560px){#mcard{padding:28px 22px}#mcard h3{font-size:1.45rem}.mrow{grid-template-columns:104px 1fr}}
+
 </style>
 </head>
 <body>
@@ -309,5 +333,73 @@ if(VSL_URL){
   box.innerHTML = '<iframe src="' + VSL_URL + '" allow="autoplay; fullscreen" allowfullscreen></iframe>';
 }
 </script>
+
+<div id="mwrap" role="dialog" aria-modal="true" aria-labelledby="mtitle">
+  <div id="mcard">
+    <button id="mx" type="button" aria-label="Close">&times;</button>
+    <h3 id="mtitle">Claim your free Jarvis + course</h3>
+    <div id="merr"></div>
+    <input class="mf" id="mname" type="text" placeholder="Full name" autocomplete="name">
+    <input class="mf" id="memail" type="email" placeholder="Email address" autocomplete="email">
+    <div class="mrow">
+      <input class="mf" id="mcc" type="text" value="+61" autocomplete="tel-country-code">
+      <input class="mf" id="mphone" type="tel" placeholder="Phone - e.g. 412 345 678" autocomplete="tel-national">
+    </div>
+    <label class="mchk"><input type="checkbox" id="msms"><span>I agree to receive transactional SMS messages from BS Group Holdings Pty Ltd about my access. Message frequency varies. Msg &amp; data rates may apply. Reply STOP to opt out.</span></label>
+    <label class="mchk"><input type="checkbox" id="mcost"><span>I understand the platform Jarvis runs on costs about $50 a month, and that this is the only cost. If that is not possible for me right now, I should leave this page.</span></label>
+    <button id="msend" type="button">Claim your free Jarvis &rarr;</button>
+    <div id="mnote">&#128274; Your information is 100% secure.</div>
+    <div id="mfine">SMS is optional - you will only receive texts if you tick the box above, and it is not required to submit this form.</div>
+  </div>
+</div>
+<script>
+(function(){
+  var U="https://klyiqncsgxcrbdgonaaj.supabase.co", K="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtseWlxbmNzZ3hjcmJkZ29uYWFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0MjkxMTQsImV4cCI6MjA5MTAwNTExNH0.WuM-vY6LBoNF2XiQJG2YX5CDOa-AWVGlhobfeuBOLl8";
+  var w=document.getElementById('mwrap');
+  var err=document.getElementById('merr'), send=document.getElementById('msend');
+  var LBL='Claim your free Jarvis →';
+  function src(){ try{ return (new URLSearchParams(location.search)).get('src')||'landing'; }catch(e){ return 'landing'; } }
+  function openM(e){ if(e) e.preventDefault(); w.classList.add('on'); document.body.style.overflow='hidden';
+    setTimeout(function(){ document.getElementById('mname').focus(); },80); }
+  function closeM(){ w.classList.remove('on'); document.body.style.overflow=''; }
+  var links=document.querySelectorAll('a[href="/register/"]');
+  for(var i=0;i<links.length;i++){ links[i].addEventListener('click', openM); }
+  document.getElementById('mx').addEventListener('click', closeM);
+  w.addEventListener('click', function(e){ if(e.target===w) closeM(); });
+  document.addEventListener('keydown', function(e){ if(e.key==='Escape' && w.classList.contains('on')) closeM(); });
+  function ev(email,name,q,a){
+    try{ fetch(U+'/rest/v1/waitlist_events',{method:'POST',
+      headers:{'Content-Type':'application/json','apikey':K,'Authorization':'Bearer '+K,'Prefer':'return=minimal'},
+      body:JSON.stringify({email:email,name:name,question:q,answer:a}),keepalive:true}).catch(function(){}); }catch(e){}
+  }
+  send.addEventListener('click', function(){
+    var name=document.getElementById('mname').value.trim();
+    var email=document.getElementById('memail').value.trim();
+    var cc=document.getElementById('mcc').value.trim();
+    var ph=document.getElementById('mphone').value.trim();
+    var sms=document.getElementById('msms').checked;
+    var cost=document.getElementById('mcost').checked;
+    err.textContent='';
+    if(name.length<2){ err.textContent='Please enter your full name.'; return; }
+    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ err.textContent='Please enter a valid email address.'; return; }
+    if(ph.replace(/\D/g,'').length<7){ err.textContent='Please enter your phone number so we can call you.'; return; }
+    if(!cost){ err.textContent='Please confirm you understand the $50 a month platform cost.'; return; }
+    send.disabled=true; send.textContent='One moment...';
+    fetch(U+'/rest/v1/waitlist',{method:'POST',
+      headers:{'Content-Type':'application/json','apikey':K,'Authorization':'Bearer '+K,'Prefer':'return=minimal'},
+      body:JSON.stringify({name:name,email:email,source:src()})
+    }).then(function(r){
+      if(r.ok||r.status===201||r.status===204||r.status===409){
+        ev(email,name,'phone',cc+' '+ph);
+        ev(email,name,'sms_consent',sms?'yes':'no');
+        ev(email,name,'cost_ack','yes');
+        try{ localStorage.setItem('waitlist.joined','1'); }catch(e){}
+        location.href='/thank-you/';
+      } else { send.disabled=false; send.textContent=LBL; err.textContent='Something went wrong. Please try again.'; }
+    }).catch(function(){ send.disabled=false; send.textContent=LBL; err.textContent='Network problem. Please try again.'; });
+  });
+})();
+</script>
+
 </body>
 </html>
