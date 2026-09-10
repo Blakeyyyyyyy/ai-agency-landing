@@ -193,6 +193,9 @@ footer{border-top:1px solid var(--line);padding:34px 0;text-align:center;font-fa
 .proofstrip .proofimg{flex:0 0 auto;background:transparent;border:0;border-radius:12px;overflow:hidden}
 .proofstrip .proofimg img{width:auto;height:330px;max-width:100%;border-radius:12px;display:block}
 @media(max-width:720px){.proofstrip .proofimg img{height:230px}}
+
+.vslbox video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000}
+.vsloverlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:rgba(0,0,0,.30);cursor:pointer;z-index:3;transition:opacity .25s}
 </style>
 </head>
 <body>
@@ -212,10 +215,10 @@ footer{border-top:1px solid var(--line);padding:34px 0;text-align:center;font-fa
   <h1>Get the $5,500 AI agency course, plus your own <em>Jarvis AI</em> to run it for you. <em>Completely free.</em></h1>
 
   <div class="vslbox" id="vsl" style="margin-top:30px">
-    <div class="poster" id="vslposter">
+    <video id="vslvid" playsinline muted loop preload="auto" poster="/vsl/poster.jpg"><source src="/vsl/vsl.mp4" type="video/mp4"></video>
+    <div class="vsloverlay" id="vsloverlay">
       <div class="play">▶</div>
-      <div style="font-family:var(--mono);font-size:.78rem;letter-spacing:.1em">WATCH: HOW THIS WORKS</div>
-      <div class="clickhint">▶ Tap to play</div>
+      <div class="clickhint">▶ Tap for sound</div>
     </div>
   </div>
 
@@ -340,7 +343,7 @@ footer{border-top:1px solid var(--line);padding:34px 0;text-align:center;font-fa
 <script>
 // ---- switches ----
 var REGISTRATION_OPEN = true;   // false = every CTA swaps to the closed state
-var VSL_URL = "";               // paste the video embed URL here when it exists
+var VSL_URL = "";  // self-hosted <video> used instead; leave empty
 
 if(!REGISTRATION_OPEN){ document.body.classList.add('closed'); }
 if(VSL_URL){
@@ -446,5 +449,22 @@ if(VSL_URL){
 })();
 </script>
 
+
+<script>
+(function(){
+  var vid=document.getElementById('vslvid'), ov=document.getElementById('vsloverlay'), box=document.getElementById('vsl');
+  if(!vid) return;
+  vid.muted=true; var p=vid.play(); if(p&&p.catch)p.catch(function(){});
+  var started=false;
+  function playSound(){
+    if(started) return; started=true;
+    try{ vid.currentTime=0; }catch(e){}
+    vid.muted=false; vid.loop=false; vid.controls=true;
+    var q=vid.play(); if(q&&q.catch)q.catch(function(){ vid.muted=true; vid.play(); });
+    if(ov){ ov.style.opacity='0'; setTimeout(function(){ ov.style.display='none'; },260); }
+  }
+  box.addEventListener('click', playSound);
+})();
+</script>
 </body>
 </html>
