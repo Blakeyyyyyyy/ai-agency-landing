@@ -57,8 +57,8 @@ nav .btn{padding:10px 18px;font-size:.88rem;border-radius:10px}
 /* hero */
 .hero{padding:84px 0 40px;text-align:center;background:
   radial-gradient(60% 50% at 50% 0%,rgba(50,208,159,.10),transparent 70%)}
-.hero h1{font-size:clamp(1.55rem,6vw,3.25rem);line-height:1.16;max-width:1040px;margin:0 auto 20px}
-@media(max-width:560px){.hero h1{font-size:1.6rem;line-height:1.2;letter-spacing:-.4px}.hero .wrap{padding:0 12px}}
+.hero h1{font-size:clamp(1.95rem,6.6vw,3.4rem);line-height:1.14;max-width:1040px;margin:0 auto 20px}
+@media(max-width:560px){.hero .wrap{padding:0 5px}.hero h1{letter-spacing:-.6px}}
 .hero h1 em{font-style:normal;color:var(--green)}
 .hero p{color:var(--dim);max-width:640px;margin:0 auto 28px;font-size:1.06rem}
 
@@ -411,12 +411,12 @@ if(VSL_URL){
       body:JSON.stringify({name:name,email:email,source:src()})
     }).then(function(r){
       if(r.ok||r.status===201||r.status===204||r.status===409){
-        try{fetch('https://services.leadconnectorhq.com/hooks/5ScFByVzgeiOD3WsNptM/webhook-trigger/d6fb8bfa-6adb-4806-afbb-5546034c0b54',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:name,email:email,phone:cc+' '+ph,source:src(),tag:'organic-waitlist'}),keepalive:true}).catch(function(){});}catch(e){}
+        try{fetch('https://services.leadconnectorhq.com/hooks/5ScFByVzgeiOD3WsNptM/webhook-trigger/d6fb8bfa-6adb-4806-afbb-5546034c0b54',{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify({name:name,email:email,phone:cc+' '+ph,source:src(),tag:'organic-waitlist'}),keepalive:true}).catch(function(){});}catch(e){}
         ev(email,name,'phone',cc+' '+ph);
         ev(email,name,'sms_consent',sms?'yes':'no');
         ev(email,name,'cost_ack','yes');
         try{ localStorage.setItem('waitlist.joined','1'); }catch(e){}
-        if(window.APPLY_MODE){ try{fetch('https://services.leadconnectorhq.com/hooks/5ScFByVzgeiOD3WsNptM/webhook-trigger/07916f6a-a599-47d5-b495-878b9f239cee',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:name,email:email,phone:cc+' '+ph,tag:'applied-super-hot',event:'applied'}),keepalive:true}).catch(function(){});}catch(e){} ev(email,name,'landing_apply','1'); }
+        if(window.APPLY_MODE){ try{fetch('https://services.leadconnectorhq.com/hooks/5ScFByVzgeiOD3WsNptM/webhook-trigger/07916f6a-a599-47d5-b495-878b9f239cee',{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify({name:name,email:email,phone:cc+' '+ph,tag:'applied-super-hot',event:'applied'}),keepalive:true}).catch(function(){});}catch(e){} ev(email,name,'landing_apply','1'); }
         location.href='/thank-you/';
       } else { send.disabled=false; send.textContent=LBL; err.textContent='Something went wrong. Please try again.'; }
     }).catch(function(){ send.disabled=false; send.textContent=LBL; err.textContent='Network problem. Please try again.'; });
