@@ -410,10 +410,39 @@ if(VSL_URL){
         ev(email,name,'sms_consent',sms?'yes':'no');
         ev(email,name,'cost_ack','yes');
         try{ localStorage.setItem('waitlist.joined','1'); }catch(e){}
+        if(window.APPLY_MODE){ try{fetch('https://services.leadconnectorhq.com/hooks/5ScFByVzgeiOD3WsNptM/webhook-trigger/07916f6a-a599-47d5-b495-878b9f239cee',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:name,email:email,phone:cc+' '+ph,tag:'applied-super-hot',event:'applied'}),keepalive:true}).catch(function(){});}catch(e){} ev(email,name,'landing_apply','1'); }
         location.href='/thank-you/';
       } else { send.disabled=false; send.textContent=LBL; err.textContent='Something went wrong. Please try again.'; }
     }).catch(function(){ send.disabled=false; send.textContent=LBL; err.textContent='Network problem. Please try again.'; });
   });
+
+  // ---- returning waitlist lead: APPLY mode ----
+  (function(){
+    var returning=false, lead={};
+    try{ if((new URLSearchParams(location.search)).get('from')==='waitlist') returning=true; }catch(e){}
+    try{ var raw=localStorage.getItem('wl.lead'); if(raw){ lead=JSON.parse(raw); returning=true; } }catch(e){}
+    if(!returning) return;
+    window.APPLY_MODE=true; window.APPLY_LEAD=lead;
+    // log the landing-page arrival
+    if(lead.email) ev(lead.email, lead.name||'', 'landing_land', '1');
+    // pre-fill + relabel the modal as the application
+    try{
+      if(lead.name) document.getElementById('mname').value=lead.name;
+      if(lead.email) document.getElementById('memail').value=lead.email;
+      if(lead.phone){ var ph=lead.phone.replace(/^\+\d+\s*/,''); document.getElementById('mphone').value=ph.trim(); }
+      document.getElementById('mcost').checked=true;
+      document.getElementById('mtitle').textContent='Confirm to claim your ,500 spot';
+      send.textContent='Claim my spot →'; LBL='Claim my spot →';
+    }catch(e){}
+    // make the on-page CTAs say claim, and nudge them to the video
+    var ctas=document.querySelectorAll('a.btn'); for(var i=0;i<ctas.length;i++){ ctas[i].textContent='Claim my spot →'; }
+    var h=document.querySelector('.hero h1'); if(h) h.insertAdjacentHTML('afterend','<p style="color:var(--green);font-weight:900;margin-top:8px">You qualified. Watch this, then claim your spot below.</p>');
+    try{ document.getElementById('vsl').scrollIntoView({behavior:'smooth',block:'center'}); }catch(e){}
+  })();
+  // fire webhook #2 (applied tag) on submit when in APPLY mode -- patch the send success
+  (function(){
+    var _f=window.fetch;
+  })();
 })();
 </script>
 

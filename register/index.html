@@ -588,7 +588,19 @@ select.cc:focus{border-color:var(--accent);background:#0f151a;box-shadow:0 0 0 3
     }
   }
   wire('q1','would_use','q2');
-  wire('q2','has_capital','done');
+  // q2: "Yes ready" -> landing page to watch VSL + apply (carry their info). "Not right now" -> soft close.
+  (function(){
+    var box=document.getElementById('q2'), btns=box.querySelectorAll('.opt[data-v]');
+    for(var i=0;i<btns.length;i++){(function(b){
+      b.addEventListener('click',function(){
+        A.has_capital=b.getAttribute('data-v'); logEvent('has_capital',A.has_capital); saveAnswers(true); b.classList.add('picked');
+        if(A.has_capital==='Yes ready'){
+          try{ localStorage.setItem('wl.lead',JSON.stringify({name:JOINED_NAME||'',email:JOINED||'',phone:A.phone||''})); }catch(e){}
+          window.setTimeout(function(){ location.href='/?from=waitlist'; },220);
+        } else { window.setTimeout(function(){ finish(); },170); }
+      });
+    })(btns[i]);}
+  })();
 
   function finish(){
     // The number is captured on the first card now, so this is just the close.
