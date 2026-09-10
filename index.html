@@ -466,8 +466,10 @@ if(VSL_URL){
     try{ var raw=localStorage.getItem('wl.lead'); if(raw){ lead=JSON.parse(raw); returning=true; } }catch(e){}
     if(!returning) return;
     window.APPLY_MODE=true; window.APPLY_LEAD=lead;
-    // log the landing-page arrival
-    if(lead.email) ev(lead.email, lead.name||'', 'landing_land', '1');
+    // log the landing-page arrival. Cross-domain leads arrive without an email
+    // (localStorage does not carry), so fall back to a marker id — we still
+    // count the arrival even when we don't yet know who it is.
+    ev(lead.email || 'waitlist-visitor', lead.name||'', 'landing_land', '1');
     // pre-fill + relabel the modal as the application
     try{
       if(lead.name) document.getElementById('mname').value=lead.name;
