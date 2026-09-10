@@ -180,6 +180,16 @@ footer{border-top:1px solid var(--line);padding:34px 0;text-align:center;font-fa
 #mfine{text-align:center;color:#767676;font-size:.74rem;line-height:1.5;margin-top:12px}
 @media(max-width:560px){#mcard{padding:28px 22px}#mcard h3{font-size:1.45rem}.mrow{grid-template-columns:104px 1fr}}
 
+
+/* --- edits 2026-09-10 --- */
+.stat span strong{display:block;color:var(--ink);font-family:var(--display);font-size:.92rem;font-weight:900;letter-spacing:-.2px;text-transform:none;line-height:1.25;margin-bottom:4px}
+.stat span strong em{color:var(--green);font-style:normal}
+@media(max-width:720px){.stats .stat{align-items:center}.stat span{flex:1}}
+/* compact proof strip */
+.proofstrip{grid-template-columns:1fr 1fr!important;gap:10px!important;max-width:560px;margin:28px auto 0!important}
+@media(min-width:760px){.proofstrip{grid-template-columns:repeat(4,1fr)!important}.proofstrip .proofwide{grid-column:auto!important}}
+.proofstrip .proofimg{border-radius:12px}
+.proofstrip .proofimg img{width:100%;height:190px;object-fit:cover;object-position:top}
 </style>
 </head>
 <body>
@@ -196,7 +206,7 @@ footer{border-top:1px solid var(--line);padding:34px 0;text-align:center;font-fa
 
 <header class="hero" id="top"><div class="wrap">
   <div class="eyebrow">A free course · Start Your AI Agency</div>
-  <h1>Get the $5,500 AI agency course, plus your own <em>Jarvis</em> AI to run it for you. <em>Completely free.</em></h1>
+  <h1>Get the $5,500 AI agency course, plus your own <em>Jarvis AI</em> to run it for you. <em>Completely free.</em></h1>
 
   <div class="vslbox" id="vsl" style="margin-top:30px">
     <div class="poster" id="vslposter">
@@ -209,8 +219,9 @@ footer{border-top:1px solid var(--line);padding:34px 0;text-align:center;font-fa
     <a class="btn big openonly" href="/register/">Claim Your Free Jarvis + Course →</a>
   </div>
 
+  <div class="eyebrow" style="margin-top:44px">What you get, for free</div>
   <div class="stats">
-    <div class="stat"><b>1</b><span>AI business partner, built by you</span></div>
+    <div class="stat"><b>1</b><span><strong>Your very own Super Agent (like <em>Jarvis</em>)</strong>Your AI business partner, built by you</span></div>
     <div class="stat"><b>3</b><span>ready-to-sell AI services</span></div>
     <div class="stat"><b>$5,500</b><span>full AI agency course, free</span></div>
   </div>
@@ -238,7 +249,7 @@ footer{border-top:1px solid var(--line);padding:34px 0;text-align:center;font-fa
       <div class="tag">Step three · Land the client</div>
       <h3>Sell it with Jarvis.</h3>
       <p>Fresh leads every night. Jarvis preps the call. You press the button.</p>
-      <ul><li>Fresh leads daily, on autopilot</li><li>Scripts and objections handled</li><li>Proposal and invoice included</li></ul>
+      <ul><li>Fresh leads daily, on autopilot</li><li>Scripts and objections handled</li></ul>
     </div>
   </div>
 </div></section>
@@ -248,10 +259,9 @@ footer{border-top:1px solid var(--line);padding:34px 0;text-align:center;font-fa
   <h2>The full stack. Zero to start.</h2>
   <p class="lead">Not a gated preview. Every build, prompt, script and system I use, in the order you need them.</p>
   <div class="pkg">
-    <div class="pkgrow"><div><b>The full AI Agency course</b><span>From nothing to your first paying client</span></div><i>$2,000</i></div>
+    <div class="pkgrow"><div><b>The full AI Agency course</b><span>From nothing to your first paying client</span></div><i>$2,500</i></div>
     <div class="pkgrow"><div><b>Your own Jarvis, set up step by step</b><span>The super agent that runs it all for you</span></div><i>$2,000</i></div>
     <div class="pkgrow"><div><b>3 ready-to-sell AI services</b><span>AI websites, an AI receptionist, property video walkthroughs</span></div><i>$1,000</i></div>
-    <div class="pkgrow"><div><b>Word-for-word sales scripts</b><span>Exactly what to say to land the client</span></div><i>$500</i></div>
     <div class="pkgtotal"><span>TOTAL VALUE <s>$5,500</s></span><b>FREE</b></div>
     <p class="pkgnote">This will not be free forever. When the spots are used, it closes.</p>
     <div style="text-align:center;margin-top:20px"><a class="btn big openonly" href="/register/">Claim Your Free Jarvis + Course →</a></div>
@@ -346,7 +356,7 @@ if(VSL_URL){
       <input class="mf" id="mcc" type="text" value="+61" autocomplete="tel-country-code">
       <input class="mf" id="mphone" type="tel" placeholder="Phone - e.g. 412 345 678" autocomplete="tel-national">
     </div>
-    <label class="mchk"><input type="checkbox" id="msms"><span>I agree to receive transactional SMS messages from BS Group Holdings Pty Ltd about my access. Message frequency varies. Msg &amp; data rates may apply. Reply STOP to opt out.</span></label>
+    <label class="mchk"><input type="checkbox" id="msms"><span>I agree to receive transactional SMS messages from The AI Agency Builder about my access. Message frequency varies. Msg &amp; data rates may apply. Reply STOP to opt out.</span></label>
     <label class="mchk"><input type="checkbox" id="mcost"><span>I understand the platform Jarvis runs on costs about $50 a month, and that this is the only cost. If that is not possible for me right now, I should leave this page.</span></label>
     <button id="msend" type="button">Claim your free Jarvis &rarr;</button>
     <div id="mnote">&#128274; Your information is 100% secure.</div>
