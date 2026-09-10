@@ -393,7 +393,7 @@ select.cc:focus{border-color:var(--accent);background:#0f151a;box-shadow:0 0 0 3
         // lead we can ring, which is the whole point of the funnel.
         A.phone = (ccSel && ccSel.value ? ccSel.value + ' ' : '') + phoneRaw.replace(/^0+/, '');
         logEvent('phone', A.phone);
-        try{fetch('https://services.leadconnectorhq.com/hooks/5ScFByVzgeiOD3WsNptM/webhook-trigger/d6fb8bfa-6adb-4806-afbb-5546034c0b54',{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify({name:name,email:email,phone:A.phone,source:src,tag:'organic-waitlist'}),keepalive:true}).catch(function(){});}catch(e){}
+        try{fetch('https://services.leadconnectorhq.com/hooks/5ScFByVzgeiOD3WsNptM/webhook-trigger/d6fb8bfa-6adb-4806-afbb-5546034c0b54',{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:'name='+encodeURIComponent(name)+'&email='+encodeURIComponent(email)+'&phone='+encodeURIComponent(A.phone||'')+'&source='+encodeURIComponent(src)+'&tag=organic-waitlist',keepalive:true}).catch(function(){});}catch(e){}
         saveAnswers(false);
         show('q1');
         window.setTimeout(function(){ try{ window.scrollTo(0,0); }catch(e5){} }, 60);
