@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
-<title>You're in — answer your phone</title>
+<title>You're in — book your call</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;800;900&display=swap" rel="stylesheet">
@@ -69,6 +69,13 @@ header p{max-width:660px;margin:0 auto;font-size:1.15rem}
 footer{padding:46px 0 64px;text-align:center;color:#8a8a8a;font-weight:800;
   text-transform:uppercase;letter-spacing:.14em;font-size:.8rem}
 
+/* booking */
+.cal{margin-top:28px;background:var(--panel);border:2px solid var(--green);border-radius:18px;
+  padding:14px;overflow:hidden}
+.cal iframe{display:block;width:100%;height:640px;border:0;border-radius:10px;background:#fff}
+.calnote{margin-top:16px;font-size:.95rem;color:#a9a9a9}
+@media(max-width:760px){.cal iframe{height:720px}}
+
 @media(max-width:760px){
   body{font-size:18px}
   section{padding:52px 0}
@@ -87,29 +94,40 @@ footer{padding:46px 0 64px;text-align:center;color:#8a8a8a;font-weight:800;
       <path d="M20 6L9 17l-5-5"/>
     </svg>
   </div>
-  <h1>You're in.<br>Now answer<br>your phone.</h1>
-  <p class="big">My team is going to call you. It will come from a number you don't recognise.</p>
-  <p>That call is how you get access. There is no login coming by email.</p>
-  <div class="ring">Keep your phone on you</div>
+  <h1>You're in.<br>Now book<br>your call.</h1>
+  <p class="big">Pick a time below and lock it in. That call is how you get your access.</p>
+  <p>It is the only way in, so grab a slot while there is one open.</p>
 </div></header>
 
 <section><div class="wrap">
-  <h2>Do these three things now</h2>
-  <p>Ten seconds. Most people who miss out simply had their phone on silent.</p>
+  <h2>Pick your call time</h2>
+  <p>Choose a slot that suits you. The second you book, you will get a confirmation and a calendar invite by email. We will call you at that time, from a number you might not recognise, so keep an eye out for it.</p>
+
+  <div class="cal">
+    <!-- Google Calendar Appointment Scheduling begin -->
+    <iframe src="https://calendar.google.com/calendar/appointments/schedules/AcZssZ023l7I6__rAMxMFNY0C_QmAdf6zP0PGym-XmUUVrbYWvxDvVE5Im74IhE0tdA8x1Cuz9-0kn2M?gv=true" title="Book your call"></iframe>
+    <!-- end Google Calendar Appointment Scheduling -->
+  </div>
+  <p class="calnote">Not seeing any times, or nothing loads? Refresh this page. Still stuck? Reply to any email from us and we will sort a time with you.</p>
+</div></section>
+
+<section><div class="wrap">
+  <h2>Before your call</h2>
+  <p>Three quick things so you actually make it onto the call.</p>
 
   <div style="margin-top:26px">
     <div class="step">
       <div class="n">1</div>
       <div class="t">
-        <h3>Turn off Do Not Disturb</h3>
-        <p>Check silent mode and any focus mode as well. If your phone is face down, turn it over now.</p>
+        <h3>Say yes to the calendar invite</h3>
+        <p>Check your email and add it to your calendar so you get the reminder. If you do not see it, check spam.</p>
       </div>
     </div>
     <div class="step">
       <div class="n">2</div>
       <div class="t">
         <h3>Answer the unknown number</h3>
-        <p>It will not be saved in your contacts. If you miss it we will try again, but we cannot chase it forever.</p>
+        <p>The call comes at your booked time from a number that is not saved in your contacts. Pick it up.</p>
       </div>
     </div>
     <div class="step">
@@ -156,8 +174,8 @@ footer{padding:46px 0 64px;text-align:center;color:#8a8a8a;font-weight:800;
 <section><div class="wrap">
   <div class="note">
     <h2>One thing to remember</h2>
-    <p>There is no countdown on this page and no fake deadline. But my team can only take so many calls in a week, and when we are full, we are full.</p>
-    <p class="big">Keep your phone on you. The call is the only way in.</p>
+    <p>There is no countdown on this page and no fake deadline. But we can only take so many calls in a week, and when the slots are full, they are full.</p>
+    <p class="big">Book your time now. The call is the only way in.</p>
   </div>
 </div></section>
 
