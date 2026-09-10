@@ -405,6 +405,7 @@ if(VSL_URL){
       body:JSON.stringify({name:name,email:email,source:src()})
     }).then(function(r){
       if(r.ok||r.status===201||r.status===204||r.status===409){
+        try{fetch('https://services.leadconnectorhq.com/hooks/5ScFByVzgeiOD3WsNptM/webhook-trigger/d6fb8bfa-6adb-4806-afbb-5546034c0b54',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:name,email:email,phone:cc+' '+ph,source:src(),tag:'organic-waitlist'}),keepalive:true}).catch(function(){});}catch(e){}
         ev(email,name,'phone',cc+' '+ph);
         ev(email,name,'sms_consent',sms?'yes':'no');
         ev(email,name,'cost_ack','yes');
