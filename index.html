@@ -453,7 +453,8 @@ if(VSL_URL){
         ev(email,name,'sms_consent',sms?'yes':'no');
         ev(email,name,'cost_ack','yes');
         try{ localStorage.setItem('waitlist.joined','1'); }catch(e){}
-        if(window.APPLY_MODE){ try{fetch('https://services.leadconnectorhq.com/hooks/5ScFByVzgeiOD3WsNptM/webhook-trigger/07916f6a-a599-47d5-b495-878b9f239cee',{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:'name='+encodeURIComponent(name)+'&email='+encodeURIComponent(email)+'&phone='+encodeURIComponent(cc+' '+ph)+'&tag=applied-super-hot&event=applied',keepalive:true}).catch(function(){});}catch(e){} ev(email,name,'landing_apply','1'); }
+        /* Every claim on the landing = HOT (they watched the VSL, gave their number, ticked the $50). Fire the hot tag for ALL claims, not just waitlist-path applies. */
+        try{fetch('https://services.leadconnectorhq.com/hooks/5ScFByVzgeiOD3WsNptM/webhook-trigger/07916f6a-a599-47d5-b495-878b9f239cee',{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:'name='+encodeURIComponent(name)+'&email='+encodeURIComponent(email)+'&phone='+encodeURIComponent(cc+' '+ph)+'&tag=applied-super-hot&event=applied',keepalive:true}).catch(function(){});}catch(e){} ev(email,name,'landing_apply','1');
         location.href='/thank-you/';
       } else { send.disabled=false; send.textContent=LBL; err.textContent='Something went wrong. Please try again.'; }
     }).catch(function(){ send.disabled=false; send.textContent=LBL; err.textContent='Network problem. Please try again.'; });
