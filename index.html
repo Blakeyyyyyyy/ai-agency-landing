@@ -403,6 +403,7 @@ if(VSL_URL){
       </select>
       <input class="mf" id="mphone" type="tel" placeholder="Phone - e.g. 412 345 678" autocomplete="tel-national">
     </div>
+    <div id="mphonehint" style="font-size:12.5px;color:#32d09f;font-weight:700;margin:2px 2px 0;line-height:1.45">Make sure your phone number is correct. This is how we call you to unlock your Jarvis. Wrong number, no access.</div>
     <label class="mchk"><input type="checkbox" id="msms"><span>I agree to receive transactional SMS messages from The AI Agency Builder about my access. Message frequency varies. Msg &amp; data rates may apply. Reply STOP to opt out.</span></label>
     <label class="mchk"><input type="checkbox" id="mcost"><span>I understand the platform Jarvis runs on costs about $50 a month, and that this is the only cost. If that is not possible for me right now, I should leave this page.</span></label>
     <button id="msend" type="button">Claim your free Jarvis &rarr;</button>
@@ -440,7 +441,11 @@ if(VSL_URL){
     err.textContent='';
     if(name.length<2){ err.textContent='Please enter your full name.'; return; }
     if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ err.textContent='Please enter a valid email address.'; return; }
-    if(ph.replace(/\D/g,'').length<7){ err.textContent='Please enter your phone number so we can call you.'; return; }
+    var pdig=ph.replace(/\D/g,''); if(pdig.charAt(0)==='0') pdig=pdig.slice(1);
+    if(cc==='+1'&&pdig.length===11&&pdig.charAt(0)==='1') pdig=pdig.slice(1);
+    var PLEN={'+1':[10,10],'+44':[9,11],'+61':[8,10],'+64':[7,11],'+353':[7,11],'+91':[10,10],'+92':[9,11],'+880':[8,11],'+63':[9,11],'+62':[8,13],'+60':[7,11],'+65':[8,8],'+27':[9,10],'+234':[8,11],'+254':[9,10],'+233':[9,10],'+971':[8,10],'+966':[8,10],'+49':[9,12],'+33':[9,9],'+31':[9,9],'+34':[9,9],'+39':[8,11],'+48':[9,9],'+55':[10,11],'+52':[10,10],'+81':[9,11],'+82':[8,11],'+94':[9,9],'+977':[9,11]};
+    var pr=PLEN[cc]||[7,15];
+    if(pdig.length<pr[0]||pdig.length>pr[1]){ err.textContent='That number does not look right for the country you picked. Please check it - this is how we call you to unlock your Jarvis.'; return; }
     if(!cost){ err.textContent='Please confirm you understand the $50 a month platform cost.'; return; }
     send.disabled=true; send.textContent='One moment...';
     fetch(U+'/rest/v1/waitlist',{method:'POST',
