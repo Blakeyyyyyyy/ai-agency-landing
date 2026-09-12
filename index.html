@@ -465,6 +465,26 @@ if(VSL_URL){
     }).catch(function(){ send.disabled=false; send.textContent=LBL; err.textContent='Network problem. Please try again.'; });
   });
 
+  // ---- live phone check as they type (guides them before submit; does not touch submit) ----
+  (function(){
+    var pin=document.getElementById('mphone'), ccsel=document.getElementById('mcc'), hint=document.getElementById('mphonehint');
+    if(!pin||!ccsel||!hint) return;
+    var DEF=hint.textContent, DEFCOL=hint.style.color||'#32d09f';
+    var PLEN={'+1':[10,10],'+44':[9,11],'+61':[8,10],'+64':[7,11],'+353':[7,11],'+91':[10,10],'+92':[9,11],'+880':[8,11],'+63':[9,11],'+62':[8,13],'+60':[7,11],'+65':[8,8],'+27':[9,10],'+234':[8,11],'+254':[9,10],'+233':[9,10],'+971':[8,10],'+966':[8,10],'+49':[9,12],'+33':[9,9],'+31':[9,9],'+34':[9,9],'+39':[8,11],'+48':[9,9],'+55':[10,11],'+52':[10,10],'+81':[9,11],'+82':[8,11],'+94':[9,9],'+977':[9,11]};
+    function check(){
+      var cc=ccsel.value.trim(), raw=pin.value.trim();
+      if(!raw){ hint.textContent=DEF; hint.style.color=DEFCOL; return; }
+      var d=raw.replace(/\D/g,''); if(d.charAt(0)==='0') d=d.slice(1);
+      if(cc==='+1'&&d.length===11&&d.charAt(0)==='1') d=d.slice(1);
+      var r=PLEN[cc]||[7,15];
+      if(d.length>=r[0]&&d.length<=r[1]){ hint.textContent='✓ Number looks good'; hint.style.color='#32d09f'; }
+      else if(d.length<r[0]){ hint.textContent='That looks too short for the country you picked - check your number.'; hint.style.color='#e0a800'; }
+      else { hint.textContent='That looks like too many digits for the country you picked - check your number.'; hint.style.color='#e0a800'; }
+    }
+    pin.addEventListener('input',check);
+    ccsel.addEventListener('change',check);
+  })();
+
   // ---- returning waitlist lead: APPLY mode ----
   (function(){
     var returning=false, lead={};
