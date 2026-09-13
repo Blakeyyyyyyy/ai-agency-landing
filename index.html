@@ -181,17 +181,17 @@ footer{border-top:1px solid var(--line);padding:34px 0;text-align:center;font-fa
 #mwrap.on{display:flex}
 #mcard{background:#141414;border:2px solid #2e2e2e;border-radius:18px;width:100%;max-width:480px;padding:26px 24px;position:relative;margin:auto;font-family:var(--display);animation:mrise .28s cubic-bezier(.2,.7,.3,1) both}
 @keyframes mrise{from{transform:translateY(14px);opacity:0}to{transform:none;opacity:1}}
-#mcard h3{color:#fff;font-weight:900;text-transform:uppercase;letter-spacing:-.4px;font-size:1.72rem;line-height:1.1;margin:0 0 22px;padding-right:44px}
+#mcard h3{color:#fff;font-weight:900;text-transform:uppercase;letter-spacing:-.4px;font-size:1.4rem;line-height:1.08;margin:0 0 16px;padding-right:40px}
 #mx{position:absolute;top:20px;right:20px;width:34px;height:34px;border-radius:50%;background:#242424;border:1px solid #383838;color:#fff;font-size:1.15rem;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center}
-.mf{width:100%;background:#0d0d0d;border:2px solid #333;border-radius:11px;color:#fff;font-family:var(--display);font-weight:700;font-size:1rem;padding:13px 14px;margin-bottom:9px;outline:none}
+.mf{width:100%;background:#0d0d0d;border:2px solid #333;border-radius:10px;color:#fff;font-family:var(--display);font-weight:700;font-size:.95rem;padding:10px 12px;margin-bottom:7px;outline:none}
 .mf::placeholder{color:#7d7d7d;font-weight:600}
 .mf:focus{border-color:var(--green)}
 .mrow{display:grid;grid-template-columns:118px 1fr;gap:10px}
-.mchk{display:flex;gap:11px;align-items:flex-start;background:#0d0d0d;border:2px solid #333;border-radius:11px;padding:11px 13px;margin-bottom:9px;cursor:pointer}
-.mchk input{appearance:none;-webkit-appearance:none;flex:0 0 22px;height:22px;margin-top:1px;border:2px solid #555;border-radius:6px;background:#141414;cursor:pointer;position:relative}
+.mchk{display:flex;gap:9px;align-items:flex-start;background:#0d0d0d;border:2px solid #333;border-radius:10px;padding:9px 11px;margin-bottom:7px;cursor:pointer}
+.mchk input{appearance:none;-webkit-appearance:none;flex:0 0 18px;height:18px;margin-top:1px;border:2px solid #555;border-radius:5px;background:#141414;cursor:pointer;position:relative}
 .mchk input:checked{background:var(--green);border-color:var(--green)}
 .mchk input:checked::after{content:'';position:absolute;left:6px;top:2px;width:6px;height:11px;border:solid #0a0a0a;border-width:0 3px 3px 0;transform:rotate(45deg)}
-.mchk span{color:#dcdcdc;font-size:.85rem;line-height:1.45;font-weight:600}
+.mchk span{color:#b8b8b8;font-size:.72rem;line-height:1.35;font-weight:600}
 #msend{width:100%;background:var(--green);color:#04140f;border:0;border-radius:12px;font-family:var(--display);font-weight:900;font-size:1.12rem;text-transform:uppercase;padding:19px;cursor:pointer;margin-top:6px}
 #msend:disabled{opacity:.55;cursor:default}
 #mnote{text-align:center;color:#9a9a9a;font-size:.82rem;margin-top:14px;font-weight:600}
@@ -430,9 +430,9 @@ if(VSL_URL){
       </select>
       <input class="mf" id="mphone" type="tel" placeholder="Phone - e.g. 412 345 678" autocomplete="tel-national">
     </div>
-    <div id="mphonehint" style="font-size:12.5px;color:#32d09f;font-weight:700;margin:2px 2px 0;line-height:1.45">Make sure your phone number is correct. This is how we call you to unlock your Jarvis. Wrong number, no access.</div>
+    <div id="mphonehint" style="font-size:11.5px;color:#32d09f;font-weight:700;margin:1px 2px 0;line-height:1.4">Make sure your number's correct — it's how we call to unlock your Jarvis.</div>
     <label class="mchk"><input type="checkbox" id="msms"><span>I agree to receive transactional SMS messages from The AI Agency Builder about my access. Message frequency varies. Msg &amp; data rates may apply. Reply STOP to opt out.</span></label>
-    <label class="mchk"><input type="checkbox" id="mcost"><span>I understand the platform Jarvis runs on costs about $50 a month, and that this is the only cost. If that is not possible for me right now, I should leave this page.</span></label>
+    <label class="mchk"><input type="checkbox" id="mcost"><span>I understand the platform Jarvis runs on is about $50/month — the only cost. If that's not possible right now, this isn't for me.</span></label>
     <button id="msend" type="button">Claim your free Jarvis &rarr;</button>
     <div id="mnote">&#128274; Your information is 100% secure.</div>
     <div id="mfine">SMS is optional - you will only receive texts if you tick the box above, and it is not required to submit this form. By submitting, you agree to our <a href="/privacy/" target="_blank" style="color:#32d09f">Privacy Policy</a> and <a href="/terms/" target="_blank" style="color:#32d09f">Terms</a>.</div>
