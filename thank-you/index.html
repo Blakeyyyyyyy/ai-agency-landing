@@ -4,85 +4,66 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
-<title>You're in — we'll call you</title>
+<title>You're in — watch this</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;800;900&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#0a0a0a;          /* neutral black, no green tint */
-  --panel:#161616;
-  --line:#2c2c2c;
-  --white:#ffffff;
-  --body:#e6e6e6;        /* near-white body copy, not grey-green */
-  --green:#32d09f;
+  --bg:#0a0a0a; --panel:#161616; --line:#2c2c2c; --white:#fff; --body:#e6e6e6; --green:#32d09f;
   --f:'Archivo',Arial,Helvetica,sans-serif;
 }
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:var(--bg);color:var(--body);font-family:var(--f);font-weight:600;
-  line-height:1.6;font-size:19px;-webkit-font-smoothing:antialiased}
-a{color:inherit;text-decoration:none}
-.wrap{max-width:920px;margin:0 auto;padding:0 24px}
-
+body{background:var(--bg);color:var(--body);font-family:var(--f);font-weight:600;line-height:1.6;font-size:19px;-webkit-font-smoothing:antialiased}
+img{max-width:100%}
+.wrap{max-width:860px;margin:0 auto;padding:0 20px}
 h1,h2,h3{color:var(--white);font-weight:900;text-transform:uppercase;letter-spacing:-.5px;line-height:1.05}
-h1{font-size:clamp(2.4rem,7vw,4rem);margin-bottom:24px}
-h2{font-size:clamp(1.7rem,4.6vw,2.6rem);margin-bottom:20px}
-h3{font-size:1.25rem;letter-spacing:0;margin-bottom:10px}
+h1{font-size:clamp(2.3rem,6.5vw,3.7rem);margin-bottom:18px}
+h2{font-size:clamp(1.6rem,4.4vw,2.4rem);margin-bottom:18px}
+h3{font-size:1.2rem;letter-spacing:0;margin-bottom:8px}
 p{font-size:1.06rem;line-height:1.7}
-p+p{margin-top:16px}
-.big{font-size:1.2rem;color:var(--white);font-weight:800}
+p+p{margin-top:14px}
+.big{font-size:1.18rem;color:var(--white);font-weight:800}
 em{font-style:normal;color:var(--green)}
-
-section{padding:72px 0;border-top:2px solid var(--line)}
+section{padding:60px 0;border-top:2px solid var(--line)}
 
 /* hero */
-header{padding:72px 0 68px;text-align:center}
-.tick{width:74px;height:74px;border-radius:50%;background:var(--green);
-  display:flex;align-items:center;justify-content:center;margin:0 auto 30px}
-.tick svg{width:38px;height:38px}
-header p{max-width:660px;margin:0 auto;font-size:1.15rem}
-.ring{display:inline-block;margin-top:30px;background:var(--white);color:#000;
-  font-weight:900;text-transform:uppercase;letter-spacing:.02em;
-  font-size:1rem;padding:15px 26px;border-radius:10px}
+header{padding:64px 0 44px;text-align:center}
+.tick{width:70px;height:70px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;margin:0 auto 26px}
+.tick svg{width:36px;height:36px}
+header p{max-width:620px;margin:0 auto;font-size:1.14rem}
+.ring{display:inline-block;margin-top:26px;background:var(--white);color:#000;font-weight:900;text-transform:uppercase;letter-spacing:.02em;font-size:1rem;padding:14px 24px;border-radius:10px}
 
-/* numbered steps */
-.step{display:flex;gap:22px;align-items:flex-start;padding:26px 0;border-bottom:1px solid var(--line)}
+/* video */
+.vid-sec{text-align:center;padding-top:8px}
+.vbox{margin:0 auto;max-width:760px;aspect-ratio:16/9;background:#0d0d0d;border:2px solid var(--green);border-radius:16px;overflow:hidden;position:relative;display:flex;align-items:center;justify-content:center}
+.vbox iframe,.vbox video{position:absolute;inset:0;width:100%;height:100%;border:0}
+.vplace{text-align:center;color:#9a9a9a;padding:20px}
+.vplace .play{width:74px;height:74px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
+.vplace .play svg{width:30px;height:30px;margin-left:4px}
+.vplace b{color:#fff;display:block;font-size:1.15rem;font-weight:900;text-transform:uppercase;letter-spacing:.02em;margin-bottom:6px}
+.vcap{margin-top:18px;color:var(--white);font-weight:800;font-size:1.12rem}
+
+/* steps */
+.step{display:flex;gap:20px;align-items:flex-start;padding:24px 0;border-bottom:1px solid var(--line)}
 .step:last-child{border-bottom:0}
-.step .n{flex:0 0 54px;height:54px;border-radius:12px;background:var(--white);color:#000;
-  display:flex;align-items:center;justify-content:center;font-weight:900;font-size:1.5rem}
+.step .n{flex:0 0 50px;height:50px;border-radius:12px;background:var(--white);color:#000;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:1.4rem}
 .step .t{flex:1}
 
-/* two-up */
-.two{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:30px}
-.box{background:var(--panel);border:2px solid var(--line);border-radius:16px;padding:28px 26px}
-.box h3{color:var(--green)}
+/* modules */
+.mods{margin-top:26px;border-top:2px solid var(--line)}
+.mod{display:flex;gap:18px;align-items:baseline;padding:14px 2px;border-bottom:1px solid var(--line)}
+.mod b{color:var(--green);font-weight:900;min-width:70px;font-size:1rem;text-transform:uppercase}
+.mod span{color:var(--white);font-weight:700;font-size:1.04rem}
 
-/* module list */
-.mods{margin-top:30px;border-top:2px solid var(--line)}
-.mod{display:flex;gap:20px;align-items:baseline;padding:16px 2px;border-bottom:1px solid var(--line)}
-.mod b{color:var(--green);font-weight:900;min-width:74px;font-size:1rem;text-transform:uppercase}
-.mod span{color:var(--white);font-weight:700;font-size:1.05rem}
-
-/* closing */
-.note{background:var(--panel);border:2px solid var(--green);border-radius:18px;padding:36px 32px}
-
-footer{padding:46px 0 64px;text-align:center;color:#8a8a8a;font-weight:800;
-  text-transform:uppercase;letter-spacing:.14em;font-size:.8rem}
-
-/* booking (optional) */
-.cal{margin-top:28px;background:var(--panel);border:2px solid var(--green);border-radius:18px;
-  padding:14px;overflow:hidden}
-.cal iframe{display:block;width:100%;height:640px;border:0;border-radius:10px;background:#fff}
-.calnote{margin-top:16px;font-size:.95rem;color:#a9a9a9}
-@media(max-width:760px){.cal iframe{height:720px}}
+.note{background:var(--panel);border:2px solid var(--green);border-radius:18px;padding:34px 30px}
+footer{padding:44px 0 60px;text-align:center;color:#8a8a8a;font-weight:800;text-transform:uppercase;letter-spacing:.14em;font-size:.8rem}
 
 @media(max-width:760px){
   body{font-size:18px}
-  section{padding:52px 0}
-  header{padding:52px 0 48px}
-  .two{grid-template-columns:1fr}
-  .step{gap:16px}
-  .step .n{flex:0 0 46px;height:46px;font-size:1.3rem}
+  section{padding:46px 0}
+  header{padding:48px 0 36px}
+  .step .n{flex:0 0 44px;height:44px;font-size:1.25rem}
 }
 </style>
 </head>
@@ -90,75 +71,58 @@ footer{padding:46px 0 64px;text-align:center;color:#8a8a8a;font-weight:800;
 
 <header><div class="wrap">
   <div class="tick" aria-hidden="true">
-    <svg viewBox="0 0 24 24" fill="none" stroke="#0a0a0a" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M20 6L9 17l-5-5"/>
-    </svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="#0a0a0a" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
   </div>
-  <h1>You're in.<br>We'll <em>call</em> you.</h1>
-  <p class="big">Keep your phone on you — one of our team is calling you shortly to set up your own AI Super Agent with you, live, plus your access to the free course.</p>
-  <p>This is the quick call where we build your Jarvis with you and get you all the way in. No pitch, no reading off a script — just getting you set up.</p>
-  <span class="ring">📞 Expect a call from us shortly</span>
+  <h1>You're in.<br>Now <em>watch this.</em></h1>
+  <p class="big">Your application came through and your spot is confirmed. Watch the short video below — it tells you exactly what happens next.</p>
 </div></header>
 
-<section><div class="wrap">
-  <h2>Before we call</h2>
-  <p>Three quick things so you actually make it onto the call — this is where you get set up.</p>
+<section class="vid-sec"><div class="wrap">
+  <div class="vbox">
+    <!-- ============================================================
+         PASTE YOUR CONFIRMATION VIDEO EMBED HERE (Vidalytics / etc.)
+         Replace the whole .vplace block below with your <iframe> or <video>.
+         The box is already sized 16:9 and responsive.
+         ============================================================ -->
+    <div class="vplace">
+      <div class="play" aria-hidden="true"><svg viewBox="0 0 24 24" fill="#0a0a0a"><path d="M8 5v14l11-7z"/></svg></div>
+      <b>Your confirmation video</b>
+      <span>Blake explains what happens next — watch it before we call.</span>
+    </div>
+  </div>
+  <p class="vcap">👆 Watch this first — it's 2 minutes and it tells you exactly how this works.</p>
+</div></section>
 
-  <div style="margin-top:26px">
+<section><div class="wrap">
+  <h2>What happens <em>next</em></h2>
+  <p class="big">One of our team is calling you shortly to set you up live.</p>
+  <p>We don't do "book a slot and wait." We call our new applicants directly, in order, and get them set
+  up on the spot — your own AI Super Agent built with you, plus your access to the full course. It takes
+  about 15 minutes.</p>
+  <span class="ring">📞 Keep your phone on you — we're calling shortly</span>
+</div></section>
+
+<section><div class="wrap">
+  <h2>Do these 3 things</h2>
+  <div style="margin-top:20px">
     <div class="step">
       <div class="n">1</div>
-      <div class="t">
-        <h3>Answer an unknown number</h3>
-        <p>When your phone rings from a number you do not recognise in the next little while, that is us. Pick up — it is quick.</p>
-      </div>
+      <div class="t"><h3>Watch the video above</h3><p>Two minutes. It shows you exactly what you're getting and how the call works, so you're ready.</p></div>
     </div>
     <div class="step">
       <div class="n">2</div>
-      <div class="t">
-        <h3>Be somewhere you can talk</h3>
-        <p>It is a real conversation, not a script. Ten to fifteen minutes somewhere quiet is all you need.</p>
-      </div>
+      <div class="t"><h3>Answer an unknown number</h3><p>When your phone rings from a number you don't recognise in the next little while, that's us. Pick up.</p></div>
     </div>
     <div class="step">
       <div class="n">3</div>
-      <div class="t">
-        <h3>Have a computer handy</h3>
-        <p>We set your Super Agent up with you live on the call, so a laptop or computer nearby makes it seamless.</p>
-      </div>
-    </div>
-  </div>
-</div></section>
-
-<section><div class="wrap">
-  <h2>Prefer to <em>lock a time?</em></h2>
-  <p>Happy to wait for our call — we will reach out shortly. But if you would rather pin an exact time, grab a slot below and we will call you then instead. The second you book, you will get a confirmation and calendar reminder by email.</p>
-
-  <div class="cal">
-    <!-- Google Calendar Appointment Scheduling begin -->
-    <iframe src="https://calendar.google.com/calendar/appointments/schedules/AcZssZ023l7I6__rAMxMFNY0C_QmAdf6zP0PGym-XmUUVrbYWvxDvVE5Im74IhE0tdA8x1Cuz9-0kn2M?gv=true" title="Book your call"></iframe>
-    <!-- end Google Calendar Appointment Scheduling -->
-  </div>
-  <p class="calnote">Not seeing any times, or nothing loads? No stress — just wait for our call, or reply to any email from us and we will sort a time with you.</p>
-</div></section>
-
-<section><div class="wrap">
-  <h2>What the call is for</h2>
-  <p>Nobody is going to read you a pitch. You have already seen the offer. This call is about getting you in and set up.</p>
-  <div class="two">
-    <div class="box">
-      <h3>Get you set up</h3>
-      <p>We build your own Super Agent with you, live, and hand you access to the full course. You walk away already started.</p>
-    </div>
-    <div class="box">
-      <h3>Your first client</h3>
-      <p>How you actually land the first one. That is the part that pays you, and the part nobody explains.</p>
+      <div class="t"><h3>Be at a computer, somewhere you can talk</h3><p>We build your Super Agent with you live on the call, so have a laptop handy and 15 quiet minutes.</p></div>
     </div>
   </div>
 </div></section>
 
 <section><div class="wrap">
   <h2>What you're getting</h2>
-  <p>You build your own super agent first. Then it builds the services you sell. Every module is free.</p>
+  <p>Your own AI Super Agent that runs your agency — plus the full course, free. Here's the build:</p>
   <div class="mods">
     <div class="mod"><b>Setup</b><span>Build your Jarvis. Copy, paste, done in 30 minutes</span></div>
     <div class="mod"><b>One</b><span>How an AI agency actually works</span></div>
@@ -175,8 +139,9 @@ footer{padding:46px 0 64px;text-align:center;color:#8a8a8a;font-weight:800;
 <section><div class="wrap">
   <div class="note">
     <h2>One thing to remember</h2>
-    <p>Keep your phone close today. When we call, be ready to build — the winners here get set up on day one, not next week.</p>
-    <p class="big">We are calling you shortly. Pick up, and we will get you all the way in.</p>
+    <p>We can only set up so many people, and we call our applicants in order. When we ring, be ready to
+    build — the ones who pick up and get started day one are the ones who win.</p>
+    <p class="big">Watch the video, keep your phone close. Talk soon.</p>
   </div>
 </div></section>
 
