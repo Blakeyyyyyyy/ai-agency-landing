@@ -4,133 +4,71 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
-<title>You're in — watch this</title>
+<title>You're in — we'll call you</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;800;900&display=swap" rel="stylesheet">
 <style>
-:root{
-  --bg:#0a0a0a; --panel:#161616; --line:#2c2c2c; --white:#fff; --body:#e6e6e6; --green:#32d09f;
-  --f:'Archivo',Arial,Helvetica,sans-serif;
-}
+:root{--bg:#0a0a0a;--card:#141414;--line:#262626;--white:#fff;--body:#c9c9c9;--green:#32d09f;--f:'Archivo',Arial,Helvetica,sans-serif}
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:var(--bg);color:var(--body);font-family:var(--f);font-weight:600;line-height:1.6;font-size:19px;-webkit-font-smoothing:antialiased}
-img{max-width:100%}
-.wrap{max-width:860px;margin:0 auto;padding:0 20px}
-h1,h2,h3{color:var(--white);font-weight:900;text-transform:uppercase;letter-spacing:-.5px;line-height:1.05}
-h1{font-size:clamp(2.3rem,6.5vw,3.7rem);margin-bottom:18px}
-h2{font-size:clamp(1.6rem,4.4vw,2.4rem);margin-bottom:18px}
-h3{font-size:1.2rem;letter-spacing:0;margin-bottom:8px}
-p{font-size:1.06rem;line-height:1.7}
-p+p{margin-top:14px}
-.big{font-size:1.18rem;color:var(--white);font-weight:800}
-em{font-style:normal;color:var(--green)}
-section{padding:60px 0;border-top:2px solid var(--line)}
+body{background:var(--bg);color:var(--body);font-family:var(--f);font-weight:600;line-height:1.6;font-size:16px;-webkit-font-smoothing:antialiased;
+  background-image:radial-gradient(70% 45% at 50% 0%,rgba(50,208,159,.08),transparent 70%)}
+.wrap{max-width:540px;margin:0 auto;padding:48px 22px 60px;text-align:center}
 
-/* hero */
-header{padding:64px 0 44px;text-align:center}
-.tick{width:70px;height:70px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;margin:0 auto 26px}
-.tick svg{width:36px;height:36px}
-header p{max-width:620px;margin:0 auto;font-size:1.14rem}
-.ring{display:inline-block;margin-top:26px;background:var(--white);color:#000;font-weight:900;text-transform:uppercase;letter-spacing:.02em;font-size:1rem;padding:14px 24px;border-radius:10px}
+.tick{width:64px;height:64px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;margin:0 auto 22px;box-shadow:0 0 0 8px rgba(50,208,159,.12)}
+.tick svg{width:32px;height:32px}
+h1{color:var(--white);font-weight:900;text-transform:uppercase;letter-spacing:-.5px;line-height:1.06;font-size:clamp(2.1rem,8vw,2.9rem);margin-bottom:16px}
+h1 em{font-style:normal;color:var(--green)}
+.sub{color:var(--body);font-size:1.05rem;line-height:1.6;max-width:440px;margin:0 auto 8px}
+.sub b{color:var(--white);font-weight:800}
 
-/* video */
-.vid-sec{text-align:center;padding-top:8px}
-.vbox{margin:0 auto;max-width:760px;aspect-ratio:16/9;background:#0d0d0d;border:2px solid var(--green);border-radius:16px;overflow:hidden;position:relative;display:flex;align-items:center;justify-content:center}
-.vbox iframe,.vbox video{position:absolute;inset:0;width:100%;height:100%;border:0}
-.vplace{text-align:center;color:#9a9a9a;padding:20px}
-.vplace .play{width:74px;height:74px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
-.vplace .play svg{width:30px;height:30px;margin-left:4px}
-.vplace b{color:#fff;display:block;font-size:1.15rem;font-weight:900;text-transform:uppercase;letter-spacing:.02em;margin-bottom:6px}
-.vcap{margin-top:18px;color:var(--white);font-weight:800;font-size:1.12rem}
+/* callout card */
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:26px 22px;margin:32px 0 0;text-align:left;box-shadow:0 20px 50px rgba(0,0,0,.4)}
+.card-h{display:flex;align-items:center;gap:9px;justify-content:center;color:var(--green);font-weight:900;text-transform:uppercase;letter-spacing:.06em;font-size:.82rem;margin-bottom:6px}
+.card-t{color:var(--white);font-weight:900;text-transform:uppercase;letter-spacing:-.3px;font-size:1.35rem;text-align:center;line-height:1.1;margin-bottom:20px}
+.row{display:flex;gap:14px;align-items:flex-start;padding:16px 0;border-top:1px solid var(--line)}
+.row:first-of-type{border-top:0;padding-top:2px}
+.ic{flex:0 0 44px;height:44px;border-radius:12px;background:rgba(50,208,159,.14);display:flex;align-items:center;justify-content:center;font-size:1.3rem}
+.rt b{display:block;color:var(--white);font-weight:800;font-size:1.02rem;margin-bottom:3px}
+.rt span{color:var(--body);font-size:.92rem;line-height:1.5}
 
-/* steps */
-.step{display:flex;gap:20px;align-items:flex-start;padding:24px 0;border-bottom:1px solid var(--line)}
-.step:last-child{border-bottom:0}
-.step .n{flex:0 0 50px;height:50px;border-radius:12px;background:var(--white);color:#000;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:1.4rem}
-.step .t{flex:1}
-
-/* modules */
-.mods{margin-top:26px;border-top:2px solid var(--line)}
-.mod{display:flex;gap:18px;align-items:baseline;padding:14px 2px;border-bottom:1px solid var(--line)}
-.mod b{color:var(--green);font-weight:900;min-width:70px;font-size:1rem;text-transform:uppercase}
-.mod span{color:var(--white);font-weight:700;font-size:1.04rem}
-
-.note{background:var(--panel);border:2px solid var(--green);border-radius:18px;padding:34px 30px}
-footer{padding:44px 0 60px;text-align:center;color:#8a8a8a;font-weight:800;text-transform:uppercase;letter-spacing:.14em;font-size:.8rem}
-
-@media(max-width:760px){
-  body{font-size:18px}
-  section{padding:46px 0}
-  header{padding:48px 0 36px}
-  .step .n{flex:0 0 44px;height:44px;font-size:1.25rem}
-}
+.foot-note{margin-top:26px;color:var(--body);font-size:.98rem;line-height:1.6}
+.foot-note b{color:var(--white);font-weight:800}
+footer{margin-top:36px;color:#6f6f6f;font-weight:800;text-transform:uppercase;letter-spacing:.16em;font-size:.72rem}
 </style>
 </head>
 <body>
+<div class="wrap">
 
-<header><div class="wrap">
   <div class="tick" aria-hidden="true">
     <svg viewBox="0 0 24 24" fill="none" stroke="#0a0a0a" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
   </div>
+
   <h1>You're in.<br>We'll <em>call</em> you.</h1>
-  <p class="big">Your application came through and your spot is confirmed. Keep your phone on you — one of our team is calling you shortly to set you up live, plus hand you access to the full course.</p>
-  <span class="ring">📞 Expect a call from us shortly</span>
-</div></header>
+  <p class="sub">Your spot's confirmed. One of our team is calling you <b>shortly</b> to build your AI Super Agent with you, live — and hand you the full course.</p>
 
-<section><div class="wrap">
-  <h2>What happens <em>next</em></h2>
-  <p class="big">One of our team is calling you shortly to set you up live.</p>
-  <p>We don't do "book a slot and wait." We call our new applicants directly, in order, and get them set
-  up on the spot — your own AI Super Agent built with you, plus your access to the full course. It takes
-  about 15 minutes.</p>
-  <span class="ring">📞 Keep your phone on you — we're calling shortly</span>
-</div></section>
+  <div class="card">
+    <div class="card-h">📞 Read this now</div>
+    <div class="card-t">3 things before we call</div>
 
-<section><div class="wrap">
-  <h2>Do these 3 things</h2>
-  <div style="margin-top:20px">
-    <div class="step">
-      <div class="n">1</div>
-      <div class="t"><h3>Answer an unknown number</h3><p>When your phone rings from a number you don't recognise in the next little while, that's us. Pick up.</p></div>
+    <div class="row">
+      <div class="ic">🔕</div>
+      <div class="rt"><b>Turn OFF Do Not Disturb</b><span>If your phone's on silent or DND, you'll miss the call and lose your spot. Switch it off now.</span></div>
     </div>
-    <div class="step">
-      <div class="n">2</div>
-      <div class="t"><h3>Be somewhere you can talk</h3><p>It's a real, quick conversation — 15 minutes somewhere quiet is all you need.</p></div>
+    <div class="row">
+      <div class="ic">📱</div>
+      <div class="rt"><b>We call from a number you don't know</b><span>Don't ignore it thinking it's spam — that unknown number is us. Pick it up.</span></div>
     </div>
-    <div class="step">
-      <div class="n">3</div>
-      <div class="t"><h3>Have a computer handy</h3><p>We build your Super Agent with you live on the call, so a laptop nearby makes it seamless.</p></div>
+    <div class="row">
+      <div class="ic">💻</div>
+      <div class="rt"><b>Be somewhere you can talk, laptop ready</b><span>It's a quick 15 minutes, and we build your agent with you live on the call.</span></div>
     </div>
   </div>
-</div></section>
 
-<section><div class="wrap">
-  <h2>What you're getting</h2>
-  <p>Your own AI Super Agent that runs your agency — plus the full course, free. Here's the build:</p>
-  <div class="mods">
-    <div class="mod"><b>Setup</b><span>Build your Jarvis. Copy, paste, done in 30 minutes</span></div>
-    <div class="mod"><b>One</b><span>How an AI agency actually works</span></div>
-    <div class="mod"><b>Two</b><span>Setting up your business</span></div>
-    <div class="mod"><b>Three</b><span>Finding local businesses every night while you sleep</span></div>
-    <div class="mod"><b>Four</b><span>Websites, built in front of you in minutes</span></div>
-    <div class="mod"><b>Five</b><span>AI walkthrough videos for real estate</span></div>
-    <div class="mod"><b>Six</b><span>AI receptionists that answer the phone and book the job</span></div>
-    <div class="mod"><b>Seven</b><span>The call. How you land the client</span></div>
-    <div class="mod"><b>Eight</b><span>Delivering the work and getting paid</span></div>
-  </div>
-</div></section>
+  <p class="foot-note">We call our applicants <b>in order</b>, and we can only set up so many. Keep your phone close — when that unknown number rings, <b>answer it.</b> That's your business starting.</p>
 
-<section><div class="wrap">
-  <div class="note">
-    <h2>One thing to remember</h2>
-    <p>We can only set up so many people, and we call our applicants in order. When we ring, be ready to
-    build — the ones who pick up and get started day one are the ones who win.</p>
-    <p class="big">Keep your phone close — we're calling you shortly. Talk soon.</p>
-  </div>
-</div></section>
+  <footer>The AI Agency &nbsp;—&nbsp; Talk soon</footer>
 
-<footer>AI Agency &nbsp;—&nbsp; Talk soon</footer>
-
+</div>
 </body>
 </html>
