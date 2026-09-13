@@ -21,7 +21,7 @@ body{background:var(--bg);color:var(--ink);font-family:var(--display);font-weigh
 img{max-width:100%;display:block}
 a{color:inherit;text-decoration:none}
 .wrap{max-width:1060px;margin:0 auto;padding:0 20px}
-.eyebrow{font-family:var(--mono);font-size:.86rem;font-weight:600;letter-spacing:.24em;text-transform:uppercase;color:var(--green);margin-bottom:16px}
+.eyebrow{display:inline-block;font-family:var(--mono);font-size:.78rem;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--green);margin-bottom:18px;background:rgba(50,208,159,.1);border:1px solid rgba(50,208,159,.28);padding:6px 14px;border-radius:99px}
 h1,h2{font-weight:900;letter-spacing:-.5px;text-wrap:balance}
 h2{font-size:clamp(1.6rem,4.5vw,2.4rem);margin-bottom:14px}
 p.lead{color:var(--dim);max-width:640px;font-size:1.12rem;line-height:1.7;font-weight:600}
@@ -31,8 +31,8 @@ section+section::before{content:'';position:absolute;top:0;left:0;right:0;height
 section::after{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);
   width:min(760px,92%);height:180px;pointer-events:none;
   background:radial-gradient(60% 100% at 50% 0%,rgba(50,208,159,.045),transparent 70%)}
-section:nth-of-type(odd){background:var(--bg2)}
-section:nth-of-type(even){background:var(--bg)}
+section:nth-of-type(odd){background:#13151b}
+section:nth-of-type(even){background:#0a0a0a}
 @media(max-width:720px){
   section{padding:56px 0}
   .wrap{padding:0 18px}
@@ -277,7 +277,7 @@ footer{border-top:1px solid var(--line);padding:34px 0;text-align:center;font-fa
   </div>
 </div></section>
 
-<section id="included" style="background:var(--bg2)"><div class="wrap">
+<section id="included" style="background:radial-gradient(90% 70% at 50% 0%,rgba(50,208,159,.09),#0b0d0c 72%)"><div class="wrap">
   <div class="eyebrow">What you get</div>
   <h2>Here's Everything You Get, Free.</h2>
   <p class="lead">The whole package to start your AI agency, in one place. Nothing gated, nothing held back.</p>
