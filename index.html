@@ -139,15 +139,17 @@ body.closed .closedbox{display:block}
 
 
 .pkg{max-width:640px;margin:34px auto 0;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:28px 26px}
-.pkgrow{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:15px 0;border-bottom:1px solid var(--line)}
-.pkgrow b{display:block;font-size:.98rem}
-.pkgrow span{color:var(--dim);font-size:.82rem}
-.pkgrow i{font-family:var(--mono);font-style:normal;font-size:.8rem;color:var(--green);background:rgba(50,208,159,.12);border:1px solid rgba(50,208,159,.3);padding:4px 10px;border-radius:99px;white-space:nowrap}
-.pkgtotal{display:flex;justify-content:space-between;align-items:center;padding:20px 0 0}
-.pkgtotal span{font-family:var(--mono);font-size:.85rem;color:var(--dim);letter-spacing:.08em}
+.pkgrow{display:flex;align-items:flex-start;gap:14px;padding:17px 0;border-bottom:1px solid var(--line)}
+.pkgcheck{flex:0 0 26px;height:26px;border-radius:50%;background:rgba(50,208,159,.16);color:var(--green);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:.92rem;margin-top:1px}
+.pkgtext{flex:1;min-width:0}
+.pkgrow b{display:block;font-size:1.02rem;margin-bottom:2px}
+.pkgrow span{color:var(--dim);font-size:.86rem;line-height:1.5}
+.pkgrow i{font-family:var(--mono);font-style:normal;font-size:.8rem;color:var(--green);background:rgba(50,208,159,.12);border:1px solid rgba(50,208,159,.3);padding:4px 10px;border-radius:99px;white-space:nowrap;margin-left:auto;align-self:center}
+.pkgtotal{display:flex;justify-content:space-between;align-items:center;padding:22px 0 0;margin-top:4px}
+.pkgtotal span{font-family:var(--mono);font-size:.9rem;color:var(--dim);letter-spacing:.08em}
 .pkgtotal s{color:var(--ink)}
-.pkgtotal b{font-size:1.9rem;font-weight:900;color:var(--green)}
-.pkgnote{font-family:var(--mono);font-size:.72rem;color:var(--dim);margin-top:10px;letter-spacing:.05em}
+.pkgtotal b{font-size:2rem;font-weight:900;color:var(--green)}
+.pkgnote{font-family:var(--mono);font-size:.72rem;color:var(--dim);margin-top:12px;letter-spacing:.05em;text-align:center}
 
 .showgrid{display:grid;gap:18px;margin-top:34px}
 @media(min-width:760px){.showgrid{grid-template-columns:1fr 1fr}}
@@ -270,13 +272,14 @@ footer{border-top:1px solid var(--line);padding:34px 0;text-align:center;font-fa
 </div></section>
 
 <section id="included" style="background:var(--bg2)"><div class="wrap">
-  <div class="eyebrow">Your package</div>
-  <h2>The full stack. Zero to start.</h2>
-  <p class="lead">Not a gated preview. Every build, prompt, script and system I use, in the order you need them.</p>
+  <div class="eyebrow">What you get</div>
+  <h2>Here's Everything You Get, Free.</h2>
+  <p class="lead">The whole package to start your AI agency, in one place. Nothing gated, nothing held back.</p>
   <div class="pkg">
-    <div class="pkgrow"><div><b>The full AI Agency course</b><span>From nothing to your first paying client</span></div><i>$2,500</i></div>
-    <div class="pkgrow"><div><b>Your own Jarvis, set up step by step</b><span>The super agent that runs it all for you</span></div><i>$2,000</i></div>
-    <div class="pkgrow"><div><b>3 ready-to-sell AI services</b><span>AI websites, an AI receptionist, property video walkthroughs</span></div><i>$1,000</i></div>
+    <div class="pkgrow"><span class="pkgcheck">✓</span><div class="pkgtext"><b>Your own AI Super Agent (Jarvis)</b><span>Built with you. The AI co-founder that finds your leads, builds your services, and helps you sell.</span></div><i>$2,000</i></div>
+    <div class="pkgrow"><span class="pkgcheck">✓</span><div class="pkgtext"><b>The full AI Agency course</b><span>The exact path from zero to your first paying client.</span></div><i>$2,500</i></div>
+    <div class="pkgrow"><span class="pkgcheck">✓</span><div class="pkgtext"><b>3 ready-to-sell AI services</b><span>AI websites, an AI receptionist, and property video walkthroughs. Real things businesses pay for.</span></div><i>$1,000</i></div>
+    <div class="pkgrow"><span class="pkgcheck">✓</span><div class="pkgtext"><b>The private community</b><span>Get unstuck fast and win alongside people doing the exact same thing.</span></div><i>Included</i></div>
     <div class="pkgtotal"><span>TOTAL VALUE <s>$5,500</s></span><b>FREE</b></div>
     <p class="pkgnote">This will not be free forever. When the spots are used, it closes.</p>
     <div style="text-align:center;margin-top:20px"><a class="btn big openonly" href="/register/">Claim Your Free Jarvis + Course →</a></div>
