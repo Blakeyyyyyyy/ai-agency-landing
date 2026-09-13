@@ -27,7 +27,7 @@ h2{font-size:clamp(1.6rem,4.5vw,2.4rem);margin-bottom:14px}
 p.lead{color:var(--dim);max-width:640px;font-size:1.12rem;line-height:1.7;font-weight:600}
 section{padding:88px 0;position:relative}
 section+section::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;
-  background:linear-gradient(90deg,transparent,var(--line) 18%,var(--line) 82%,transparent)}
+  background:linear-gradient(90deg,transparent,rgba(50,208,159,.4) 50%,transparent)}
 section::after{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);
   width:min(760px,92%);height:180px;pointer-events:none;
   background:radial-gradient(60% 100% at 50% 0%,rgba(50,208,159,.045),transparent 70%)}
@@ -195,7 +195,7 @@ footer{border-top:1px solid var(--line);padding:34px 0;text-align:center;font-fa
 .proofstrip{display:flex!important;flex-wrap:wrap;gap:14px;justify-content:center;max-width:980px;margin:30px auto 0!important}
 .proofstrip .proofimg{flex:0 0 auto;background:transparent;border:0;border-radius:12px;overflow:hidden}
 .proofstrip .proofimg img{width:auto;height:330px;max-width:100%;border-radius:12px;display:block}
-@media(max-width:720px){.proofstrip .proofimg img{height:230px}}
+@media(max-width:720px){.proofstrip{flex-direction:column;align-items:center}.proofstrip .proofimg{width:100%;max-width:360px}.proofstrip .proofimg img{width:100%;height:auto}}
 
 .vslbox video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000}
 .vsloverlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;cursor:pointer;z-index:3;transition:opacity .25s;background:radial-gradient(60% 60% at 50% 45%,rgba(0,0,0,.25),rgba(0,0,0,.55))}
