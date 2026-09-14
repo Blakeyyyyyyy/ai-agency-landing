@@ -481,6 +481,16 @@ if(VSL_URL){
     }).then(function(r){
       if(r.ok||r.status===201||r.status===204||r.status===409){
         try{fetch('https://services.leadconnectorhq.com/hooks/5ScFByVzgeiOD3WsNptM/webhook-trigger/d6fb8bfa-6adb-4806-afbb-5546034c0b54',{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:'name='+encodeURIComponent(name)+'&email='+encodeURIComponent(email)+'&phone='+encodeURIComponent(cc+' '+ph)+'&source='+encodeURIComponent(src())+'&tag=organic-waitlist',keepalive:true}).catch(function(){});}catch(e){}
+        // Close is the system of record: create the lead there immediately.
+        // Supabase write above stays as backup / event log, unchanged.
+        try{
+          var mccEl = document.getElementById('mcc');
+          var mccOpt = mccEl && mccEl.selectedOptions && mccEl.selectedOptions[0];
+          var isoMatch = mccOpt && /([A-Z]{2})\s*\+\d/.exec(mccOpt.textContent);
+          var ccName = isoMatch ? isoMatch[1] : cc;
+          fetch('https://blake-discord-relay.vercel.app/api/create-lead',{method:'POST',headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({name:name,email:email,phone:cc+' '+ph,country:ccName,source:src()}),keepalive:true}).catch(function(){});
+        }catch(e){}
         ev(email,name,'phone',cc+' '+ph);
         ev(email,name,'sms_consent',sms?'yes':'no');
         ev(email,name,'cost_ack','yes');
