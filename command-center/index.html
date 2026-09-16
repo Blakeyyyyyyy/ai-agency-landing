@@ -1,0 +1,1337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AI Agency Command Center — Command Center</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤖</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+:root{--bg:#000000;--green:#16a34a;--gl:#4ade80;--gb:#22c55e;--gd:#15803d;--red:#f43f5e;--yel:#eab308;--ora:#f97316;--blu:#38bdf8;--dim:rgba(255,255,255,.5);--dmr:rgba(255,255,255,.3);--card:rgba(255,255,255,.03);--bdr:rgba(255,255,255,.06)}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{font-family:'Montserrat',sans-serif;background:#000000!important;background-color:#000000!important;color:#fff;min-height:100vh;overflow-x:hidden}
+.bg-orbs{position:fixed;top:0;left:0;right:0;bottom:0;z-index:0;pointer-events:none;overflow:hidden}
+.orb{position:absolute;border-radius:50%;filter:blur(120px);opacity:.12}
+.o1{width:600px;height:600px;background:radial-gradient(circle,#16a34a,transparent 70%);top:-10%;left:-5%;animation:d1 20s ease-in-out infinite}
+.o2{width:500px;height:500px;background:radial-gradient(circle,#fff,transparent 70%);top:30%;right:-10%;animation:d2 25s ease-in-out infinite}
+.o3{width:450px;height:450px;background:radial-gradient(circle,#22c55e,transparent 70%);bottom:10%;left:20%;animation:d3 22s ease-in-out infinite}
+.o4{width:350px;height:350px;background:radial-gradient(circle,#15803d,transparent 70%);top:60%;right:25%;animation:d4 18s ease-in-out infinite}
+@keyframes d1{0%,100%{transform:translate(0,0) scale(1)}25%{transform:translate(80px,60px) scale(1.1)}50%{transform:translate(40px,120px) scale(.95)}75%{transform:translate(-40px,50px) scale(1.05)}}
+@keyframes d2{0%,100%{transform:translate(0,0) scale(1)}25%{transform:translate(-70px,80px) scale(1.08)}50%{transform:translate(-120px,30px) scale(.92)}75%{transform:translate(-50px,-40px) scale(1.12)}}
+@keyframes d3{0%,100%{transform:translate(0,0) scale(1)}25%{transform:translate(60px,-50px) scale(1.06)}50%{transform:translate(100px,-90px) scale(.94)}75%{transform:translate(30px,-30px) scale(1.1)}}
+@keyframes d4{0%,100%{transform:translate(0,0) scale(1)}25%{transform:translate(-40px,-60px) scale(1.15)}50%{transform:translate(30px,-100px) scale(.9)}75%{transform:translate(60px,-40px) scale(1.05)}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}input[type=number]{-moz-appearance:textfield}
+.wrap{position:relative;z-index:1}
+.hdr{padding:24px 28px 16px;border-bottom:1px solid var(--bdr);background:rgba(255,255,255,.01);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.brand-sub{font-size:10px;letter-spacing:.2em;color:var(--dmr);font-weight:600;margin-bottom:4px}
+.brand{font-size:22px;font-weight:800;letter-spacing:-.03em}.brand span{color:var(--green)}
+.dr{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.dr button{padding:6px 12px;font-size:11px;font-weight:600;border-radius:8px;cursor:pointer;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:var(--dim);font-family:'Montserrat',sans-serif;transition:all .2s}
+.dr button.a{background:rgba(22,163,74,.2);border-color:rgba(22,163,74,.4);color:var(--gl)}
+.dr .sep{width:1px;height:20px;background:rgba(255,255,255,.1);margin:0 2px}
+.dr input[type=date]{padding:5px 8px;font-size:11px;font-weight:600;border-radius:8px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:var(--dim);font-family:'Montserrat',sans-serif;width:130px}
+.dr input[type=date].a{background:rgba(22,163,74,.2);border-color:rgba(22,163,74,.4);color:var(--gl)}
+.dr input[type=date]::-webkit-calendar-picker-indicator{filter:invert(.5)}
+.nav{padding:14px 28px;display:flex;gap:6px;overflow-x:auto}
+.nav button{padding:9px 16px;background:transparent;border:1px solid transparent;border-radius:10px;color:rgba(255,255,255,.45);font-size:12px;font-weight:600;cursor:pointer;font-family:'Montserrat',sans-serif;white-space:nowrap;transition:all .2s;display:flex;align-items:center;gap:8px}
+.nav button.a{background:rgba(22,163,74,.15);border-color:rgba(22,163,74,.3);color:var(--gl)}
+.cnt{padding:0 28px 40px;max-width:1400px;margin:0 auto}
+.sec{background:var(--card);border:1px solid var(--bdr);border-radius:14px;padding:20px;margin-bottom:16px}
+.sec-h{padding:14px 20px 6px;border-bottom:1px solid rgba(255,255,255,.04)}.sec-h span{font-size:11px;font-weight:700;letter-spacing:.12em;color:rgba(255,255,255,.4)}
+.g{display:grid;gap:12px}.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}.g5{grid-template-columns:repeat(5,1fr)}.g7{grid-template-columns:repeat(7,1fr)}
+.kpi{background:var(--card);border:1px solid var(--bdr);border-radius:12px;padding:16px 18px;position:relative;overflow:hidden}
+.kpi .bar{position:absolute;top:0;left:0;right:0;height:2px;opacity:.8}.kpi .lbl{font-size:10px;font-weight:600;letter-spacing:.08em;color:rgba(255,255,255,.45);text-transform:uppercase;margin-bottom:4px}.kpi .val{font-size:24px;font-weight:700;letter-spacing:-.02em}.kpi.sm .val{font-size:20px}.kpi.sm{padding:14px 16px}
+.hero{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.hero-c{border-radius:16px;padding:22px 26px;background:var(--card);border:1px solid rgba(22,163,74,.15)}.hero-c.hl{background:rgba(34,197,94,.06);border-color:rgba(22,163,74,.25)}
+.hero-c .lbl{font-size:11px;font-weight:700;letter-spacing:.1em;color:rgba(255,255,255,.4);margin-bottom:4px}.hero-c .val{font-size:30px;font-weight:900;letter-spacing:-.03em}
+.fl{display:flex;flex-direction:column;gap:6px}.fl label{font-size:11px;font-weight:600;letter-spacing:.06em;color:var(--dim);text-transform:uppercase}
+.fl input,.fl select{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#fff;padding:10px 14px;font-size:14px;font-family:'Montserrat',sans-serif;width:100%;outline:none}.fl input:focus,.fl select:focus{border-color:rgba(22,163,74,.5)!important}.fl select{appearance:none}select option{background:#1a1a2e}
+.btn{padding:12px 24px;border:none;border-radius:10px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:'Montserrat',sans-serif;width:100%;transition:all .2s}.btn:hover{filter:brightness(1.1)}
+.toast{position:fixed;top:20px;right:20px;z-index:999;padding:14px 24px;background:var(--gb);border-radius:10px;font-weight:700;font-size:14px;animation:fadeIn .3s ease;display:none}.toast.show{display:block}
+.rr{padding:10px 0;border-bottom:1px solid rgba(255,255,255,.04);display:flex;justify-content:space-between;font-size:13px;color:rgba(255,255,255,.6)}
+.sub-tabs{display:flex;gap:8px;margin-bottom:16px}.sub-tabs button{flex:1;padding:12px;font-size:13px;font-weight:700;border-radius:10px;cursor:pointer;text-align:center;background:var(--card);border:1px solid var(--bdr);color:rgba(255,255,255,.4);font-family:'Montserrat',sans-serif;transition:all .2s}.sub-tabs button.a{background:rgba(22,163,74,.15);border-color:rgba(22,163,74,.3);color:var(--gl)}
+.funnel-r{display:flex;align-items:center;gap:12px;padding:8px 12px;border-radius:8px;border:1px solid transparent}.funnel-r.worst{background:rgba(244,63,94,.04);border-color:rgba(244,63,94,.1)}
+.loading{display:flex;align-items:center;justify-content:center;min-height:60vh;font-size:16px;color:var(--green);flex-direction:column;gap:8px}
+.spin{width:32px;height:32px;border:3px solid rgba(22,163,74,.2);border-top-color:var(--green);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Login screen */
+.login-overlay{position:fixed;top:0;left:0;right:0;bottom:0;z-index:9999;background:var(--bg);display:flex;align-items:center;justify-content:center;flex-direction:column;transition:opacity .4s ease,transform .4s ease}
+.login-overlay.hide{opacity:0;pointer-events:none;transform:scale(1.03)}
+.login-box{display:flex;flex-direction:column;align-items:center;gap:20px;text-align:center;padding:40px;width:100%;max-width:380px}
+.login-brand{font-size:32px;font-weight:900;letter-spacing:-.04em}
+.login-brand span{color:var(--green)}
+.login-sub{font-size:12px;letter-spacing:.3em;color:var(--dmr);font-weight:600;text-transform:uppercase}
+.login-line{width:min(280px,80vw);height:2px;background:linear-gradient(90deg,transparent,var(--green),var(--gb),transparent);border-radius:2px}
+.login-input{width:100%;box-sizing:border-box;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:10px;color:#fff;padding:14px 16px;font-size:14px;font-family:'Montserrat',sans-serif;text-align:center;letter-spacing:.05em;outline:none;transition:border-color .2s}
+.login-input:focus{border-color:var(--green)}
+.login-input.error{border-color:#f43f5e;animation:loginShake .4s ease}
+.login-btn{width:100%;padding:14px;border:none;border-radius:10px;background:var(--gb);color:#fff;font-size:14px;font-weight:700;font-family:'Montserrat',sans-serif;cursor:pointer;letter-spacing:.05em;transition:opacity .2s}
+.login-btn:hover{opacity:.9}
+.login-err{font-size:12px;color:#f43f5e;min-height:18px}
+@keyframes loginShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}50%{transform:translateX(8px)}75%{transform:translateX(-4px)}}
+
+/* Deal Closed Celebration */
+.deal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;z-index:9998;display:flex;align-items:center;justify-content:center;flex-direction:column;pointer-events:none;opacity:0;transition:opacity .3s ease}
+.deal-overlay.show{opacity:1;pointer-events:auto}
+.deal-overlay.out{opacity:0}
+.deal-bg{position:absolute;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(8px)}
+.deal-content{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:16px;text-align:center;padding:0 24px}
+.deal-check{width:80px;height:80px;border-radius:50%;background:var(--gb);display:flex;align-items:center;justify-content:center;transform:scale(0);animation:dealPop .5s cubic-bezier(.175,.885,.32,1.275) forwards .2s;box-shadow:0 0 60px rgba(34,197,94,.4)}
+.deal-check svg{width:40px;height:40px;stroke:#fff;stroke-width:3;fill:none;stroke-dasharray:50;stroke-dashoffset:50;animation:dealDraw .6s ease forwards .5s}
+.deal-title{font-size:28px;font-weight:900;letter-spacing:-.02em;opacity:0;transform:translateY(16px);animation:introFadeUp .5s ease forwards .5s}
+.deal-name{font-size:18px;font-weight:700;color:var(--gb);opacity:0;transform:translateY(12px);animation:introFadeUp .4s ease forwards .7s}
+.deal-amount{font-size:36px;font-weight:900;color:var(--gb);opacity:0;transform:translateY(12px);animation:introFadeUp .4s ease forwards .9s;text-shadow:0 0 30px rgba(34,197,94,.3)}
+.deal-sub{font-size:12px;color:var(--dmr);letter-spacing:.15em;text-transform:uppercase;font-weight:600;opacity:0;animation:introFadeUp .4s ease forwards 1.1s}
+@keyframes dealPop{to{transform:scale(1)}}
+@keyframes dealDraw{to{stroke-dashoffset:0}}
+.confetti{position:absolute;width:8px;height:8px;border-radius:2px;top:40%;animation:confettiFall 1.5s ease-out forwards}
+@keyframes confettiFall{0%{transform:translateY(0) rotate(0deg) scale(1);opacity:1}100%{transform:translateY(400px) rotate(720deg) scale(0);opacity:0}}
+
+/* Leaderboard Fire Effect */
+.lb-fire{position:relative;display:inline-block}
+.lb-fire::before{content:'';position:absolute;inset:-4px -8px;border-radius:10px;background:linear-gradient(90deg,rgba(234,179,8,.15),rgba(249,115,22,.2),rgba(239,68,68,.15),rgba(249,115,22,.2),rgba(234,179,8,.15));background-size:200% 100%;animation:fireGlow 2s ease-in-out infinite;z-index:-1;filter:blur(6px)}
+.lb-fire::after{content:'🔥';position:absolute;right:-24px;top:50%;transform:translateY(-50%);font-size:14px;animation:fireFlicker 1s ease-in-out infinite alternate}
+@keyframes fireGlow{0%,100%{background-position:0% 50%;opacity:.6}50%{background-position:100% 50%;opacity:1}}
+@keyframes fireFlicker{0%{transform:translateY(-50%) scale(1);opacity:.8}100%{transform:translateY(-55%) scale(1.15);opacity:1}}
+.lb-row-1{animation:rowPulse 3s ease-in-out infinite}
+@keyframes rowPulse{0%,100%{box-shadow:inset 0 0 0 rgba(34,197,94,0)}50%{box-shadow:inset 0 0 30px rgba(34,197,94,.06)}}
+.lb-spark{position:absolute;width:3px;height:3px;border-radius:50%;pointer-events:none;animation:sparkFloat 2s ease-out infinite}
+@keyframes sparkFloat{0%{transform:translateY(0) scale(1);opacity:1}100%{transform:translateY(-30px) scale(0);opacity:0}}
+
+::-webkit-scrollbar{width:6px;height:6px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px}
+@media(max-width:768px){.g4,.g5,.g7{grid-template-columns:1fr 1fr}.g3{grid-template-columns:1fr 1fr}.hero-c .val{font-size:24px}.hdr,.cnt{padding-left:16px;padding-right:16px}.nav{padding:10px 16px}.dr{display:none}}
+</style>
+</head>
+<body>
+<div class="bg-orbs"><div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div><div class="orb o4"></div></div>
+<div class="login-overlay" id="loginScreen">
+<div class="login-box">
+<div class="login-brand"><span>AI Agency</span> Command Center</div>
+<div class="login-line"></div>
+<div class="login-sub">Command Center</div>
+<input type="password" class="login-input" id="loginPw" placeholder="Enter password" onkeydown="if(event.key==='Enter')doLogin()">
+<button class="login-btn" onclick="doLogin()">Access Dashboard</button>
+<div class="login-err" id="loginErr"></div>
+</div>
+</div>
+<div class="wrap" id="app"></div>
+<div class="toast" id="toast"></div>
+<div class="deal-overlay" id="dealOverlay">
+<div class="deal-bg"></div>
+<div class="deal-content">
+<div class="deal-check"><svg viewBox="0 0 24 24"><polyline points="4 12 10 18 20 6"></polyline></svg></div>
+<div class="deal-title">DEAL CLOSED 🏆</div>
+<div class="deal-name" id="dealName"></div>
+<div class="deal-amount" id="dealAmount"></div>
+<div class="deal-sub">New enrollment added</div>
+</div>
+</div>
+<script>
+// ══════════════════════════════════════════════
+// ⚙️ PASTE YOUR GOOGLE APPS SCRIPT URL HERE ⚙️
+// ══════════════════════════════════════════════
+const API = 'https://script.google.com/macros/s/AKfycby6C4tcqW0JagNAef1X_yxI7AvYtBMpnCK_iuxSYDteYyYVOJ8JPCGbkPNlFsqKkdG6/exec';
+// ══════════════════════════════════════════════
+
+// ── Passwords & Roles ──
+const PASSWORDS={"forge9670":"setter","vault4808":"closer","course6198":"leadership"};
+const ROLE_TABS={setter:['dashboard','setter_tracker','setter'],closer:['dashboard','setter_tracker','setter','sales_tracker','closer','enrollments'],leadership:['dashboard','setter_tracker','setter','sales_tracker','closer','enrollments','settings']};
+let userRole=sessionStorage.getItem('aiagency_role')||null;
+function doLogin(){
+  const pw=document.getElementById('loginPw').value.trim();
+  const role=PASSWORDS[pw];
+  if(!role){document.getElementById('loginErr').textContent='Invalid password';document.getElementById('loginPw').classList.add('error');setTimeout(()=>document.getElementById('loginPw').classList.remove('error'),400);return;}
+  userRole=role;sessionStorage.setItem('aiagency_role',role);
+  const ls=document.getElementById('loginScreen');if(ls){ls.classList.add('hide');setTimeout(()=>ls.style.display='none',400);}
+  if(dataReady){render();}else{document.getElementById('app').innerHTML='<div class="loading"><div class="spin"></div>Loading data...</div>';}
+}
+let dataReady=false;
+if(userRole){const ls=document.getElementById('loginScreen');if(ls)ls.style.display='none';}
+
+const S={view:'dashboard',dateRange:'this_month',closerSub:'eod',closer_reports:[],setter_reports:[],call_reports:[],enrollments:[],
+  editingCloser:null, editingCloserRow:null,
+  editingSetter:null, editingSetterRow:null,
+  editingCall:null, editingCallRow:null,
+  editingDeal:null, editingDealRow:null,
+  editingEnroll:null, editingEnrollRow:null,
+  closers:JSON.parse(localStorage.getItem('aiagency_closers')||'null')||['Closer 1'],
+  setters:JSON.parse(localStorage.getItem('aiagency_setters')||'null')||['Setter 1'],
+  packages:JSON.parse(localStorage.getItem('aiagency_packages')||'null')||['Base44 Builder Pro Monthly'],
+  customStart:'',
+  customEnd:'',
+  paymentDays:7,
+  selectedClosers:JSON.parse(localStorage.getItem('aiagency_selectedClosers')||'null')||null,
+  selectedSetters:JSON.parse(localStorage.getItem('aiagency_selectedSetters')||'null')||null,
+  salesSub:'stats',
+  lbCol1:'cl',lbCol2:'cv',lbCol3:'clR',
+  lbW1:40,lbW2:20,lbW3:40,
+  stLbW1:40,stLbW2:20,stLbW3:40,
+  selectedSource:'all',
+  benchmarks:JSON.parse(localStorage.getItem('aiagency_benchmarks')||'null')||{dialConvo:.03,pitchedBooked:.70,bookedCalls:.70,callsOffers:.75,offersCloses:.35},
+};
+// Sync selectedClosers with closers on load
+if(S.selectedClosers){
+  S.closers.forEach(c=>{if(!S.selectedClosers.includes(c))S.selectedClosers.push(c)});
+  S.selectedClosers=S.selectedClosers.filter(c=>S.closers.includes(c));
+  localStorage.setItem('aiagency_selectedClosers',JSON.stringify(S.selectedClosers));
+}
+// Sync selectedSetters with setters on load
+if(S.selectedSetters){
+  S.setters.forEach(c=>{if(!S.selectedSetters.includes(c))S.selectedSetters.push(c)});
+  S.selectedSetters=S.selectedSetters.filter(c=>S.setters.includes(c));
+  localStorage.setItem('aiagency_selectedSetters',JSON.stringify(S.selectedSetters));
+}
+const $=id=>document.getElementById(id);
+const V=id=>$(id)?.value||'';
+const N=id=>Number(V(id))||0;
+const fmt=n=>{if(n==null||isNaN(n))return'$0';return'$'+Number(n).toLocaleString('en-US',{minimumFractionDigits:n%1!==0?2:0,maximumFractionDigits:2})};
+const pct=n=>(isNaN(n)||!isFinite(n)?'0%':(n*100).toFixed(1)+'%');
+const td=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+const mn=m=>['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][m];
+// Normalize any date value to YYYY-MM-DD in CST (UTC-6)
+function normDate(v){
+  if(!v)return '';
+  const s=String(v);
+  // Already YYYY-MM-DD
+  if(/^\d{4}-\d{2}-\d{2}$/.test(s))return s;
+  // ISO timestamp — extract date using UTC methods to avoid timezone shift
+  const d=new Date(s);
+  if(isNaN(d))return s;
+  return d.getUTCFullYear()+'-'+String(d.getUTCMonth()+1).padStart(2,'0')+'-'+String(d.getUTCDate()).padStart(2,'0');
+}
+// Format YYYY-MM-DD as "Mar 25, 2026"
+function fmtDate(v){
+  const s=normDate(v);
+  if(!s)return '';
+  const [y,m,d]=s.split('-');
+  return mn(parseInt(m,10)-1)+' '+parseInt(d,10)+', '+y;
+}
+
+function toast(m){const t=$('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500)}
+function savePackages(){
+  localStorage.setItem('aiagency_packages',JSON.stringify(S.packages));
+}
+async function syncConfigToSheet(showToast){
+  try{
+    if(showToast)toast('Saving settings...');
+    const r=await apiSaveConfig({closers:S.closers,setters:S.setters,packages:S.packages,discord:DISCORD});
+    if(showToast)toast('Settings saved & synced!');
+    return r;
+  }catch(e){
+    console.error('Config sync error',e);
+    if(showToast)toast('Sync failed — check console');
+  }
+}
+function saveBenchmarks(){
+  localStorage.setItem('aiagency_benchmarks',JSON.stringify(S.benchmarks));
+}
+function updateBenchmarks(){
+  S.benchmarks.dialConvo=(Number(document.getElementById('bm-dc').value)||3)/100;
+  S.benchmarks.pitchedBooked=(Number(document.getElementById('bm-pb').value)||70)/100;
+  S.benchmarks.bookedCalls=(Number(document.getElementById('bm-bc').value)||70)/100;
+  S.benchmarks.callsOffers=(Number(document.getElementById('bm-co').value)||75)/100;
+  S.benchmarks.offersCloses=(Number(document.getElementById('bm-oc').value)||35)/100;
+  saveBenchmarks();
+  toast('Benchmarks saved!');
+  render();
+}
+function saveTeam(){
+  localStorage.setItem('aiagency_closers',JSON.stringify(S.closers));
+  localStorage.setItem('aiagency_setters',JSON.stringify(S.setters));
+  if(S.selectedClosers){
+    S.closers.forEach(c=>{if(!S.selectedClosers.includes(c))S.selectedClosers.push(c)});
+    S.selectedClosers=S.selectedClosers.filter(c=>S.closers.includes(c));
+    localStorage.setItem('aiagency_selectedClosers',JSON.stringify(S.selectedClosers));
+  }
+  if(S.selectedSetters){
+    S.setters.forEach(c=>{if(!S.selectedSetters.includes(c))S.selectedSetters.push(c)});
+    S.selectedSetters=S.selectedSetters.filter(c=>S.setters.includes(c));
+    localStorage.setItem('aiagency_selectedSetters',JSON.stringify(S.selectedSetters));
+  }
+}
+
+function celebrateDeal(name,amount){
+  const ov=$('dealOverlay');
+  $('dealName').textContent=name;
+  $('dealAmount').textContent=fmt(amount);
+  const content=ov.querySelector('.deal-content');
+  const clone=content.cloneNode(true);
+  clone.querySelector('.deal-name').textContent=name;
+  clone.querySelector('.deal-amount').textContent=fmt(amount);
+  content.parentNode.replaceChild(clone,content);
+  const colors=['#22c55e','#4ade80','#16a34a','#fff','#eab308','#38bdf8','#f43f5e','#a855f7'];
+  for(let i=0;i<40;i++){
+    const c=document.createElement('div');
+    c.className='confetti';
+    c.style.left=Math.random()*100+'%';
+    c.style.background=colors[Math.floor(Math.random()*colors.length)];
+    c.style.animationDelay=(Math.random()*.8)+'s';
+    c.style.animationDuration=(1+Math.random()*1.5)+'s';
+    c.style.width=(4+Math.random()*8)+'px';
+    c.style.height=(4+Math.random()*8)+'px';
+    c.style.borderRadius=Math.random()>.5?'50%':'2px';
+    ov.appendChild(c);
+  }
+  ov.classList.add('show');
+  ov.classList.remove('out');
+  setTimeout(()=>{
+    ov.classList.add('out');
+    setTimeout(()=>{
+      ov.classList.remove('show','out');
+      ov.querySelectorAll('.confetti').forEach(c=>c.remove());
+    },500);
+  },3500);
+}
+
+// ── API calls ──
+async function apiRead(){
+  const r=await fetch(API+'?action=read');
+  return await r.json();
+}
+async function apiWrite(sheet,data){
+  const p=new URLSearchParams({action:'write',sheet,data:JSON.stringify(data)});
+  const r=await fetch(API+'?'+p.toString());
+  return await r.json();
+}
+async function apiUpdate(sheet,rowIndex,data){
+  const p=new URLSearchParams({action:'update',sheet,rowIndex:String(rowIndex),data:JSON.stringify(data)});
+  const r=await fetch(API+'?'+p.toString());
+  return await r.json();
+}
+async function apiDelete(sheet,rowIndex){
+  const p=new URLSearchParams({action:'delete',sheet,rowIndex:String(rowIndex)});
+  const r=await fetch(API+'?'+p.toString());
+  return await r.json();
+}
+async function apiSaveConfig(data){
+  const p=new URLSearchParams({action:'saveConfig',data:JSON.stringify(data)});
+  const r=await fetch(API+'?'+p.toString());
+  return await r.json();
+}
+async function deleteEnrollment(i,ev){
+  ev.stopPropagation();
+  if(!confirm('Delete this enrollment? This cannot be undone.'))return;
+  const rowIndex=S.enrollments[i]._rowIndex;
+  toast('Deleting...');
+  await apiDelete('enrollments',rowIndex);
+  await reload();
+  toast('Enrollment deleted.');
+}
+async function deleteSetterReport(i,ev){
+  ev.stopPropagation();
+  if(!confirm('Delete this setter report? This cannot be undone.'))return;
+  const rowIndex=S.setter_reports[i]._rowIndex;
+  toast('Deleting...');
+  await apiDelete('setter_reports',rowIndex);
+  await reload();
+  toast('Setter report deleted.');
+}
+async function deleteCloserReport(i,ev){
+  ev.stopPropagation();
+  if(!confirm('Delete this closer report? This cannot be undone.'))return;
+  const rowIndex=S.closer_reports[i]._rowIndex;
+  toast('Deleting...');
+  await apiDelete('closer_reports',rowIndex);
+  await reload();
+  toast('Closer report deleted.');
+}
+async function deleteCallReport(i,ev){
+  ev.stopPropagation();
+  if(!confirm('Delete this call report? This cannot be undone.'))return;
+  const rowIndex=S.call_reports[i]._rowIndex;
+  toast('Deleting...');
+  await apiDelete('call_reports',rowIndex);
+  await reload();
+  toast('Call report deleted.');
+}
+
+// ── Discord Webhooks ──
+// Paste your own Discord webhook URLs here (optional)
+const _dw=JSON.parse(localStorage.getItem('aiagency_discord')||'null')||{};
+const DISCORD={
+  callReports:_dw.callReports||'',
+  setterEOD:_dw.setterEOD||'',
+  closerEOD:_dw.closerEOD||'',
+  dealClosed:_dw.dealClosed||'',
+};
+function saveDiscord(){
+  DISCORD.callReports=document.getElementById('dw-cr')?.value||DISCORD.callReports;
+  DISCORD.setterEOD=document.getElementById('dw-se')?.value||DISCORD.setterEOD;
+  DISCORD.closerEOD=document.getElementById('dw-ce')?.value||DISCORD.closerEOD;
+  DISCORD.dealClosed=document.getElementById('dw-dc')?.value||DISCORD.dealClosed;
+  localStorage.setItem('aiagency_discord',JSON.stringify(DISCORD));
+  syncConfigToSheet(true);
+}
+async function sendDiscord(url,payload){
+  if(!url)return;
+  try{await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})}catch(e){console.error('Discord error',e)}
+}
+function discordCallReport(d){
+  const leadLine=d.leadEmail?`${d.leadName} - Email: ${d.leadEmail}`:d.leadName;
+  sendDiscord(DISCORD.callReports,{content:`📝 **CALL REPORT SUBMITTED**\n**Lead:** ${leadLine}\n**Deal Closed?** ${d.dealClosed}\n\n__________\n\n**CALL REPORT DETAILS**\n• **Closer:** ${d.closerName||'—'}\n• **Setter:** ${d.setterName||'—'}\n• **Source:** ${d.source||'—'}\n• **Date Call Taken:** ${d.date}\n• **Call Type:** ${d.callType}\n• **Offer Made?** ${d.offerMade}\n• **Sales Qualification Score:** ${d.salesQualScore||'—'}\n• **Main Objection:** ${d.mainObjection||'—'}\n\n• **Additional Notes on this Lead:** ${d.notes||'None'}`});
+}
+function discordSetterEOD(d){
+  sendDiscord(DISCORD.setterEOD,{content:`**EOD REPORT SUBMITTED** 📝 <@&1344451372845629645>\n\n**Setter:** ${d.setterName||'—'}\n**No. of Total Dials:** ${d.totalDials||0}\n**No. of Unique Lead Dials:** ${d.uniqueLeadsDialed}\n**No. of Pick Ups:** ${d.pickUps||0}\n**No. of Conversations:** ${d.conversationsOnPhone}\n**No. of Pitched Bookings:** ${d.pitchedBookings||0}\n**No. of Booked Appointments:** ${d.bookedAppointments}\n**No. of Self-Booked (Confirmed by You):** ${d.selfBooked||0}\n**Calls Showed Today:** ${d.callsShowed||0}\n\n**1 Win:** ${d.winForTheDay||'—'}\n**1 Improvement:** ${d.improvementForNextDay||'—'}`});
+}
+function discordCloserEOD(d){
+  sendDiscord(DISCORD.closerEOD,{content:`**EOD REPORT SUBMITTED** 📝 <@&1344451372845629645>\n\n**Closer:** ${d.closerName||'—'}\n**Date:** ${d.date}\n\n__________\n\n**DAILY STATS**\n• **Calls Booked:** ${d.scheduledCalls}\n• **Confirmed:** ${d.confirmedCalls}\n• **Calls Taken:** ${d.ssTaken}\n• **Offers:** ${d.offers}\n• **Closes:** ${d.closes}\n• **Rescheduled:** ${d.rescheduled}\n• **Cancelled (Lead):** ${d.cancelledLead}\n• **Cancelled (Setter):** ${d.cancelledSetter}\n• **Ghosted:** ${d.ghosted}\n• **Deposits:** ${d.deposit}\n• **Cash Collected:** $${d.cashCollected}\n• **Recurring Cash:** $${d.recurringCash}\n• **Contract Value:** $${d.contractValue}\n\n• **Notes:** ${d.notes||'None'}`});
+}
+function discordEnrollment(d){
+  sendDiscord(DISCORD.dealClosed,{content:`📋 **DEAL CLOSED**\n**Client:** ${d.name}\n\n__________\n\n**DEAL DETAILS**\n• **Date Closed:** ${d.dateJoined}\n• **Cash Collected:** $${d.ccOnSalesCall}\n• **Contract Value:** $${d.contractValue}\n\n• **Payment Plan:** ${d.paymentPlan}\n• **P1:** $${d.p1Amt} due ${d.p1Due||'—'}\n• **P2:** $${d.p2Amt} due ${d.p2Due||'—'}\n• **P3:** $${d.p3Amt} due ${d.p3Due||'—'}`});
+}
+
+// ── Date range ──
+function localDateStr(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function db(){
+  const now=new Date(),y=now.getFullYear(),m=now.getMonth(),t=td();
+  const ye=new Date(now);ye.setDate(now.getDate()-1);const ys=localDateStr(ye);
+  const sw=new Date(now);sw.setDate(now.getDate()-now.getDay());
+  const p=n=>String(n).padStart(2,'0');
+  switch(S.dateRange){
+    case'today':return{s:t,e:t,l:'Today'};case'yesterday':return{s:ys,e:ys,l:'Yesterday'};
+    case'this_week':return{s:localDateStr(sw),e:t,l:'This Week'};
+    case'this_month':return{s:`${y}-${p(m+1)}-01`,e:t,l:mn(m)+' '+y};
+    case'last_month':{const lm=m===0?11:m-1,ly=m===0?y-1:y,ld=new Date(ly,lm+1,0).getDate();return{s:`${ly}-${p(lm+1)}-01`,e:`${ly}-${p(lm+1)}-${ld}`,l:mn(lm)+' '+ly};}
+    case'q1':return{s:`${y}-01-01`,e:`${y}-03-31`,l:'Q1 '+y};case'q2':return{s:`${y}-04-01`,e:`${y}-06-30`,l:'Q2 '+y};
+    case'q3':return{s:`${y}-07-01`,e:`${y}-09-30`,l:'Q3 '+y};case'q4':return{s:`${y}-10-01`,e:`${y}-12-31`,l:'Q4 '+y};
+    case'ytd':return{s:`${y}-01-01`,e:t,l:'YTD '+y};case'all_time':return{s:'2020-01-01',e:t,l:'All Time'};
+    case'custom':return{s:S.customStart||t,e:S.customEnd||t,l:'Custom Range'};
+    default:return{s:`${y}-${p(m+1)}-01`,e:t,l:mn(m)+' '+y};
+  }
+}
+const inR=d=>{const b=db();return d>=b.s&&d<=b.e};
+
+// ── Metrics (YouTube removed) ──
+function M(){
+  const srcF=S.selectedSource&&S.selectedSource!=='all'?S.selectedSource:null;
+  const cr=S.closer_reports.filter(r=>inR(r.date)),sr=S.setter_reports.filter(r=>inR(r.date));
+  const ca=S.call_reports.filter(r=>inR(r.date)&&(!srcF||r.source===srcF));
+  const sm=(a,f)=>a.reduce((s,r)=>s+(Number(r[f])||0),0);
+  const tDi=sm(sr,'totalDials'),tUL=sm(sr,'uniqueLeadsDialed'),tPU=sm(sr,'pickUps'),tCo=sm(sr,'conversationsOnPhone'),tPB=sm(sr,'pitchedBookings'),tCB=sm(sr,'bookedAppointments'),tSB=sm(sr,'selfBooked');
+  const tSC=sm(cr,'scheduledCalls'),tSS=sm(cr,'ssTaken'),tOf=sm(cr,'offers'),tCl=sm(cr,'closes'),tRE=sm(cr,'rescheduled'),tCL=sm(cr,'cancelledLead'),tCS=sm(cr,'cancelledSetter'),tGH=sm(cr,'ghosted'),tCF=sm(cr,'confirmedCalls');const tNS=tCL+tCS+tRE+tGH;const tCn=tCL+tCS;
+  const tDe=sm(cr,'deposit'),tCa=sm(cr,'cashCollected'),tRC=sm(cr,'recurringCash'),tCV=sm(cr,'contractValue');
+  const tRev=tCV||tCa;
+  const clR=tSS>0?tCl/tSS:0,shR=tSC>0?tSS/tSC:0,nsR=1-shR,d2c=tDi>0?tCo/tDi:0,p2s=tPB>0?tCB/tPB:0,c2b=tCo>0?tCB/tCo:0,reR=tSC>0?tRE/tSC:0,cfR=tSC>0?tCF/tSC:0,clLR=tSC>0?tCL/tSC:0,csSR=tSC>0?tCS/tSC:0,ghR=tSC>0?tGH/tSC:0;
+  const cl2c=tSC>0?tCl/tSC:0,rSS=tSS>0?tRev/tSS:0,cSS=tSS>0?tCa/tSS:0,rCl=tCB>0?tRev/tCB:0,aCV=tCl>0?tCV/tCl:0,cBK=tSC>0?tCa/tSC:0,aov=tCl>0?tCa/tCl:0,ofClR=tOf>0?tCl/tOf:0,cOf=tOf>0?tCa/tOf:0,rOf=tOf>0?tRev/tOf:0,rBK=tSC>0?tRev/tSC:0;
+  const d2pu=tDi>0?tPU/tDi:0,pu2co=tPU>0?tCo/tPU:0,co2pb=tCo>0?tPB/tCo:0,pb2bk=tPB>0?tCB/tPB:0;
+  const aE=S.enrollments.filter(e=>e.active==='TRUE'||e.active===true).length;
+  const pif=S.enrollments.filter(e=>e.paymentPlan==='PIF').length;
+  const spl=S.enrollments.filter(e=>e.paymentPlan!=='PIF').length;
+  const rP=S.enrollments.filter(e=>e.active==='TRUE'||e.active===true).reduce((s,e)=>{
+    let rem=0;
+    if((e.p1Status||'Unpaid')==='Unpaid')rem+=Number(e.p1Amt)||0;
+    if((e.p2Status||'Unpaid')==='Unpaid')rem+=Number(e.p2Amt)||0;
+    if((e.p3Status||'Unpaid')==='Unpaid')rem+=Number(e.p3Amt)||0;
+    return s+rem;
+  },0);
+  const obj={};ca.filter(r=>r.mainObjection&&r.mainObjection!=='None'&&r.dealClosed!=='Yes').forEach(r=>{obj[r.mainObjection]=(obj[r.mainObjection]||0)+1});
+  const tCR=ca.length,tCOM=ca.filter(r=>r.offerMade==='Yes').length,tCDC=ca.filter(r=>r.dealClosed==='Yes').length;
+  let aStc=0;const closed=ca.filter(r=>r.dealClosed==='Yes'&&r.leadName);
+  if(closed.length>0){const all=S.call_reports;const sp=closed.map(c=>{const m=all.filter(r=>r.leadName&&r.leadName.toLowerCase().trim()===c.leadName.toLowerCase().trim());if(m.length>0){const f=m.reduce((e,r)=>r.date<e.date?r:e,m[0]);return Math.max(0,Math.ceil((new Date(c.date)-new Date(f.date))/864e5));}return 0});aStc=sp.length>0?(sp.reduce((s,d)=>s+d,0)/sp.length).toFixed(1):0;}
+  return{tDi,tUL,tPU,tCo,tPB,tCB,tSB,tSS,tSC,tOf,tCl,tNS,tRE,tCn,tCF,tCL,tCS,tGH,tDe,tCa,tRC,tCV,tRev,clR,shR,nsR,d2c,d2pu,pu2co,co2pb,pb2bk,p2s,c2b,cl2c,rSS,cSS,rCl,aCV,aov,cBK,ofClR,cOf,rOf,rBK,clLR,csSR,ghR,aE,pif,spl,rP,obj,tCR,tCOM,tCDC,aStc,reR,cfR};
+}
+
+// ── Render helpers ──
+function kpi(l,val,col,sm){return`<div class="kpi${sm?' sm':''}"><div class="bar" style="background:${col||'var(--green)'}"></div><div class="lbl">${l}</div><div class="val" style="color:${col||'#fff'}">${val}</div></div>`}
+function ff(l,id,type,val,opts){
+  if(opts)return`<div class="fl"><label>${l}</label><select id="${id}">${opts.map(o=>`<option value="${o}"${o==val?' selected':''}>${o}</option>`).join('')}</select></div>`;
+  return`<div class="fl"><label>${l}</label><input id="${id}" type="${type==='number'?'text':type||'text'}" ${type==='number'?'inputmode="decimal"':''} value="${val??''}"></div>`;
+}
+
+// ── Dashboard (YouTube section removed) ──
+function renderDash(){
+  const m=M(),b=db();
+  const bm=S.benchmarks;const funnel=[{f:'Total Dials',t:'Conversations',fv:m.tDi,tv:m.tCo,bench:bm.dialConvo},{f:'Pitched',t:'Booked Appts',fv:m.tPB||0,tv:m.tCB,bench:bm.pitchedBooked},{f:'Booked Appts',t:'Calls Taken',fv:m.tCB,tv:m.tSS,bench:bm.bookedCalls},{f:'Calls Taken',t:'Offers',fv:m.tSS,tv:m.tOf,bench:bm.callsOffers},{f:'Offers',t:'Closes',fv:m.tOf,tv:m.tCl,bench:bm.offersCloses}];
+  funnel.forEach(s=>{s.r=s.fv>0?s.tv/s.fv:0;s.gap=s.fv>0?s.bench-s.r:0;});
+  const ac=funnel.filter(s=>s.fv>0);const bn=ac.length>0?ac.reduce((w,s)=>s.gap>w.gap?s:w,ac[0]):null;
+  return`
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:16px">
+    <div style="font-size:14px;font-weight:700;color:rgba(255,255,255,.6)">Showing: <span style="color:var(--gl)">${b.l}</span></div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <div style="font-size:11px;font-weight:700;color:var(--dim)">SOURCE:</div>
+      ${['all',...["Organic","IG Reels"]].map(s=>`<button onclick="S.selectedSource='${s}';render()" style="padding:5px 12px;font-size:11px;font-weight:700;border-radius:6px;cursor:pointer;font-family:'Montserrat',sans-serif;transition:all .2s;border:1px solid ${S.selectedSource===s?'rgba(22,163,74,.5)':'rgba(255,255,255,.1)'};background:${S.selectedSource===s?'rgba(22,163,74,.2)':'rgba(255,255,255,.04)'};color:${S.selectedSource===s?'var(--gl)':'var(--dim)'}">${s==='all'?'All':s}</button>`).join('')}
+      <div style="font-size:11px;color:var(--dmr);margin-left:8px">${b.s} → ${b.e}</div>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px">
+    <div class="hero-c"><div class="lbl">CLOSES</div><div class="val">${m.tCl}</div></div>
+    <div class="hero-c"><div class="lbl">LIVE CALLS</div><div class="val">${m.tSS}</div></div>
+    <div class="hero-c"><div class="lbl">CALL CLOSE (%)</div><div class="val" style="color:${m.clR>=.2?'var(--gb)':'#fff'}">${pct(m.clR)}</div></div>
+    <div class="hero-c hl"><div class="lbl">TOTAL COLLECTED ($)</div><div class="val" style="color:var(--gb)">${fmt(m.tCa+m.tRC)}</div></div>
+  </div>
+  <div class="sec" style="padding:0;overflow:hidden;margin-bottom:16px"><div class="sec-h"><span>📊 PER-UNIT ECONOMICS</span></div><div class="g g3" style="padding:14px">${kpi('Cash / Booked Call',fmt(m.cBK),'#38bdf8')}${kpi('Rev / Booked Call',fmt(m.rBK),'#eab308')}${kpi('Cash / Live Call',fmt(m.cSS),'#22c55e')}${kpi('Rev / Live Call',fmt(m.rSS),'#10b981')}${kpi('Cash / Close',fmt(m.aov),'#f97316')}${kpi('Avg Contract',fmt(m.aCV),'#15803d')}</div></div>
+  <div class="sec" style="padding:0;overflow:hidden"><div class="sec-h"><span>💵 REVENUE</span></div><div class="g g3" style="padding:14px">${kpi('Cash Collected',fmt(m.tCa),'#22c55e')}${kpi('Total Revenue',fmt(m.tRev),'#10b981')}${kpi('Recurring Cash',fmt(m.tRC),'#15803d')}</div></div>
+  <div class="sec" style="padding:0;overflow:hidden"><div class="sec-h"><span>💰 CLOSER METRICS</span></div><div class="g g5" style="padding:14px">${kpi('Calls Booked',m.tSC,'#38bdf8',1)}${kpi('Confirmed',m.tCF,'#16a34a',1)}${kpi('Calls Taken',m.tSS,'#22c55e',1)}${kpi('Rescheduled',m.tRE,'#64748b',1)}${kpi('Cancelled (Lead)',m.tCL,'#f97316',1)}${kpi('Cancelled (Setter)',m.tCS,'#f43f5e',1)}${kpi('Ghosted',m.tGH,'#ef4444',1)}${kpi('Offers',m.tOf,'#eab308',1)}${kpi('Deposits',m.tDe,'#10b981',1)}${kpi('Closes',m.tCl,'#22c55e',1)}${kpi('Show Rate',pct(m.shR),m.shR>=.7?'#22c55e':'#eab308',1)}${kpi('Close Rate',pct(m.clR),m.clR>=.2?'#22c55e':'#eab308',1)}${kpi('Offer→Close',pct(m.ofClR),m.ofClR>=.3?'#22c55e':'#eab308',1)}${kpi('Booked→Close',pct(m.cl2c),'#15803d',1)}${kpi('Reschedule Rate',pct(m.reR),'#64748b',1)}${kpi('Cancel Rate (Lead)',pct(m.clLR),m.clLR<=.1?'#22c55e':'#f97316',1)}${kpi('Cancel Rate (Setter)',pct(m.csSR),m.csSR<=.05?'#22c55e':'#f43f5e',1)}${kpi('Ghost Rate',pct(m.ghR),m.ghR<=.1?'#22c55e':'#ef4444',1)}</div></div>
+  <div class="sec" style="padding:0;overflow:hidden"><div class="sec-h"><span>📞 SETTER METRICS</span></div><div class="g g5" style="padding:14px 14px 0">${kpi('Total Dials',m.tDi.toLocaleString(),'#38bdf8',1)}${kpi('Unique Leads',m.tUL.toLocaleString(),'#16a34a',1)}${kpi('Pick Ups',(m.tPU||0).toLocaleString(),'#06b6d4',1)}${kpi('Conversations',m.tCo.toLocaleString(),'#22c55e',1)}${kpi('Pitched',(m.tPB||0).toLocaleString(),'#a855f7',1)}${kpi('Booked',m.tCB.toLocaleString(),'#22c55e',1)}${kpi('Self-Booked',(m.tSB||0).toLocaleString(),'#eab308',1)}</div><div class="g g5" style="padding:10px 14px 14px">${kpi('Dials→PU',pct(m.d2pu),'',1)}${kpi('PU→Convo',pct(m.pu2co),'',1)}${kpi('Convo→Pitch',pct(m.co2pb),'',1)}${kpi('Pitch→Book',pct(m.pb2bk),'',1)}${kpi('Book→Close',pct(m.tCB>0?m.tCl/m.tCB:0),'',1)}${kpi('Set Rate (Dials)',pct(m.tDi>0?m.tCB/m.tDi:0),'',1)}${kpi('Set Rate (Unique)',pct(m.tUL>0?m.tCB/m.tUL:0),'',1)}${kpi('Unique→Close',pct(m.tUL>0?m.tCl/m.tUL:0),'',1)}${kpi('Unique→Cash',m.tUL>0?fmt(m.tCa/m.tUL):'$0','',1)}</div></div>
+  <div class="sec" style="padding:0;overflow:hidden"><div class="sec-h"><span>\u26a0\ufe0f FUNNEL BOTTLENECK DETECTOR</span></div><div style="padding:14px">${ac.length===0?'<div style="color:var(--dmr);text-align:center;padding:20px">Submit reports to see funnel</div>':`${bn&&bn.gap>0?`<div style="padding:14px 18px;border-radius:12px;margin-bottom:12px;background:rgba(244,63,94,.06);border:1px solid rgba(244,63,94,.15)"><div style="font-size:12px;font-weight:800;color:#f43f5e;margin-bottom:4px">\u26a0\ufe0f BIGGEST BOTTLENECK: ${bn.f} \u2192 ${bn.t}</div><div style="font-size:13px;color:rgba(255,255,255,.6)">Running at <span style="color:#f43f5e;font-weight:700">${pct(bn.r)}</span> vs <span style="color:var(--gl);font-weight:700">${pct(bn.bench)}</span> benchmark. ${bn.fv.toLocaleString()} \u2192 ${bn.tv.toLocaleString()}</div></div>`:''}${funnel.map(s=>{const isBn=bn&&s.f===bn.f&&s.gap>0;const atOrAbove=s.r>=s.bench;const col=atOrAbove?'#22c55e':s.gap>.3?'#f43f5e':s.gap>.15?'#f97316':'#eab308';const barW=s.bench>0?Math.min((s.r/s.bench)*100,100):0;return`<div class="funnel-r${isBn?' worst':''}"><div style="min-width:150px;font-size:11px;color:var(--dim);font-weight:600">${s.f} \u2192 ${s.t}</div><div style="flex:1;height:6px;border-radius:3px;background:rgba(255,255,255,.06);overflow:hidden;position:relative"><div style="width:${barW}%;height:100%;border-radius:3px;background:${col}"></div></div><span style="font-size:12px;font-weight:700;color:${col};min-width:50px;text-align:right">${pct(s.r)}</span><span style="font-size:10px;color:var(--dmr);min-width:55px;text-align:right">${pct(s.bench)}</span><span style="font-size:10px;color:var(--dmr);min-width:70px;text-align:right">${s.fv.toLocaleString()} \u2192 ${s.tv.toLocaleString()}</span></div>`}).join('')}`}</div></div>
+  <div class="sec"><div style="font-size:12px;font-weight:700;color:var(--dim);margin-bottom:14px;letter-spacing:.08em">🎓 ENROLLMENT OVERVIEW</div><div class="g g5">${kpi('Active',m.aE,'#16a34a',1)}${kpi('PIF',m.pif,'#22c55e',1)}${kpi('Split',m.spl,'#eab308',1)}${kpi('Recurring Collected',fmt(m.tRC),'#10b981',1)}${kpi('Pipeline Value',fmt(m.rP),'#15803d',1)}</div></div>`;
+}
+
+// ── Setter ──
+function renderSetter(){
+  const rec=S.setter_reports.slice(-8).reverse();
+  const ed=S.editingSetter;
+  const nameList=S.setters;
+  return`<div style="max-width:600px;margin:0 auto"><div class="sec">
+  ${ed?'<div style="padding:8px 14px;background:rgba(234,179,8,.1);border:1px solid rgba(234,179,8,.2);border-radius:8px;margin-bottom:16px;font-size:12px;color:#eab308;font-weight:600;display:flex;justify-content:space-between;align-items:center"><span>✏️ EDITING REPORT FROM '+ed.date+'</span><span style="cursor:pointer;color:rgba(255,255,255,.4)" onclick="S.editingSetter=null;S.editingSetterRow=null;render()">✕ Cancel</span></div>':''}
+  <div style="font-size:18px;font-weight:800;margin-bottom:4px">📞 Setter Daily Report</div><div style="font-size:12px;color:var(--dim);margin-bottom:24px">End-of-day entry</div><div style="display:flex;flex-direction:column;gap:16px">
+    ${ff('Setter Name','sf-nm','text',ed?.setterName||nameList[0],nameList)}
+    <div class="g g2">${ff('Work Date','sf-d','date',ed?.date||td())}${ff('# Total Dials','sf-di','number',ed?.totalDials||0)}</div>
+    <div class="g g2">${ff('# Unique Leads Dialed','sf-ul','number',ed?.uniqueLeadsDialed||0)}${ff('# Pick Ups','sf-pu','number',ed?.pickUps||0)}</div>
+    <div class="g g2">${ff('# Conversations','sf-co','number',ed?.conversationsOnPhone||0)}${ff('# Pitched Bookings','sf-pb','number',ed?.pitchedBookings||0)}</div>
+    <div class="g g2">${ff('# Booked Appointments','sf-ba','number',ed?.bookedAppointments||0)}${ff('# Self-Booked (Confirmed by You)','sf-sb','number',ed?.selfBooked||0)}</div>
+    ${ff('# Calls Booked By You That Showed Today','sf-cs','number',ed?.callsShowed||0)}
+    ${ff('1 Win For The Day','sf-w','text',ed?.winForTheDay||'')}
+    ${ff('1 Improvement','sf-i','text',ed?.improvementForNextDay||'')}
+    <button class="btn" style="background:${ed?'#eab308':'var(--green)'}" onclick="submitSetter()">${ed?'💾 Update Report':'Submit Setter Report'}</button>
+  </div></div>
+  <div class="sec"><div style="font-size:13px;font-weight:700;color:var(--dim);margin-bottom:12px">RECENT REPORTS <span style="font-weight:400;font-size:11px;color:var(--dmr)">(tap to edit)</span></div>
+  ${rec.length===0?'<div style="color:var(--dmr)">No reports yet</div>':''}
+  ${rec.map((r,i)=>{const ri=S.setter_reports.length-1-(rec.indexOf(r));return`<div class="rr" style="cursor:pointer;padding:12px 0;transition:background .2s" onmouseover="this.style.background='rgba(255,255,255,.03)'" onmouseout="this.style.background='transparent'" onclick="editSetter(${ri})"><div style="display:flex;justify-content:space-between;align-items:center;width:100%"><span>${fmtDate(r.date)}${r.setterName?' — <span style=color:var(--gl)>'+r.setterName+'</span>':''}</span><div style="display:flex;align-items:center;gap:12px"><span>Dials:${r.totalDials} | PU:${r.pickUps||0} | Convos:${r.conversationsOnPhone} | Pitched:${r.pitchedBookings||0} | Booked:${r.bookedAppointments} | Self:${r.selfBooked||0} | Showed:${r.callsShowed||0}</span><span onclick="deleteSetterReport(${ri},event)" title="Delete report" style="cursor:pointer;font-size:15px;color:rgba(244,63,94,.5);transition:color .2s" onmouseover="this.style.color='#f43f5e'" onmouseout="this.style.color='rgba(244,63,94,.5)'">🗑️</span></div></div></div>`}).join('')}
+  </div></div>`;
+}
+function editSetter(idx){
+  S.editingSetter={...S.setter_reports[idx]};
+  S.editingSetterRow=S.setter_reports[idx]._rowIndex;
+  render();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+async function submitSetter(){
+  // Validate all fields are filled
+  const reqFields=[{id:'sf-d',label:'Work Date'},{id:'sf-nm',label:'Setter Name'},{id:'sf-di',label:'Total Dials'},{id:'sf-ul',label:'Unique Leads Dialed'},{id:'sf-pu',label:'Pick Ups'},{id:'sf-co',label:'Conversations'},{id:'sf-pb',label:'Pitched Bookings'},{id:'sf-ba',label:'Booked Appointments'},{id:'sf-sb',label:'Self-Booked'},{id:'sf-cs',label:'Calls Showed'},{id:'sf-w',label:'Win For The Day'},{id:'sf-i',label:'Improvement'}];
+  for(const f of reqFields){
+    const el=document.getElementById(f.id);
+    const val=el?el.value.trim():'';
+    if(val===''||val===undefined){
+      toast('\u26a0\ufe0f "'+f.label+'" is required. Please fill out every field before submitting.');
+      if(el)el.focus();
+      return;
+    }
+  }
+  // Validate total dials >= unique leads
+  if(N('sf-di')<N('sf-ul')){
+    toast('\u26a0\ufe0f Total Dials ('+N('sf-di')+') cannot be less than Unique Leads Dialed ('+N('sf-ul')+'). Please fix before submitting.');
+    document.getElementById('sf-di')?.focus();
+    return;
+  }
+  toast('Saving...');
+  const data={date:V('sf-d'),setterName:V('sf-nm'),totalDials:N('sf-di'),uniqueLeadsDialed:N('sf-ul'),pickUps:N('sf-pu'),conversationsOnPhone:N('sf-co'),pitchedBookings:N('sf-pb'),bookedAppointments:N('sf-ba'),selfBooked:N('sf-sb'),callsShowed:N('sf-cs'),winForTheDay:V('sf-w'),improvementForNextDay:V('sf-i')};
+  if(S.editingSetterRow){
+    await apiUpdate('setter_reports',S.editingSetterRow,data);
+    S.editingSetter=null;S.editingSetterRow=null;
+    S.view='dashboard';
+    await reload();toast('Report updated!');
+  } else {
+    await apiWrite('setter_reports',data);
+    discordSetterEOD(data);
+    S.view='dashboard';
+    await reload();toast('Setter report saved!');
+  }
+}
+
+// ── Closer ──
+function renderCloser(){return`<div style="max-width:650px;margin:0 auto"><div class="sub-tabs"><button class="${S.closerSub==='eod'?'a':''}" onclick="S.closerSub='eod';render()">📊 Daily EOD</button><button class="${S.closerSub==='call'?'a':''}" onclick="S.closerSub='call';render()">📋 Call Report</button></div>${S.closerSub==='eod'?renderEOD():renderCall()}</div>`}
+
+function renderEOD(){
+  const rec=S.closer_reports.slice(-8).reverse();
+  const ed=S.editingCloser;
+  const nameList=S.closers;
+  return`<div class="sec">
+  ${ed?'<div style="padding:8px 14px;background:rgba(234,179,8,.1);border:1px solid rgba(234,179,8,.2);border-radius:8px;margin-bottom:16px;font-size:12px;color:#eab308;font-weight:600;display:flex;justify-content:space-between;align-items:center"><span>✏️ EDITING REPORT FROM '+ed.date+'</span><span style="cursor:pointer;color:rgba(255,255,255,.4)" onclick="S.editingCloser=null;S.editingCloserRow=null;render()">✕ Cancel</span></div>':''}
+  <div style="font-size:18px;font-weight:800;margin-bottom:4px">💰 Closer Daily Report</div><div style="font-size:12px;color:var(--dim);margin-bottom:24px">End-of-day summary</div><div style="display:flex;flex-direction:column;gap:16px">
+    <div class="g g2">${ff('Closer Name','cr-nm','text',ed?.closerName||nameList[0],nameList)}${ff('Date','cr-d','date',ed?.date||td())}</div>
+    <div class="g g5">${ff('Calls Booked','cr-sc','number',ed?.scheduledCalls||0)}${ff('Confirmed','cr-cf','number',ed?.confirmedCalls||0)}${ff('Calls Taken','cr-ss','number',ed?.ssTaken||0)}${ff('Offers','cr-of','number',ed?.offers||0)}${ff('Rescheduled','cr-fu','number',ed?.rescheduled||0)}</div>
+    <div class="g g5">${ff('Cancelled (Lead)','cr-cl-lead','number',ed?.cancelledLead||0)}${ff('Cancelled (Setter)','cr-cl-setter','number',ed?.cancelledSetter||0)}${ff('Ghosted','cr-gh','number',ed?.ghosted||0)}${ff('Deposits (#)','cr-de','number',ed?.deposit||0)}${ff('Closes','cr-cl','number',ed?.closes||0)}</div>
+    <div class="g g3">${ff('Contract Value ($)','cr-cv','number',ed?.contractValue||0)}${ff('Cash Collected ($)','cr-cc','number',ed?.cashCollected||0)}${ff('Recurring Cash ($)','cr-rc','number',ed?.recurringCash||0)}</div>
+    ${ff('Notes','cr-no','text',ed?.notes||'')}
+    <button class="btn" style="background:${ed?'#eab308':'var(--gb)'}" onclick="submitCloser()">${ed?'💾 Update Report':'Submit Daily Report'}</button>
+  </div></div>
+  <div class="sec"><div style="font-size:13px;font-weight:700;color:var(--dim);margin-bottom:12px">RECENT EOD <span style="font-weight:400;font-size:11px;color:var(--dmr)">(tap to edit)</span></div>
+  ${rec.length===0?'<div style="color:var(--dmr)">No reports yet</div>':''}
+  ${rec.map((r,i)=>{const ri=S.closer_reports.length-1-(rec.indexOf(r));return`<div class="rr" style="cursor:pointer;padding:12px 0;transition:background .2s" onmouseover="this.style.background='rgba(255,255,255,.03)'" onmouseout="this.style.background='transparent'" onclick="editCloser(${ri})"><div style="display:flex;justify-content:space-between;align-items:center;width:100%"><span>${fmtDate(r.date)}${r.closerName?' — <span style=color:var(--gl)>'+r.closerName+'</span>':''}</span><div style="display:flex;align-items:center;gap:12px"><span>Calls:${r.ssTaken} | Closes:${r.closes} | Cash:${fmt(r.cashCollected)}</span><span onclick="deleteCloserReport(${ri},event)" title="Delete report" style="cursor:pointer;font-size:15px;color:rgba(244,63,94,.5);transition:color .2s" onmouseover="this.style.color='#f43f5e'" onmouseout="this.style.color='rgba(244,63,94,.5)'">🗑️</span></div></div></div>`}).join('')}
+  </div>`;
+}
+function editCloser(idx){
+  S.editingCloser={...S.closer_reports[idx]};
+  S.editingCloserRow=S.closer_reports[idx]._rowIndex;
+  render();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+async function submitCloser(){
+  // Validate all fields are filled
+  const reqFields=[{id:'cr-nm',label:'Closer Name'},{id:'cr-d',label:'Date'},{id:'cr-sc',label:'Calls Booked'},{id:'cr-cf',label:'Confirmed'},{id:'cr-ss',label:'Calls Taken'},{id:'cr-of',label:'Offers'},{id:'cr-fu',label:'Rescheduled'},{id:'cr-cl-lead',label:'Cancelled (Lead)'},{id:'cr-cl-setter',label:'Cancelled (Setter)'},{id:'cr-gh',label:'Ghosted'},{id:'cr-de',label:'Deposits'},{id:'cr-cl',label:'Closes'},{id:'cr-cv',label:'Contract Value'},{id:'cr-cc',label:'Cash Collected'},{id:'cr-rc',label:'Recurring Cash'},{id:'cr-no',label:'Notes'}];
+  for(const f of reqFields){
+    const el=document.getElementById(f.id);
+    const val=el?el.value.trim():'';
+    if(val===''||val===undefined){
+      toast('\u26a0\ufe0f "'+f.label+'" is required. Please fill out every field before submitting.');
+      if(el)el.focus();
+      return;
+    }
+  }
+  const booked=N('cr-sc'),confirmed=N('cr-cf'),taken=N('cr-ss'),clLead=N('cr-cl-lead'),clSetter=N('cr-cl-setter'),ghosted=N('cr-gh'),resched=N('cr-fu');
+  const accounted=taken+clLead+clSetter+ghosted+resched;
+  if(booked>accounted){toast('\u26a0\ufe0f Calls Booked ('+booked+') cannot exceed Calls Taken + Cancelled + Ghosted + Rescheduled ('+accounted+'). Please fix before submitting.','#f43f5e');return;}
+  if(confirmed>booked){toast('\u26a0\ufe0f Confirmed ('+confirmed+') cannot exceed Calls Booked ('+booked+'). Please fix before submitting.','#f43f5e');return;}
+  toast('Saving...');
+  const data={date:V('cr-d'),closerName:V('cr-nm'),scheduledCalls:booked,confirmedCalls:confirmed,ssTaken:taken,offers:N('cr-of'),cancelledLead:clLead,cancelledSetter:clSetter,ghosted:ghosted,rescheduled:resched,deposit:N('cr-de'),closes:N('cr-cl'),contractValue:N('cr-cv'),cashCollected:N('cr-cc'),recurringCash:N('cr-rc'),notes:V('cr-no')};
+  if(S.editingCloserRow){
+    await apiUpdate('closer_reports',S.editingCloserRow,data);
+    S.editingCloser=null;S.editingCloserRow=null;
+    S.view='dashboard';
+    await reload();toast('Report updated!');
+  } else {
+    await apiWrite('closer_reports',data);
+    discordCloserEOD(data);
+    S.view='dashboard';
+    await reload();toast('Closer report saved!');
+  }
+}
+
+function renderCall(){
+  const m=M();const rec=S.call_reports.slice(-8).reverse();const oe=Object.entries(m.obj).sort((a,b)=>b[1]-a[1]);const mx=oe.length>0?Math.max(...oe.map(e=>e[1])):1;
+  const ed=S.editingCall;
+  const dcYes=S._dealClosed==='Yes'||(ed&&ed.dealClosed==='Yes');
+  return`<div class="sec">
+  ${ed?'<div style="padding:8px 14px;background:rgba(234,179,8,.1);border:1px solid rgba(234,179,8,.2);border-radius:8px;margin-bottom:16px;font-size:12px;color:#eab308;font-weight:600;display:flex;justify-content:space-between;align-items:center"><span>✏️ EDITING: '+(ed.leadName||'?')+' ('+ed.date+')</span><span style="cursor:pointer;color:rgba(255,255,255,.4)" onclick="S.editingCall=null;S.editingCallRow=null;S._dealClosed=null;render()">✕ Cancel</span></div>':''}
+  <div style="font-size:18px;font-weight:800;margin-bottom:4px">📋 Call Report</div><div style="font-size:12px;color:var(--dim);margin-bottom:24px">Submit after every sales call — if deal closed, fill in the deal details below</div>
+  <div style="display:flex;flex-direction:column;gap:16px">
+    ${ff('Lead Name','ca-ln','text',ed?.leadName||'')}
+    <div class="g g2">${ff('Lead Email','ca-em','text',ed?.leadEmail||'')}${ff('Source','ca-src','text',ed?.source||["Organic","IG Reels"][0],["Organic","IG Reels"])}</div>
+    <div class="g g2">${ff('Closer','ca-cl','text',ed?.closerName||S.closers[0],S.closers)}${ff('Setter','ca-st','text',ed?.setterName||S.setters[0],S.setters)}</div>
+    <div class="g g2">${ff('Date','ca-d','date',ed?.date||td())}${ff('Call Type','ca-ct','text',ed?.callType||'Initial Sales Call',['Initial Sales Call','Follow Up Call'])}</div>
+    <div class="g g2">${ff('Offer Made?','ca-om','text',ed?.offerMade||'No',['Yes','No'])}${ff('Deal Closed?','ca-dc','text',ed?.dealClosed||'No',['Yes','No'])}</div>
+    <div class="g g2">${ff('Sales Qual (1-5)','ca-sq','text',ed?.salesQualScore||'')}${ff('Main Objection','ca-ob','text',ed?.mainObjection||'None',['None','Price','Timing','Need to think','Spouse/Partner','Burned Before','Logistical','Not interested','Other'])}</div>
+    ${ff('Notes','ca-no','text',ed?.notes||'')}
+    <div id="deal-fields" style="display:${dcYes?'flex':'none'};flex-direction:column;gap:16px;padding:20px;background:rgba(34,197,94,.04);border:1px solid rgba(34,197,94,.15);border-radius:12px;margin-top:4px">
+      <div style="font-size:14px;font-weight:800;color:var(--gb)">🏆 Deal Details</div>
+      <div class="g g2">${ff('Package Sold','ca-pkg','text',ed?.packageSold||S.packages[0]||'',S.packages)}${ff('Contract Value ($)','ca-cv','number',ed?.contractValue||0)}</div>
+      <div class="g g2">${ff('Cash Collected ($)','ca-cc','number',ed?.cashCollected_deal||0)}${ff('Payment Plan','ca-pp','text',ed?.paymentPlan||'Triple-Split',['PIF','Double-Split','Triple-Split'])}</div>
+      ${ff('Payment Plan Details','ca-ppd','text',ed?.paymentPlanDetails||'')}
+      <div class="g g3">${ff('P1 ($)','ca-p1a','number',ed?.p1Amt||0)}${ff('P1 Due','ca-p1d','date',ed?.p1Due||'')}${ff('P2 ($)','ca-p2a','number',ed?.p2Amt||0)}</div>
+      <div class="g g3">${ff('P2 Due','ca-p2d','date',ed?.p2Due||'')}${ff('P3 ($)','ca-p3a','number',ed?.p3Amt||0)}${ff('P3 Due','ca-p3d','date',ed?.p3Due||'')}</div>
+    </div>
+    <button class="btn" style="background:${ed?'#eab308':'var(--green)'}" onclick="submitCallR()">${ed?'💾 Update Report':'Submit Report'}</button>
+  </div></div>
+  <div class="sec"><div style="font-size:13px;font-weight:700;color:var(--dim);margin-bottom:12px">📊 CALL INSIGHTS</div><div class="g g3">${kpi('Total Calls',m.tCR,'#16a34a',1)}${kpi('Offers Made',m.tCOM,'#eab308',1)}${kpi('Deals Closed',m.tCDC,'#22c55e',1)}</div>${oe.length>0?`<div style="margin-top:16px"><div style="font-size:12px;font-weight:700;color:var(--dim);margin-bottom:8px">TOP OBJECTIONS</div>${oe.map(([o,c])=>`<div style="display:flex;align-items:center;gap:10px;padding:6px 0"><span style="flex:1;font-size:12px;color:rgba(255,255,255,.6);font-weight:600">${o}</span><div style="width:120px;height:6px;border-radius:3px;background:rgba(255,255,255,.06);overflow:hidden"><div style="width:${(c/mx)*100}%;height:100%;border-radius:3px;background:#f43f5e"></div></div><span style="font-size:12px;font-weight:700;color:#f43f5e">${c}</span></div>`).join('')}</div>`:''}${m.aStc>0?`<div style="margin-top:16px;padding:12px 16px;background:rgba(22,163,74,.06);border-radius:10px"><span style="font-size:12px;color:var(--dim)">⚡ Avg Speed to Close: </span><span style="font-size:16px;font-weight:800;color:var(--gl)">${m.aStc} days</span></div>`:''}</div>
+  <div class="sec"><div style="font-size:13px;font-weight:700;color:var(--dim);margin-bottom:12px">RECENT CALLS <span style="font-weight:400;font-size:11px;color:var(--dmr)">(tap to edit)</span></div>${rec.length===0?'<div style="color:var(--dmr)">No call reports yet</div>':''}${rec.map(r=>{const ri=S.call_reports.length-1-(rec.indexOf(r));return`<div style="padding:12px 0;border-bottom:1px solid rgba(255,255,255,.04);cursor:pointer;transition:background .2s" onmouseover="this.style.background='rgba(255,255,255,.03)'" onmouseout="this.style.background='transparent'" onclick="editCall(${ri})"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><span style="font-size:13px;font-weight:700">${r.leadName||'?'}</span><div style="display:flex;align-items:center;gap:10px"><span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:6px;background:${r.dealClosed==='Yes'?'rgba(34,197,94,.15)':'rgba(244,63,94,.1)'};color:${r.dealClosed==='Yes'?'#22c55e':'#f43f5e'}">${r.dealClosed==='Yes'?'CLOSED':'NOT CLOSED'}</span><span onclick="deleteCallReport(${ri},event)" title="Delete call report" style="cursor:pointer;font-size:15px;color:rgba(244,63,94,.5);transition:color .2s" onmouseover="this.style.color='#f43f5e'" onmouseout="this.style.color='rgba(244,63,94,.5)'">🗑️</span></div></div><div style="font-size:11px;color:var(--dim);display:flex;gap:12px;flex-wrap:wrap"><span>${r.date}</span><span>${r.callType}</span>${r.mainObjection&&r.mainObjection!=='None'?`<span style="color:#f43f5e">Obj:${r.mainObjection}</span>`:''}</div></div>`}).join('')}</div>`;
+}
+function editCall(idx){
+  S.editingCall={...S.call_reports[idx]};
+  S.editingCallRow=S.call_reports[idx]._rowIndex;
+  if(S.editingCall.dealClosed==='Yes')S._dealClosed='Yes';
+  render();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function watchDealClosed(){
+  const dcEl=document.getElementById('ca-dc');
+  if(!dcEl)return;
+  dcEl.addEventListener('change',function(){
+    S._dealClosed=this.value;
+    const df=document.getElementById('deal-fields');
+    if(df)df.style.display=this.value==='Yes'?'flex':'none';
+  });
+}
+async function submitCallR(){
+  // Validate all base fields are filled
+  const baseFields=[{id:'ca-ln',label:'Lead Name'},{id:'ca-em',label:'Lead Email'},{id:'ca-src',label:'Source'},{id:'ca-cl',label:'Closer'},{id:'ca-st',label:'Setter'},{id:'ca-d',label:'Date'},{id:'ca-ct',label:'Call Type'},{id:'ca-om',label:'Offer Made'},{id:'ca-dc',label:'Deal Closed'},{id:'ca-sq',label:'Sales Qual Score'},{id:'ca-ob',label:'Main Objection'},{id:'ca-no',label:'Notes'}];
+  for(const f of baseFields){
+    const el=document.getElementById(f.id);
+    const val=el?el.value.trim():'';
+    if(val===''||val===undefined){
+      toast('\u26a0\ufe0f "'+f.label+'" is required. Please fill out every field before submitting.');
+      if(el)el.focus();
+      return;
+    }
+  }
+  const isDeal=V('ca-dc')==='Yes';
+  if(isDeal){
+    const dealFields=[{id:'ca-pkg',label:'Package Sold'},{id:'ca-cv',label:'Contract Value'},{id:'ca-cc',label:'Cash Collected'},{id:'ca-pp',label:'Payment Plan'},{id:'ca-ppd',label:'Payment Plan Details'},{id:'ca-p1a',label:'P1 Amount'},{id:'ca-p1d',label:'P1 Due Date'},{id:'ca-p2a',label:'P2 Amount'},{id:'ca-p2d',label:'P2 Due Date'},{id:'ca-p3a',label:'P3 Amount'},{id:'ca-p3d',label:'P3 Due Date'}];
+    for(const f of dealFields){
+      const el=document.getElementById(f.id);
+      const val=el?el.value.trim():'';
+      if(val===''||val===undefined){
+        toast('\u26a0\ufe0f "'+f.label+'" is required for a closed deal. Please fill out every field before submitting.');
+        if(el)el.focus();
+        return;
+      }
+    }
+  }
+  toast('Saving...');
+  const data={date:V('ca-d'),leadName:V('ca-ln'),leadEmail:V('ca-em'),source:V('ca-src'),closerName:V('ca-cl'),setterName:V('ca-st'),callType:V('ca-ct'),offerMade:V('ca-om'),dealClosed:V('ca-dc'),salesQualScore:V('ca-sq'),mainObjection:V('ca-ob'),notes:V('ca-no'),
+    packageSold:isDeal?V('ca-pkg'):'',contractValue:isDeal?N('ca-cv'):0,cashCollected_deal:isDeal?N('ca-cc'):0,paymentPlan:isDeal?V('ca-pp'):'',paymentPlanDetails:isDeal?V('ca-ppd'):'',p1Amt:isDeal?N('ca-p1a'):0,p1Due:isDeal?V('ca-p1d'):'',p2Amt:isDeal?N('ca-p2a'):0,p2Due:isDeal?V('ca-p2d'):'',p3Amt:isDeal?N('ca-p3a'):0,p3Due:isDeal?V('ca-p3d'):''};
+  if(S.editingCallRow){
+    await apiUpdate('call_reports',S.editingCallRow,data);
+    S.editingCall=null;S.editingCallRow=null;S._dealClosed=null;
+    await reload();toast('Report updated!');
+  } else {
+    await apiWrite('call_reports',data);
+    discordCallReport(data);
+    if(isDeal){
+      const enrollData={name:V('ca-ln'),dateJoined:V('ca-d'),duration:26,contractValue:N('ca-cv'),ccOnSalesCall:N('ca-cc'),paymentPlan:V('ca-pp'),p1Amt:N('ca-p1a'),p1Due:V('ca-p1d'),p1Status:'Unpaid',p2Amt:N('ca-p2a'),p2Due:V('ca-p2d'),p2Status:'Unpaid',p3Amt:N('ca-p3a'),p3Due:V('ca-p3d'),p3Status:'Unpaid',active:'TRUE'};
+      await apiWrite('enrollments',enrollData);
+      const _em=V('ca-em');const _src=V('ca-src');
+      sendDiscord(DISCORD.dealClosed,{content:`📝 **DEAL CLOSED**\n**Client:** ${V('ca-ln')}${_em?' - Email: '+_em:''}\n**Source:** ${_src||'—'}\n\n__________\n\n**DEAL DETAILS**\n• **Closer:** ${V('ca-cl')}\n• **Setter:** ${V('ca-st')}\n• **Date Closed:** ${V('ca-d')}\n• **Cash Collected:** $${N('ca-cc')}\n• **Contract Value:** $${N('ca-cv')}\n\n• **Payment Plan:** ${V('ca-pp')}\n• **Payment Plan Details:** ${V('ca-ppd')||'—'}\n• **Package Sold:** ${V('ca-pkg')}`});
+      celebrateDeal(data.leadName,data.cashCollected_deal||data.contractValue);
+    }
+    S._dealClosed=null;
+    await reload();if(!isDeal)toast('Call report saved!');
+  }
+}
+
+// ── Enrollments ──
+function renderEnroll(){
+  const t=td(),due=[],over=[],up=[];
+  const ed=S.editingEnroll;
+  S.enrollments.forEach(e=>{if(e.active!=='TRUE'&&e.active!==true)return;[['P1',e.p1Due,e.p1Amt,e.p1Status],['P2',e.p2Due,e.p2Amt,e.p2Status],['P3',e.p3Due,e.p3Amt,e.p3Status]].forEach(([l,d,a,st])=>{if(!d)return;const status=(st||'Unpaid');if(status==='Paid')return;if(d===t)due.push({n:e.name,p:l,a:Number(a)||0});else if(d<t)over.push({n:e.name,p:l,a:Number(a)||0,d});else{const df=Math.ceil((new Date(d+'T00:00:00')-new Date(t+'T00:00:00'))/864e5);if(S.paymentDays===0||df<=S.paymentDays)up.push({n:e.name,p:l,a:Number(a)||0,d,df})}})});
+  return`<div style="display:flex;flex-direction:column;gap:20px">
+  <div class="sec" style="max-width:700px;margin:0 auto;width:100%">
+  ${ed?'<div style="padding:8px 14px;background:rgba(234,179,8,.1);border:1px solid rgba(234,179,8,.2);border-radius:8px;margin-bottom:16px;font-size:12px;color:#eab308;font-weight:600;display:flex;justify-content:space-between;align-items:center"><span>✏️ EDITING: '+(ed.name||'?')+'</span><span style="cursor:pointer;color:rgba(255,255,255,.4)" onclick="S.editingEnroll=null;S.editingEnrollRow=null;render()">✕ Cancel</span></div>':''}
+  <div style="font-size:18px;font-weight:800;margin-bottom:4px">🎓 ${ed?'Edit Enrollment':'New Enrollment'}</div><div style="font-size:12px;color:var(--dim);margin-bottom:24px">${ed?'Update student details':'Track students'}</div><div style="display:flex;flex-direction:column;gap:16px"><div class="g g3">${ff('Name','en-n','text',ed?.name||'')}${ff('Date Joined','en-dj','date',ed?.dateJoined||td())}${ff('Contract ($)','en-cv','number',ed?.contractValue||0)}</div><div class="g g3">${ff('CC on Call ($)','en-cc','number',ed?.ccOnSalesCall||0)}${ff('Duration (Wks)','en-du','number',ed?.duration||26)}${ff('Plan','en-pp','text',ed?.paymentPlan||'Triple-Split',['PIF','Double-Split','Triple-Split'])}</div><div class="g g3">${ff('P1 ($)','en-p1a','number',ed?.p1Amt||0)}${ff('P1 Due','en-p1d','date',ed?.p1Due||'')}${ff('P1 Status','en-p1s','text',ed?.p1Status||'Unpaid',['Unpaid','Paid','Defaulted'])}</div><div class="g g3">${ff('P2 ($)','en-p2a','number',ed?.p2Amt||0)}${ff('P2 Due','en-p2d','date',ed?.p2Due||'')}${ff('P2 Status','en-p2s','text',ed?.p2Status||'Unpaid',['Unpaid','Paid','Defaulted'])}</div><div class="g g3">${ff('P3 ($)','en-p3a','number',ed?.p3Amt||0)}${ff('P3 Due','en-p3d','date',ed?.p3Due||'')}${ff('P3 Status','en-p3s','text',ed?.p3Status||'Unpaid',['Unpaid','Paid','Defaulted'])}</div>${ed?ff('Active','en-act','text',ed?.active||'TRUE',['TRUE','FALSE']):''}
+  <button class="btn" style="background:${ed?'#eab308':'var(--gd)'}" onclick="submitEnroll()">${ed?'💾 Update Enrollment':'Add Enrollment'}</button></div></div>
+  <div class="sec"><div style="font-size:14px;font-weight:800;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center"><span>💳 Payments Overview</span><div style="display:flex;align-items:center;gap:8px"><span style="font-size:12px;color:var(--dim);font-weight:400">${t}</span></div></div>
+  ${over.length>0?`<div style="margin-bottom:16px"><div style="font-size:12px;font-weight:700;color:#f43f5e;margin-bottom:8px;display:flex;justify-content:space-between"><span>🚨 OVERDUE (${over.length})</span><span>${fmt(over.reduce((s,p)=>s+p.a,0))}</span></div>${over.map(p=>`<div style="padding:10px 14px;margin-bottom:4px;border-radius:8px;background:rgba(244,63,94,.06);border:1px solid rgba(244,63,94,.12);display:flex;justify-content:space-between"><div><span style="font-weight:600">${p.n}</span><span style="font-size:11px;color:var(--dim);margin-left:8px">${p.p} — due ${p.d}</span></div><span style="font-weight:700;color:#f43f5e">${fmt(p.a)}</span></div>`).join('')}</div>`:''}
+  <div style="margin-bottom:16px"><div style="font-size:12px;font-weight:700;color:${due.length>0?'#eab308':'var(--dim)'};margin-bottom:8px">📅 DUE TODAY (${due.length})</div>${due.length===0?'<div style="font-size:13px;color:var(--dmr)">No payments due today</div>':''}${due.map(p=>`<div style="padding:10px 14px;margin-bottom:4px;border-radius:8px;background:rgba(234,179,8,.06);border:1px solid rgba(234,179,8,.12);display:flex;justify-content:space-between"><div><span style="font-weight:600">${p.n}</span><span style="font-size:11px;color:var(--dim);margin-left:8px">${p.p}</span></div><span style="font-weight:700;color:#eab308">${fmt(p.a)}</span></div>`).join('')}</div>
+  <div><div style="font-size:12px;font-weight:700;color:var(--dim);margin-bottom:8px;display:flex;justify-content:space-between;align-items:center"><span>📆 UPCOMING${S.paymentDays>0?' '+S.paymentDays+' DAYS':' (ALL)'} (${up.length})${up.length>0?' — '+fmt(up.reduce((s,p)=>s+p.a,0)):''}</span><div style="display:flex;gap:4px">${[7,14,30,60,0].map(d=>`<button onclick="S.paymentDays=${d};render()" style="padding:3px 8px;font-size:10px;font-weight:600;border-radius:6px;cursor:pointer;border:1px solid ${S.paymentDays===d?'rgba(22,163,74,.4)':'rgba(255,255,255,.08)'};background:${S.paymentDays===d?'rgba(22,163,74,.2)':'rgba(255,255,255,.04)'};color:${S.paymentDays===d?'var(--gl)':'var(--dim)'};font-family:'Montserrat',sans-serif">${d===0?'All':d+'d'}</button>`).join('')}</div></div>${up.length===0?'<div style="font-size:13px;color:var(--dmr)">No upcoming payments in this window</div>':''}${up.sort((a,b)=>a.df-b.df).map(p=>`<div style="padding:10px 14px;margin-bottom:4px;border-radius:8px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);display:flex;justify-content:space-between"><div><span style="font-weight:600">${p.n}</span><span style="font-size:11px;color:var(--dim);margin-left:8px">${p.p} — ${p.d}</span></div><div style="text-align:right"><span style="font-weight:700;color:rgba(255,255,255,.7)">${fmt(p.a)}</span><div style="font-size:10px;color:var(--dmr)">in ${p.df}d</div></div></div>`).join('')}</div></div>
+  <div class="sec"><div style="font-size:13px;font-weight:700;color:var(--dim);margin-bottom:16px">ALL ENROLLMENTS <span style="font-weight:400;font-size:11px;color:var(--dmr)">(tap row to edit)</span></div><div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr style="border-bottom:1px solid rgba(255,255,255,.1)">${['Status','Name','Joined','Contract','CC','Plan','P1','P1 Status','P2','P2 Status','P3','P3 Status','Remaining',''].map(h=>`<th style="padding:8px 10px;text-align:left;color:var(--dim);font-weight:600;white-space:nowrap">${h}</th>`).join('')}</tr></thead><tbody>${S.enrollments.map((e,i)=>{const act=e.active==='TRUE'||e.active===true;const rem=(Number(e.contractValue)||0)-(Number(e.ccOnSalesCall)||0);const pBadge=(s,idx)=>{const st=s||'Unpaid';const col=st==='Paid'?'#22c55e':st==='Defaulted'?'#f43f5e':'#eab308';const bg=st==='Paid'?'rgba(34,197,94,.15)':st==='Defaulted'?'rgba(244,63,94,.15)':'rgba(234,179,8,.15)';return`<span onclick="event.stopPropagation();cyclePayStatus(${i},'${idx}')" style="cursor:pointer;padding:2px 7px;border-radius:5px;font-size:9px;font-weight:700;background:${bg};color:${col};transition:all .2s">${st.toUpperCase()}</span>`};return`<tr style="border-bottom:1px solid rgba(255,255,255,.04);cursor:pointer;transition:background .2s" onmouseover="this.style.background='rgba(255,255,255,.03)'" onmouseout="this.style.background='transparent'" onclick="editEnroll(${i})"><td style="padding:10px 10px"><span onclick="event.stopPropagation();toggleEnrollActive(${i})" style="cursor:pointer;padding:3px 8px;border-radius:6px;font-size:10px;font-weight:700;background:${act?'rgba(34,197,94,.15)':'rgba(244,63,94,.15)'};color:${act?'#22c55e':'#f43f5e'};transition:all .2s">${act?'ACTIVE':'INACTIVE'}</span></td><td style="padding:10px 10px;font-weight:600">${e.name}</td><td style="padding:10px 10px;color:var(--dim)">${fmtDate(e.dateJoined)||''}</td><td style="padding:10px 10px;color:#22c55e">${fmt(e.contractValue)}</td><td style="padding:10px 10px;color:var(--dim)">${fmt(e.ccOnSalesCall)}</td><td style="padding:10px 10px;color:var(--dim)">${e.paymentPlan}</td><td style="padding:10px 10px;color:var(--dim)">${fmt(e.p1Amt)}</td><td style="padding:10px 6px">${pBadge(e.p1Status,'p1Status')}</td><td style="padding:10px 10px;color:var(--dim)">${fmt(e.p2Amt)}</td><td style="padding:10px 6px">${pBadge(e.p2Status,'p2Status')}</td><td style="padding:10px 10px;color:var(--dim)">${fmt(e.p3Amt)}</td><td style="padding:10px 6px">${pBadge(e.p3Status,'p3Status')}</td><td style="padding:10px 10px;font-weight:700;color:${rem>0?'#f97316':'#22c55e'}">${fmt(rem)}</td><td style="padding:10px 8px"><span onclick="deleteEnrollment(${i},event)" title="Delete enrollment" style="cursor:pointer;font-size:16px;color:rgba(244,63,94,.6);transition:color .2s" onmouseover="this.style.color='#f43f5e'" onmouseout="this.style.color='rgba(244,63,94,.6)'">🗑️</span></td></tr>`}).join('')}</tbody></table>${S.enrollments.length===0?'<div style="color:var(--dmr);padding:20px;text-align:center">No enrollments yet</div>':''}</div></div></div>`;
+}
+function editEnroll(idx){
+  S.editingEnroll={...S.enrollments[idx]};
+  S.editingEnrollRow=S.enrollments[idx]._rowIndex;
+  render();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+async function toggleEnrollActive(idx){
+  const e=S.enrollments[idx];
+  const act=e.active==='TRUE'||e.active===true;
+  const newStatus=act?'FALSE':'TRUE';
+  toast('Updating...');
+  await apiUpdate('enrollments',e._rowIndex,{...e,active:newStatus});
+  await reload();toast(act?'Set to Inactive':'Set to Active');
+}
+async function cyclePayStatus(idx,field){
+  const e=S.enrollments[idx];
+  const cur=e[field]||'Unpaid';
+  const next=cur==='Unpaid'?'Paid':cur==='Paid'?'Defaulted':'Unpaid';
+  toast('Updating...');
+  const updated={...e};updated[field]=next;
+  await apiUpdate('enrollments',e._rowIndex,updated);
+  await reload();toast(field.toUpperCase().replace('STATUS','')+': '+next);
+}
+async function submitEnroll(){
+  toast('Saving...');
+  const data={name:V('en-n'),dateJoined:V('en-dj'),duration:N('en-du'),contractValue:N('en-cv'),ccOnSalesCall:N('en-cc'),paymentPlan:V('en-pp'),p1Amt:N('en-p1a'),p1Due:V('en-p1d'),p1Status:V('en-p1s')||'Unpaid',p2Amt:N('en-p2a'),p2Due:V('en-p2d'),p2Status:V('en-p2s')||'Unpaid',p3Amt:N('en-p3a'),p3Due:V('en-p3d'),p3Status:V('en-p3s')||'Unpaid',active:S.editingEnrollRow?V('en-act'):'TRUE'};
+  if(S.editingEnrollRow){
+    await apiUpdate('enrollments',S.editingEnrollRow,data);
+    S.editingEnroll=null;S.editingEnrollRow=null;
+    await reload();toast('Enrollment updated!');
+  } else {
+    await apiWrite('enrollments',data);
+    await reload();toast('Enrollment saved!');
+  }
+}
+
+// ── Sales Tracker ──
+function toggleCloserFilter(name){
+  if(!S.selectedClosers)S.selectedClosers=[...S.closers];
+  const idx=S.selectedClosers.indexOf(name);
+  if(idx>-1)S.selectedClosers.splice(idx,1);else S.selectedClosers.push(name);
+  localStorage.setItem('aiagency_selectedClosers',JSON.stringify(S.selectedClosers));
+  render();
+}
+function toggleSetterFilter(name){
+  if(!S.selectedSetters)S.selectedSetters=[...S.setters];
+  const idx=S.selectedSetters.indexOf(name);
+  if(idx>-1)S.selectedSetters.splice(idx,1);else S.selectedSetters.push(name);
+  localStorage.setItem('aiagency_selectedSetters',JSON.stringify(S.selectedSetters));
+  render();
+}
+function salesMetrics(){
+  const sel=S.selectedClosers||S.closers;
+  const cr=S.closer_reports.filter(r=>inR(r.date)&&sel.includes(r.closerName));
+  const sm=(a,f)=>a.reduce((s,r)=>s+(Number(r[f])||0),0);
+  const sc=sm(cr,'scheduledCalls'),cf=sm(cr,'confirmedCalls'),lc=sm(cr,'ssTaken'),of=sm(cr,'offers'),dep=sm(cr,'deposit'),cl=sm(cr,'closes'),re=sm(cr,'rescheduled'),clL=sm(cr,'cancelledLead'),clS=sm(cr,'cancelledSetter'),gh=sm(cr,'ghosted'),ns=clL+clS+re+gh;
+  const ca=sm(cr,'cashCollected'),rc=sm(cr,'recurringCash'),cv=sm(cr,'contractValue');
+  const rev=cv||ca,tc=ca+rc;
+  const showP=sc>0?lc/sc:0;
+  const offerP=lc>0?of/lc:0;
+  const ofCommitP=of>0?(dep+cl)/of:0;
+  const ofCloseP=of>0?cl/of:0;
+  const callCommitP=lc>0?(dep+cl)/lc:0;
+  const callCloseP=lc>0?cl/lc:0;
+  const tcPct=cv>0?tc/cv:0;
+  const collOffer=of>0?tc/of:0;
+  const collCall=lc>0?tc/lc:0;
+  const revOffer=of>0?rev/of:0,revCall=lc>0?rev/lc:0;
+  const aov=cl>0?ca/cl:0;
+  const newRev=cv;const newCash=ca;
+  const cashBkd=sc>0?ca/sc:0;const cashOffer=of>0?ca/of:0;const revPerOffer=of>0?rev/of:0;
+  const cashCollPct=cv>0?ca/cv:0;const revLive=lc>0?rev/lc:0;const cashLive=lc>0?ca/lc:0;
+  const reR=sc>0?re/sc:0,clLR=sc>0?clL/sc:0,csSR=sc>0?clS/sc:0,ghR=sc>0?gh/sc:0;
+  return{sc,cf,lc,showP,of,offerP,dep,cl,ofCommitP,ofCloseP,callCommitP,callCloseP,tc,rev,tcPct,collOffer,collCall,revOffer,revCall,aov,newRev,newCash,cashBkd,cashOffer,revPerOffer,cashCollPct,revLive,cashLive,re,clL,clS,gh,ns,reR,clLR,csSR,ghR};
+}
+function renderSalesTracker(){
+  const b=db();
+  return`
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px"><div style="font-size:14px;font-weight:700;color:rgba(255,255,255,.6)">Showing: <span style="color:var(--gl)">${b.l}</span></div><div style="font-size:11px;color:var(--dmr)">${b.s} → ${b.e}</div></div>
+  <div class="sub-tabs" style="margin-bottom:16px"><button class="${S.salesSub==='stats'?'a':''}" onclick="S.salesSub='stats';render()">📈 Sales Stats</button><button class="${S.salesSub==='leaderboard'?'a':''}" onclick="S.salesSub='leaderboard';render()">🏆 Leaderboard</button></div>
+  ${S.salesSub==='leaderboard'?renderLeaderboard():renderSalesStats()}`;
+}
+function renderSalesStats(){
+  const sel=S.selectedClosers||S.closers;
+  const sm=salesMetrics();
+  return`
+  <div class="sec" style="margin-bottom:16px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <div style="font-size:18px;font-weight:800">📈 Sales Tracker</div>
+      <div style="font-size:10px;color:var(--dmr);font-weight:600">Showing: ${sel.join(', ')||'None'}</div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      ${S.closers.map(c=>{const on=sel.includes(c);return`<button onclick="toggleCloserFilter('${c}')" style="padding:8px 18px;font-size:12px;font-weight:700;border-radius:8px;cursor:pointer;font-family:'Montserrat',sans-serif;transition:all .2s;border:1px solid ${on?'rgba(22,163,74,.5)':'rgba(255,255,255,.1)'};background:${on?'rgba(22,163,74,.2)':'rgba(255,255,255,.04)'};color:${on?'var(--gl)':'var(--dim)'}">${on?'☑':'☐'} ${c}</button>`}).join('')}
+    </div>
+  </div>
+
+  ${sel.length===0?'<div class="sec" style="text-align:center;padding:60px 20px"><div style="font-size:40px;margin-bottom:12px">📊</div><div style="font-size:14px;color:var(--dmr)">Select at least one closer to view stats</div></div>':`
+
+  <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:16px">
+    <div class="hero-c"><div class="lbl">CALLS BOOKED</div><div class="val" style="color:#38bdf8">${sm.sc}</div></div>
+    <div class="hero-c"><div class="lbl">LIVE CALLS</div><div class="val">${sm.lc}</div></div>
+    <div class="hero-c"><div class="lbl">CLOSES</div><div class="val" style="color:var(--gb)">${sm.cl}</div></div>
+    <div class="hero-c hl"><div class="lbl">TOTAL COLLECTED</div><div class="val" style="color:var(--gb)">${fmt(sm.tc)}</div></div>
+    <div class="hero-c" style="border-color:rgba(16,185,129,.25)"><div class="lbl">TOTAL NEW REVENUE</div><div class="val" style="color:#10b981">${fmt(sm.newRev)}</div></div>
+    <div class="hero-c" style="border-color:rgba(56,189,248,.25)"><div class="lbl">TOTAL NEW CASH</div><div class="val" style="color:#38bdf8">${fmt(sm.newCash)}</div></div>
+  </div>
+
+  <div class="sec" style="padding:0;overflow:hidden;margin-bottom:16px">
+    <div class="sec-h"><span>📊 PER-UNIT ECONOMICS (MOST IMPORTANT)</span></div>
+    <div class="g g4" style="padding:14px">
+      ${kpi('Cash / Booked Call',fmt(sm.cashBkd),'#38bdf8',1)}
+      ${kpi('Cash / Live Call',fmt(sm.cashLive),'#22c55e',1)}
+      ${kpi('Rev / Live Call',fmt(sm.revLive),'#10b981',1)}
+      ${kpi('Cash / Offer',fmt(sm.cashOffer),'#eab308',1)}
+      ${kpi('Rev / Offer',fmt(sm.revPerOffer),'#f97316',1)}
+      ${kpi('Cash / Close (AOV)',fmt(sm.aov),'#f97316',1)}
+      ${kpi('Cash Collected %',pct(sm.cashCollPct),sm.cashCollPct>=.5?'#22c55e':'#eab308',1)}
+    </div>
+  </div>
+
+  <div class="sec" style="padding:0;overflow:hidden;margin-bottom:16px">
+    <div class="sec-h"><span>📞 CALL ACTIVITY (PRE-CALL)</span></div>
+    <div class="g g5" style="padding:14px 14px 0">
+      ${kpi('Calls Booked',sm.sc,'#38bdf8',1)}
+      ${kpi('Rescheduled',sm.re,'#64748b',1)}
+      ${kpi('Cancelled (Lead)',sm.clL,'#f97316',1)}
+      ${kpi('Cancelled (Setter)',sm.clS,'#f43f5e',1)}
+      ${kpi('Ghosted',sm.gh,'#ef4444',1)}
+    </div>
+    <div class="g g5" style="padding:10px 14px 14px">
+      ${kpi('Show Rate',pct(sm.showP),sm.showP>=.7?'#22c55e':'#eab308',1)}
+      ${kpi('Reschedule Rate',pct(sm.reR),'#64748b',1)}
+      ${kpi('Cancel Rate (Lead)',pct(sm.clLR),sm.clLR<=.1?'#22c55e':'#f97316',1)}
+      ${kpi('Cancel Rate (Setter)',pct(sm.csSR),sm.csSR<=.05?'#22c55e':'#f43f5e',1)}
+      ${kpi('Ghost Rate',pct(sm.ghR),sm.ghR<=.1?'#22c55e':'#ef4444',1)}
+    </div>
+  </div>
+
+  <div class="sec" style="padding:0;overflow:hidden;margin-bottom:16px">
+    <div class="sec-h"><span>💰 CALL ACTIVITY (ON-CALL)</span></div>
+    <div class="g g5" style="padding:14px 14px 0">
+      ${kpi('Calls Booked',sm.sc,'#38bdf8',1)}
+      ${kpi('Shown Calls',sm.lc,'#22c55e',1)}
+      ${kpi('Confirmed',sm.cf,'#16a34a',1)}
+      ${kpi('Booked→Close %',pct(sm.sc>0?sm.cl/sm.sc:0),'#15803d',1)}
+      ${kpi('Total Offers',sm.of,'#eab308',1)}
+    </div>
+    <div class="g g5" style="padding:10px 14px 0">
+      ${kpi('Offer Rate',pct(sm.offerP),sm.offerP>=.5?'#22c55e':'#eab308',1)}
+      ${kpi('Deposits',sm.dep.toLocaleString(),'#10b981',1)}
+      ${kpi('Closes',sm.cl,'#22c55e',1)}
+      ${kpi('Offer Commitment',pct(sm.ofCommitP),sm.ofCommitP>=.3?'#22c55e':'#eab308',1)}
+      ${kpi('Offer Close %',pct(sm.ofCloseP),sm.ofCloseP>=.3?'#22c55e':'#f43f5e',1)}
+    </div>
+    <div class="g g3" style="padding:10px 14px 14px">
+      ${kpi('Call Commitment',pct(sm.callCommitP),sm.callCommitP>=.2?'#22c55e':'#eab308',1)}
+      ${kpi('Call Close %',pct(sm.callCloseP),sm.callCloseP>=.15?'#22c55e':'#f43f5e',1)}
+    </div>
+  </div>
+
+  `}`;
+}
+function closerLeaderboardData(){
+  const sm=(a,f)=>a.reduce((s,r)=>s+(Number(r[f])||0),0);
+  return S.closers.map(name=>{
+    const cr=S.closer_reports.filter(r=>inR(r.date)&&r.closerName===name);
+    const sc=sm(cr,'scheduledCalls'),cf=sm(cr,'confirmedCalls'),lc=sm(cr,'ssTaken'),of=sm(cr,'offers'),cl=sm(cr,'closes'),re=sm(cr,'rescheduled'),clL=sm(cr,'cancelledLead'),clS=sm(cr,'cancelledSetter'),gh=sm(cr,'ghosted'),ns=clL+clS+re+gh;
+    const ca=sm(cr,'cashCollected'),rc=sm(cr,'recurringCash'),cv=sm(cr,'contractValue'),dep=sm(cr,'deposit');
+    const tc=ca+rc,rev=cv||ca;
+    const showP=sc>0?lc/sc:0,offerP=lc>0?of/lc:0,ofCommitP=of>0?(dep+cl)/of:0,ofCloseP=of>0?cl/of:0;
+    const callCommitP=lc>0?(dep+cl)/lc:0,callCloseP=lc>0?cl/lc:0,clR=lc>0?cl/lc:0;
+    const tcPct=cv>0?tc/cv:0,collOffer=of>0?tc/of:0,collCall=lc>0?tc/lc:0;
+    const revOffer=of>0?rev/of:0,revCall=lc>0?rev/lc:0;
+    const aov=cl>0?ca/cl:0;
+    const newRev=cv,newCash=ca,cashBkd=sc>0?ca/sc:0,cashOffer=of>0?ca/of:0,revPerOffer=of>0?rev/of:0,cashCollPct=cv>0?ca/cv:0,cashLive=lc>0?ca/lc:0,revLive=lc>0?rev/lc:0;
+    const reR=sc>0?re/sc:0,clLR=sc>0?clL/sc:0,csSR=sc>0?clS/sc:0,ghR=sc>0?gh/sc:0;
+    return{name,sc,cf,lc,of,cl,dep,ca,rc,cv,tc,rev,clR,showP,offerP,ofCommitP,ofCloseP,callCommitP,callCloseP,tcPct,collOffer,collCall,revOffer,revCall,aov,newRev,newCash,cashBkd,cashOffer,revPerOffer,cashCollPct,cashLive,revLive,re,clL,clS,gh,ns,reR,clLR,csSR,ghR,days:cr.length};
+  });
+}
+const LB_COLS={
+  count:[
+    {k:'sc',l:'Calls Booked'},{k:'cf',l:'Confirmed'},{k:'lc',l:'Calls Taken'},{k:'re',l:'Rescheduled'},{k:'clL',l:'Cancelled (Lead)'},{k:'clS',l:'Cancelled (Setter)'},{k:'gh',l:'Ghosted'},{k:'ns',l:'No Shows'},{k:'of',l:'Offers'},{k:'dep',l:'Deposits'},{k:'cl',l:'Closes'}
+  ],
+  money:[
+    {k:'tc',l:'Total Collected ($)'},{k:'cv',l:'Total Revenue ($)'},{k:'newRev',l:'New Revenue ($)'},{k:'newCash',l:'New Cash ($)'},{k:'aov',l:'Cash / Close AOV ($)'},{k:'cashBkd',l:'Cash / Booked ($)'},{k:'cashLive',l:'Cash / Live Call ($)'},{k:'revLive',l:'Rev / Live Call ($)'},{k:'cashOffer',l:'Cash / Offer ($)'},{k:'revPerOffer',l:'Rev / Offer ($)'},{k:'collOffer',l:'Collected / Offer ($)'},{k:'collCall',l:'Collected / Call ($)'},{k:'revOffer',l:'Revenue / Offer ($)'},{k:'revCall',l:'Revenue / Call ($)'}
+  ],
+  pcts:[
+    {k:'showP',l:'Show (%)'},{k:'offerP',l:'Offer (%)'},{k:'ofCommitP',l:'Offer Commitment (%)'},{k:'ofCloseP',l:'Offer Close (%)'},{k:'callCommitP',l:'Call Commitment (%)'},{k:'callCloseP',l:'Call Close (%)'},{k:'tcPct',l:'Total Collected (%)'},{k:'cashCollPct',l:'Cash Collected (%)'},{k:'clR',l:'Close Rate (%)'},{k:'reR',l:'Reschedule (%)'},{k:'clLR',l:'Cancel Lead (%)'},{k:'csSR',l:'Cancel Setter (%)'},{k:'ghR',l:'Ghost (%)'}
+  ]
+};
+function lbFormat(k,v){
+  const money=['tc','cv','aov','collOffer','collCall','revOffer','revCall','newRev','newCash','cashBkd','cashLive','revLive','cashOffer','revPerOffer'];
+  const pcts=['showP','offerP','ofCommitP','ofCloseP','callCommitP','callCloseP','tcPct','cashCollPct','clR','reR','clLR','csSR','ghR'];
+  if(money.includes(k))return fmt(v);
+  if(pcts.includes(k))return pct(v);
+  return v.toLocaleString();
+}
+function lbRank(data,k){
+  const sorted=[...data].map((c,i)=>({i,v:c[k]||0})).sort((a,b)=>b.v-a.v);
+  const ranks=new Array(data.length);
+  sorted.forEach((s,ri)=>{ranks[s.i]=ri+1});
+  return ranks;
+}
+function renderLeaderboard(){
+  const b=db();
+  const data=closerLeaderboardData();
+  const c1=S.lbCol1,c2=S.lbCol2,c3=S.lbCol3;
+  const w1=S.lbW1||33,w2=S.lbW2||33,w3=S.lbW3||34;
+  const r1=lbRank(data,c1),r2=lbRank(data,c2),r3=lbRank(data,c3);
+  const wt=w1+w2+w3||100;
+  const overall=data.map((_,i)=>(r1[i]*(w1/wt)+r2[i]*(w2/wt)+r3[i]*(w3/wt)));
+  const oRanks=overall.map((v,i)=>({i,v})).sort((a,b)=>a.v-b.v);
+  const finalRank=new Array(data.length);
+  oRanks.forEach((o,ri)=>{finalRank[o.i]=ri+1});
+  
+  const colSel=(stateKey,group,current)=>`<select onchange="S.${stateKey}=this.value;render()" style="padding:6px 8px;font-size:11px;font-weight:700;border-radius:6px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:#fff;font-family:'Montserrat',sans-serif;cursor:pointer;max-width:140px">${group.map(o=>`<option value="${o.k}"${o.k===current?' selected':''}>${o.l}</option>`).join('')}</select>`;
+  const wInput=(stateKey,val,col)=>`<input type="number" min="0" max="100" value="${val}" onchange="S.${stateKey}=Number(this.value)||0;render()" style="width:52px;padding:4px 6px;font-size:12px;font-weight:800;border-radius:6px;background:rgba(255,255,255,.06);border:1px solid ${col};color:${col};font-family:'Montserrat',sans-serif;text-align:center;outline:none"><span style="font-size:10px;font-weight:700;color:${col};margin-left:2px">%</span>`;
+  const wTotal=w1+w2+w3;
+  const wWarn=wTotal!==100?`<div style="padding:6px 12px;background:rgba(234,179,8,.1);border:1px solid rgba(234,179,8,.2);border-radius:8px;margin-bottom:12px;font-size:11px;color:#eab308;font-weight:600">⚠️ Weights total ${wTotal}% — should equal 100%</div>`:'';
+
+  const colors=['#22c55e','#38bdf8','#eab308'];
+  const bgColors=['rgba(34,197,94,.08)','rgba(56,189,248,.08)','rgba(234,179,8,.08)'];
+  const borderColors=['rgba(34,197,94,.2)','rgba(56,189,248,.2)','rgba(234,179,8,.2)'];
+  
+  return`
+  <div class="sec">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+      <div>
+        <div style="font-size:20px;font-weight:900;margin-bottom:2px">🏆 Closer Leaderboard</div>
+        <div style="font-size:11px;color:var(--dmr)">Ranked by ${b.l} · ${b.s} → ${b.e}</div>
+      </div>
+    </div>
+    ${wWarn}
+    <div style="overflow-x:auto">
+      <table style="width:100%;border-collapse:collapse;font-size:13px">
+        <thead>
+          <tr>
+            <th style="padding:8px 14px;text-align:left;font-size:10px;font-weight:700;color:var(--dmr);background:rgba(22,163,74,.03)"></th>
+            <th colspan="2" style="padding:8px 10px;text-align:center;background:${bgColors[0]}">${wInput('lbW1',w1,colors[0])}</th>
+            <th colspan="2" style="padding:8px 10px;text-align:center;background:${bgColors[1]}">${wInput('lbW2',w2,colors[1])}</th>
+            <th colspan="2" style="padding:8px 10px;text-align:center;background:${bgColors[2]}">${wInput('lbW3',w3,colors[2])}</th>
+            <th style="padding:8px 14px;text-align:center;background:rgba(244,63,94,.03)"></th>
+          </tr>
+          <tr>
+            <th style="padding:12px 14px;text-align:left;font-size:12px;font-weight:800;color:var(--gl);background:rgba(22,163,74,.06);border-bottom:2px solid rgba(22,163,74,.2);border-radius:8px 0 0 0">Name</th>
+            <th style="padding:12px 10px;text-align:center;background:${bgColors[0]};border-bottom:2px solid ${borderColors[0]}">${colSel('lbCol1',[...LB_COLS.count,...LB_COLS.money,...LB_COLS.pcts],c1)}</th>
+            <th style="padding:12px 10px;text-align:center;background:rgba(255,255,255,.02);border-bottom:1px solid rgba(255,255,255,.08);font-size:10px;font-weight:700;color:var(--dmr)">Rank</th>
+            <th style="padding:12px 10px;text-align:center;background:${bgColors[1]};border-bottom:2px solid ${borderColors[1]}">${colSel('lbCol2',[...LB_COLS.count,...LB_COLS.money,...LB_COLS.pcts],c2)}</th>
+            <th style="padding:12px 10px;text-align:center;background:rgba(255,255,255,.02);border-bottom:1px solid rgba(255,255,255,.08);font-size:10px;font-weight:700;color:var(--dmr)">Rank</th>
+            <th style="padding:12px 10px;text-align:center;background:${bgColors[2]};border-bottom:2px solid ${borderColors[2]}">${colSel('lbCol3',[...LB_COLS.count,...LB_COLS.money,...LB_COLS.pcts],c3)}</th>
+            <th style="padding:12px 10px;text-align:center;background:rgba(255,255,255,.02);border-bottom:1px solid rgba(255,255,255,.08);font-size:10px;font-weight:700;color:var(--dmr)">Rank</th>
+            <th style="padding:12px 14px;text-align:center;background:rgba(244,63,94,.06);border-bottom:2px solid rgba(244,63,94,.2);border-radius:0 8px 0 0;font-size:11px;font-weight:800;color:#f43f5e">Overall</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${data.map((c,i)=>{
+            const medal=finalRank[i]===1?'🥇 ':finalRank[i]===2?'🥈 ':finalRank[i]===3?'🥉 ':'';
+            const isTop=finalRank[i]===1;
+            const rowBg=isTop?'rgba(34,197,94,.03)':'transparent';
+            const nameHtml=isTop?`<span class="lb-fire">${c.name}</span>`:c.name;
+            return`<tr class="${isTop?'lb-row-1':''}" style="border-bottom:1px solid rgba(255,255,255,.06);background:${rowBg};position:relative">
+              <td style="padding:14px 14px 14px 16px;font-weight:${isTop?'800':'600'};font-size:${isTop?'14':'13'}px;color:${isTop?'var(--gb)':'#fff'};position:relative">${medal}${nameHtml}${isTop?`<span class="lb-spark" style="left:10%;top:20%;background:#eab308;animation-delay:0s"></span><span class="lb-spark" style="left:50%;top:30%;background:#f97316;animation-delay:.5s"></span><span class="lb-spark" style="left:80%;top:25%;background:#ef4444;animation-delay:1s"></span>`:''}</td>
+              <td style="padding:12px 10px;text-align:center;font-weight:700;color:${colors[0]};background:${bgColors[0]}">${lbFormat(c1,c[c1]||0)}</td>
+              <td style="padding:12px 10px;text-align:center;font-weight:800;font-size:12px;color:${r1[i]===1?'var(--gb)':'var(--dim)'}">${r1[i]}</td>
+              <td style="padding:12px 10px;text-align:center;font-weight:700;color:${colors[1]};background:${bgColors[1]}">${lbFormat(c2,c[c2]||0)}</td>
+              <td style="padding:12px 10px;text-align:center;font-weight:800;font-size:12px;color:${r2[i]===1?'var(--gb)':'var(--dim)'}">${r2[i]}</td>
+              <td style="padding:12px 10px;text-align:center;font-weight:700;color:${colors[2]};background:${bgColors[2]}">${lbFormat(c3,c[c3]||0)}</td>
+              <td style="padding:12px 10px;text-align:center;font-weight:800;font-size:12px;color:${r3[i]===1?'var(--gb)':'var(--dim)'}">${r3[i]}</td>
+              <td style="padding:12px 14px;text-align:center;font-weight:900;font-size:${finalRank[i]<=3?'18':'15'}px;color:${finalRank[i]===1?'var(--gb)':finalRank[i]===2?'#38bdf8':finalRank[i]===3?'#eab308':'var(--dim)'};background:rgba(244,63,94,.04)">${finalRank[i]===1?'🥇':finalRank[i]===2?'🥈':finalRank[i]===3?'🥉':finalRank[i]}</td>
+            </tr>`}).join('')}
+        </tbody>
+      </table>
+    </div>
+  </div>`;
+}
+
+// ── Settings ──
+function renderSettings(){
+  return`<div style="max-width:600px;margin:0 auto">
+  <div class="sec"><div style="font-size:18px;font-weight:800;margin-bottom:24px">⚙️ Team Settings</div>
+  <div style="margin-bottom:24px"><div style="font-size:13px;font-weight:700;color:var(--dim);margin-bottom:12px">CLOSERS</div>
+  ${S.closers.map((c,i)=>`<div style="display:flex;gap:8px;margin-bottom:8px;align-items:center"><input value="${c}" onchange="S.closers[${i}]=this.value;saveTeam()" style="flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#fff;padding:8px 12px;font-size:13px;font-family:'Montserrat',sans-serif">${S.closers.length>1?`<span style="cursor:pointer;color:var(--red);font-size:18px" onclick="S.closers.splice(${i},1);saveTeam();render()">×</span>`:''}
+  </div>`).join('')}
+  <button class="btn" style="background:rgba(255,255,255,.06);font-size:12px;padding:8px 16px;margin-top:4px" onclick="S.closers.push('Closer '+(S.closers.length+1));saveTeam();render()">+ Add Closer</button></div>
+  <div style="margin-bottom:24px"><div style="font-size:13px;font-weight:700;color:var(--dim);margin-bottom:12px">SETTERS</div>
+  ${S.setters.map((s,i)=>`<div style="display:flex;gap:8px;margin-bottom:8px;align-items:center"><input value="${s}" onchange="S.setters[${i}]=this.value;saveTeam()" style="flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#fff;padding:8px 12px;font-size:13px;font-family:'Montserrat',sans-serif">${S.setters.length>1?`<span style="cursor:pointer;color:var(--red);font-size:18px" onclick="S.setters.splice(${i},1);saveTeam();render()">×</span>`:''}
+  </div>`).join('')}
+  <button class="btn" style="background:rgba(255,255,255,.06);font-size:12px;padding:8px 16px;margin-top:4px" onclick="S.setters.push('Setter '+(S.setters.length+1));saveTeam();render()">+ Add Setter</button></div>
+  <div style="margin-bottom:24px"><div style="font-size:13px;font-weight:700;color:var(--dim);margin-bottom:12px">PACKAGES</div>
+  ${S.packages.map((p,i)=>`<div style="display:flex;gap:8px;margin-bottom:8px;align-items:center"><input value="${p}" onchange="S.packages[${i}]=this.value;savePackages()" style="flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#fff;padding:8px 12px;font-size:13px;font-family:'Montserrat',sans-serif">${S.packages.length>1?`<span style="cursor:pointer;color:var(--red);font-size:18px" onclick="S.packages.splice(${i},1);savePackages();render()">×</span>`:''}</div>`).join('')}
+  <button class="btn" style="background:rgba(255,255,255,.06);font-size:12px;padding:8px 16px;margin-top:4px" onclick="S.packages.push('New Package');savePackages();render()">+ Add Package</button></div>
+  <button class="btn" style="margin-top:20px;background:var(--green)" onclick="syncConfigToSheet(true)">💾 Save Team Settings</button>
+  <div style="font-size:11px;color:var(--dmr);margin-top:12px">Saves team names and packages to Google Sheets so all devices see the same dropdowns. Click this after making any changes.</div>
+  </div>
+  <div class="sec" style="margin-top:16px"><div style="font-size:18px;font-weight:800;margin-bottom:8px">🔔 Discord Webhooks</div>
+  <div style="font-size:12px;color:var(--dim);margin-bottom:20px">Paste your Discord webhook URLs below. Messages will be sent automatically when reports are submitted.</div>
+  <div style="display:flex;flex-direction:column;gap:14px">
+  <div><div style="font-size:11px;font-weight:700;color:var(--dim);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">Setter EOD Reports</div><input id="dw-se" placeholder="https://discord.com/api/webhooks/..." value="${DISCORD.setterEOD}" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#fff;padding:10px 12px;font-size:12px;font-family:'Montserrat',sans-serif"></div>
+  <div><div style="font-size:11px;font-weight:700;color:var(--dim);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">Closer EOD Reports</div><input id="dw-ce" placeholder="https://discord.com/api/webhooks/..." value="${DISCORD.closerEOD}" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#fff;padding:10px 12px;font-size:12px;font-family:'Montserrat',sans-serif"></div>
+  <div><div style="font-size:11px;font-weight:700;color:var(--dim);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">Call Reports</div><input id="dw-cr" placeholder="https://discord.com/api/webhooks/..." value="${DISCORD.callReports}" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#fff;padding:10px 12px;font-size:12px;font-family:'Montserrat',sans-serif"></div>
+  <div><div style="font-size:11px;font-weight:700;color:var(--dim);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">Deal Closed</div><input id="dw-dc" placeholder="https://discord.com/api/webhooks/..." value="${DISCORD.dealClosed}" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#fff;padding:10px 12px;font-size:12px;font-family:'Montserrat',sans-serif"></div>
+  </div>
+  <button class="btn" style="margin-top:20px;background:var(--green)" onclick="saveDiscord()">💾 Save Webhooks</button>
+  <div style="font-size:11px;color:var(--dmr);margin-top:12px">Webhook URLs are shared across all devices via Google Sheets. Save once and every device will send to Discord.</div>
+  </div>
+  <div class="sec" style="margin-top:16px"><div style="font-size:18px;font-weight:800;margin-bottom:4px">\u2699\ufe0f Funnel Benchmarks</div>
+  <div style="font-size:12px;color:var(--dim);margin-bottom:20px">Set the target conversion rate for each funnel step. The Bottleneck Detector uses these to identify your biggest gap.</div>
+  <div style="display:flex;flex-direction:column;gap:14px">
+  <div style="display:flex;align-items:center;gap:12px"><div style="min-width:180px;font-size:12px;font-weight:600;color:var(--dim)">Total Dials \u2192 Conversations</div><input id="bm-dc" type="number" step="0.1" min="0" max="100" value="${(S.benchmarks.dialConvo*100).toFixed(1)}" style="width:80px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#fff;padding:8px 12px;font-size:13px;font-family:'Montserrat',sans-serif;text-align:center"><span style="font-size:12px;color:var(--dmr)">%</span></div>
+  <div style="display:flex;align-items:center;gap:12px"><div style="min-width:180px;font-size:12px;font-weight:600;color:var(--dim)">Pitched \u2192 Booked Appts</div><input id="bm-pb" type="number" step="1" min="0" max="100" value="${(S.benchmarks.pitchedBooked*100).toFixed(1)}" style="width:80px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#fff;padding:8px 12px;font-size:13px;font-family:'Montserrat',sans-serif;text-align:center"><span style="font-size:12px;color:var(--dmr)">%</span></div>
+  <div style="display:flex;align-items:center;gap:12px"><div style="min-width:180px;font-size:12px;font-weight:600;color:var(--dim)">Booked Appts \u2192 Calls Taken</div><input id="bm-bc" type="number" step="1" min="0" max="100" value="${(S.benchmarks.bookedCalls*100).toFixed(1)}" style="width:80px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#fff;padding:8px 12px;font-size:13px;font-family:'Montserrat',sans-serif;text-align:center"><span style="font-size:12px;color:var(--dmr)">%</span></div>
+  <div style="display:flex;align-items:center;gap:12px"><div style="min-width:180px;font-size:12px;font-weight:600;color:var(--dim)">Calls Taken \u2192 Offers</div><input id="bm-co" type="number" step="1" min="0" max="100" value="${(S.benchmarks.callsOffers*100).toFixed(1)}" style="width:80px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#fff;padding:8px 12px;font-size:13px;font-family:'Montserrat',sans-serif;text-align:center"><span style="font-size:12px;color:var(--dmr)">%</span></div>
+  <div style="display:flex;align-items:center;gap:12px"><div style="min-width:180px;font-size:12px;font-weight:600;color:var(--dim)">Offers \u2192 Closes</div><input id="bm-oc" type="number" step="1" min="0" max="100" value="${(S.benchmarks.offersCloses*100).toFixed(1)}" style="width:80px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#fff;padding:8px 12px;font-size:13px;font-family:'Montserrat',sans-serif;text-align:center"><span style="font-size:12px;color:var(--dmr)">%</span></div>
+  </div>
+  <button class="btn" style="margin-top:16px;background:var(--green)" onclick="updateBenchmarks()">\ud83d\udcbe Save Benchmarks</button>
+  <div style="font-size:11px;color:var(--dmr);margin-top:8px">Benchmarks are saved locally. The Bottleneck Detector on the Dashboard will use these values.</div>
+  </div>
+  <div class="sec" style="margin-top:16px;border-color:rgba(244,63,94,.2)"><div style="font-size:18px;font-weight:800;margin-bottom:8px;color:#f43f5e">&#x1f5d1;&#xfe0f; Master Reset</div>
+  <div style="font-size:12px;color:var(--dim);margin-bottom:20px">Permanently delete <strong>all data</strong> from every tracker &mdash; Closer Reports, Setter Reports, Call Reports, and Enrollments. Column headers are preserved. This action <strong style="color:#f43f5e">cannot be undone</strong>.</div>
+  <div id="reset-step" style="display:flex;flex-direction:column;gap:12px">
+    <div id="reset-s1">
+      <div style="font-size:11px;font-weight:700;color:var(--dim);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">Enter Leadership Password</div>
+      <input id="reset-pw1" type="password" placeholder="Password" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#fff;padding:10px 12px;font-size:13px;font-family:'Montserrat',sans-serif">
+      <div id="reset-err1" style="font-size:11px;color:#f43f5e;min-height:16px;margin-top:4px"></div>
+      <button class="btn" style="background:rgba(244,63,94,.15);color:#f43f5e;border:1px solid rgba(244,63,94,.3);margin-top:4px" onclick="masterResetStep1()">Continue</button>
+    </div>
+    <div id="reset-s2" style="display:none">
+      <div style="font-size:11px;font-weight:700;color:#f43f5e;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">Confirm &mdash; Enter Password Again</div>
+      <input id="reset-pw2" type="password" placeholder="Re-enter password to confirm" style="width:100%;box-sizing:border-box;background:rgba(244,63,94,.04);border:1px solid rgba(244,63,94,.2);border-radius:8px;color:#fff;padding:10px 12px;font-size:13px;font-family:'Montserrat',sans-serif">
+      <div id="reset-err2" style="font-size:11px;color:#f43f5e;min-height:16px;margin-top:4px"></div>
+      <button class="btn" style="background:#f43f5e;margin-top:4px" onclick="masterResetStep2()">&#x1f5d1;&#xfe0f; Erase All Data</button>
+      <button class="btn" style="background:rgba(255,255,255,.06);margin-top:6px;font-size:12px" onclick="resetCancel()">Cancel</button>
+    </div>
+  </div>
+  </div></div>`;
+}
+function masterResetStep1(){
+  const pw=document.getElementById('reset-pw1').value.trim();
+  if(PASSWORDS[pw]!=='leadership'){document.getElementById('reset-err1').textContent='Invalid \u2014 leadership password required';return;}
+  document.getElementById('reset-s1').style.display='none';
+  document.getElementById('reset-s2').style.display='block';
+}
+function masterResetStep2(){
+  const pw=document.getElementById('reset-pw2').value.trim();
+  if(PASSWORDS[pw]!=='leadership'){document.getElementById('reset-err2').textContent='Passwords do not match or invalid';return;}
+  executeMasterReset();
+}
+function resetCancel(){
+  document.getElementById('reset-s1').style.display='block';
+  document.getElementById('reset-s2').style.display='none';
+  document.getElementById('reset-pw1').value='';
+  document.getElementById('reset-pw2').value='';
+  document.getElementById('reset-err1').textContent='';
+  document.getElementById('reset-err2').textContent='';
+}
+async function executeMasterReset(){
+  toast('Resetting all data...');
+  try{
+    const r=await fetch(API+'?action=clearAll');
+    const j=await r.json();
+    if(j.status==='ok'){
+      S.closer_reports=[];S.setter_reports=[];S.call_reports=[];S.enrollments=[];
+      toast('All data has been erased.');
+      render();
+    } else {
+      toast('Reset failed \u2014 check console.');
+      console.error('clearAll response',j);
+    }
+  }catch(e){
+    toast('Reset failed \u2014 network error.');
+    console.error('clearAll error',e);
+  }
+}
+
+// \u2500\u2500 Setter Tracker \u2500\u2500
+function setterTrackerData(){
+  const sm=(a,f)=>a.reduce((s,r)=>s+(Number(r[f])||0),0);
+  return S.setters.map(name=>{
+    const sr=S.setter_reports.filter(r=>inR(r.date)&&r.setterName===name);
+    const ca=S.call_reports.filter(r=>inR(r.date)&&r.setterName===name);
+    const ud=sm(sr,'uniqueLeadsDialed'),td=sm(sr,'totalDials'),pu=sm(sr,'pickUps'),co=sm(sr,'conversationsOnPhone'),pb=sm(sr,'pitchedBookings'),bk=sm(sr,'bookedAppointments'),sb=sm(sr,'selfBooked'),cs=sm(sr,'callsShowed');
+    const calls=ca.length,closes=ca.filter(r=>r.dealClosed==='Yes').length;
+    const cash=ca.filter(r=>r.dealClosed==='Yes').reduce((s,r)=>s+(Number(r.cashCollected_deal)||0),0);
+    const cv=ca.filter(r=>r.dealClosed==='Yes').reduce((s,r)=>s+(Number(r.contractValue)||0),0);
+    const d2pu=td>0?pu/td:0,pu2co=pu>0?co/pu:0,co2pb=co>0?pb/co:0,pitchedSetR=pb>0?bk/pb:0;
+    const bk2cl=bk>0?closes/bk:0,setR=td>0?bk/td:0,uSetR=ud>0?bk/ud:0;
+    const uCloseR=ud>0?closes/ud:0,uCashR=ud>0?cash/ud:0;
+    const contactR=ud>0?co/ud:0,bookR=co>0?bk/co:0;
+    const closeR=calls>0?closes/calls:0,aov=closes>0?cash/closes:0,avgCv=closes>0?cv/closes:0;
+    const cashPerLive=calls>0?cash/calls:0,revPerLive=calls>0?cv/calls:0;
+    const showR=bk>0?cs/bk:0;
+    return{name,ud,td,pu,co,pb,bk,sb,cs,calls,closes,cash,cv,d2pu,pu2co,co2pb,pitchedSetR,bk2cl,setR,uSetR,uCloseR,uCashR,contactR,bookR,closeR,aov,avgCv,cashPerLive,revPerLive,showR,days:sr.length};
+  });
+}
+function renderSetterTracker(){
+  const b=db();
+  const allData=setterTrackerData();
+  const sub=S.setterTrackerSub||'team';
+  const sel=S.selectedSetters||S.setters;
+  const data=allData.filter(d=>sel.includes(d.name));
+  const sm=(a,f)=>a.reduce((s,r)=>s+(Number(r[f])||0),0);
+  // Filtered totals
+  const tUD=sm(data,'ud'),tTD=sm(data,'td'),tPU=sm(data,'pu'),tCO=sm(data,'co'),tPB=sm(data,'pb'),tBK=sm(data,'bk'),tSB=sm(data,'sb'),tCS=sm(data,'cs');
+  const tCalls=sm(data,'calls'),tCloses=sm(data,'closes'),tCash=sm(data,'cash'),tCV=sm(data,'cv');
+  const tD2PU=tTD>0?tPU/tTD:0,tPU2CO=tPU>0?tCO/tPU:0,tCO2PB=tCO>0?tPB/tCO:0,tPitchedSetR=tPB>0?tBK/tPB:0;
+  const tBK2CL=tBK>0?tCloses/tBK:0,tSetR=tTD>0?tBK/tTD:0,tUSetR=tUD>0?tBK/tUD:0;
+  const tUCloseR=tUD>0?tCloses/tUD:0,tUCashR=tUD>0?tCash/tUD:0;
+  const tContactR=tUD>0?tCO/tUD:0,tBookR=tCO>0?tBK/tCO:0;
+  const tCloseR=tCalls>0?tCloses/tCalls:0,tAOV=tCloses>0?tCash/tCloses:0,tAvgCv=tCloses>0?tCV/tCloses:0;
+  const tCashPerLive=tCalls>0?tCash/tCalls:0,tRevPerLive=tCalls>0?tCV/tCalls:0;
+  const tShowR=tBK>0?tCS/tBK:0;
+
+  const ST_LB_COLS={
+    count:[{k:'ud',l:'Unique Dials'},{k:'td',l:'Total Dials'},{k:'pu',l:'Pick Ups'},{k:'co',l:'Conversations'},{k:'pb',l:'Pitched'},{k:'bk',l:'Booked'},{k:'sb',l:'Self-Booked'},{k:'cs',l:'Calls Showed'},{k:'calls',l:'Calls Taken'},{k:'closes',l:'Closes'}],
+    money:[{k:'cash',l:'Cash Collected ($)'},{k:'cv',l:'Contract Value ($)'},{k:'aov',l:'AOV ($)'},{k:'avgCv',l:'Avg Contract ($)'},{k:'cashPerLive',l:'Cash/Live Call ($)'},{k:'revPerLive',l:'Rev/Live Call ($)'},{k:'uCashR',l:'Unique\u2192Cash ($)'}],
+    pcts:[{k:'d2pu',l:'Dials\u2192PU (%)'},{k:'pu2co',l:'PU\u2192Convo (%)'},{k:'co2pb',l:'Convo\u2192Pitch (%)'},{k:'pitchedSetR',l:'Pitch\u2192Book (%)'},{k:'bk2cl',l:'Book\u2192Close (%)'},{k:'showR',l:'Show Rate (%)'},{k:'setR',l:'Set Rate (%)'},{k:'uSetR',l:'Unique Set Rate (%)'},{k:'uCloseR',l:'Unique\u2192Close (%)'},{k:'closeR',l:'Close Rate (%)'}]
+  };
+  const stLbFormat=(k,v)=>{
+    const money=['cash','cv','aov','avgCv','cashPerLive','revPerLive','uCashR'];
+    const pcts=['d2pu','pu2co','co2pb','pitchedSetR','bk2cl','showR','setR','uSetR','uCloseR','contactR','bookR','closeR'];
+    if(money.includes(k))return fmt(v);
+    if(pcts.includes(k))return pct(v);
+    return(v||0).toLocaleString();
+  };
+  const stLbRank=(d,k)=>{
+    const sorted=[...d].map((c,i)=>({i,v:c[k]||0})).sort((a,b)=>b.v-a.v);
+    const ranks=new Array(d.length);
+    sorted.forEach((s,ri)=>{ranks[s.i]=ri+1});
+    return ranks;
+  };
+  // Leaderboard uses allData (all setters)
+  const sc1=S.stLbCol1||'bk',sc2=S.stLbCol2||'cash',sc3=S.stLbCol3||'closeR';
+  const sw1=S.stLbW1||33,sw2=S.stLbW2||33,sw3=S.stLbW3||34;
+  const sr1=stLbRank(allData,sc1),sr2=stLbRank(allData,sc2),sr3=stLbRank(allData,sc3);
+  const swt=sw1+sw2+sw3||100;
+  const overall=allData.map((_,i)=>(sr1[i]*(sw1/swt)+sr2[i]*(sw2/swt)+sr3[i]*(sw3/swt)));
+  const oRanks=overall.map((v,i)=>({i,v})).sort((a,b)=>a.v-b.v);
+  const finalRank=new Array(allData.length);
+  oRanks.forEach((o,ri)=>{finalRank[o.i]=ri+1});
+  const stColSel=(sk,group,cur)=>`<select onchange="S.${sk}=this.value;render()" style="padding:6px 8px;font-size:11px;font-weight:700;border-radius:6px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:#fff;font-family:'Montserrat',sans-serif;cursor:pointer;max-width:140px">${group.map(o=>`<option value="${o.k}"${o.k===cur?' selected':''}>${o.l}</option>`).join('')}</select>`;
+  const colors=['#22c55e','#38bdf8','#eab308'];
+  const bgColors=['rgba(34,197,94,.08)','rgba(56,189,248,.08)','rgba(234,179,8,.08)'];
+  const borderColors=['rgba(34,197,94,.2)','rgba(56,189,248,.2)','rgba(234,179,8,.2)'];
+
+  // Setter name toggle buttons
+  const setterToggles=`<div class="sec" style="margin-bottom:16px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <div style="font-size:18px;font-weight:800">\ud83d\udcca Setter Tracker</div>
+      <div style="font-size:10px;color:var(--dmr);font-weight:600">Showing: ${sel.join(', ')||'None'}</div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      ${S.setters.map(c=>{const on=sel.includes(c);return`<button onclick="toggleSetterFilter('${c}')" style="padding:8px 18px;font-size:12px;font-weight:700;border-radius:8px;cursor:pointer;font-family:'Montserrat',sans-serif;transition:all .2s;border:1px solid ${on?'rgba(22,163,74,.5)':'rgba(255,255,255,.1)'};background:${on?'rgba(22,163,74,.2)':'rgba(255,255,255,.04)'};color:${on?'var(--gl)':'var(--dim)'}">${on?'\u2611':'\u2610'} ${c}</button>`}).join('')}
+    </div>
+  </div>`;
+
+  const noSel=sel.length===0?'<div class="sec" style="text-align:center;padding:60px 20px"><div style="font-size:40px;margin-bottom:12px">\ud83d\udcca</div><div style="font-size:14px;color:var(--dmr)">Select at least one setter to view stats</div></div>':'';
+
+  return`
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+    <div style="font-size:14px;font-weight:700;color:rgba(255,255,255,.6)">Showing: <span style="color:var(--gl)">${b.l}</span></div>
+    <div style="font-size:11px;color:var(--dmr)">${b.s} \u2192 ${b.e}</div>
+  </div>
+  <div class="sub-tabs" style="margin-bottom:16px">
+    <button class="${sub==='team'?'a':''}" onclick="S.setterTrackerSub='team';render()">\ud83d\udcca Team Overview</button>
+    <button class="${sub==='leaderboard'?'a':''}" onclick="S.setterTrackerSub='leaderboard';render()">\ud83c\udfc6 Leaderboard</button>
+  </div>
+
+  ${sub==='team'?`
+  ${setterToggles}
+  ${sel.length===0?noSel:`
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px">
+    <div class="hero-c"><div class="lbl">TOTAL BOOKED</div><div class="val" style="color:var(--gb)">${tBK}</div></div>
+    <div class="hero-c hl"><div class="lbl">TOTAL CLOSES</div><div class="val" style="color:var(--gb)">${tCloses}</div></div>
+    <div class="hero-c"><div class="lbl">CASH COLLECTED</div><div class="val" style="color:var(--gb)">${fmt(tCash)}</div></div>
+    <div class="hero-c"><div class="lbl">TEAM CLOSE RATE</div><div class="val" style="color:${tCloseR>=.2?'var(--gb)':'#fff'}">${pct(tCloseR)}</div></div>
+  </div>
+
+  <div class="sec" style="padding:0;overflow:hidden;margin-bottom:16px">
+    <div class="sec-h"><span>\ud83d\udcde RAW NUMBERS</span></div>
+    <div class="g g5" style="padding:14px 14px 0">
+      ${kpi('Total Dials',tTD.toLocaleString(),'#38bdf8',1)}
+      ${kpi('Unique Leads',tUD.toLocaleString(),'#16a34a',1)}
+      ${kpi('Pick Ups',tPU.toLocaleString(),'#06b6d4',1)}
+      ${kpi('Conversations',tCO.toLocaleString(),'#22c55e',1)}
+      ${kpi('Pitched',tPB.toLocaleString(),'#a855f7',1)}
+    </div>
+    <div class="g g5" style="padding:10px 14px 14px">
+      ${kpi('Booked',tBK.toLocaleString(),'#22c55e',1)}
+      ${kpi('Self-Booked',tSB.toLocaleString(),'#eab308',1)}
+      ${kpi('Calls Showed',tCS.toLocaleString(),'#06b6d4',1)}
+      ${kpi('Calls Taken',tCalls.toLocaleString(),'#38bdf8',1)}
+      ${kpi('Closes',tCloses.toLocaleString(),'#22c55e',1)}
+    </div>
+  </div>
+
+  <div class="sec" style="padding:0;overflow:hidden;margin-bottom:16px">
+    <div class="sec-h"><span>\ud83d\udcca CONVERSION RATES</span></div>
+    <div class="g g5" style="padding:14px 14px 0">
+      ${kpi('Dials\u2192Pick Up',pct(tD2PU),'#06b6d4',1)}
+      ${kpi('Pick Up\u2192Convo',pct(tPU2CO),'#22c55e',1)}
+      ${kpi('Convo\u2192Pitch',pct(tCO2PB),'#a855f7',1)}
+      ${kpi('Pitch\u2192Book',pct(tPitchedSetR),tPitchedSetR>=.5?'#22c55e':'#eab308',1)}
+      ${kpi('Book\u2192Close',pct(tBK2CL),'#22c55e',1)}
+      ${kpi('Show Rate',pct(tShowR),tShowR>=.7?'#22c55e':'#eab308',1)}
+    </div>
+    <div class="g g5" style="padding:10px 14px 14px">
+      ${kpi('Dials\u2192Book (Set Rate)',pct(tSetR),tSetR>=.02?'#22c55e':'#eab308',1)}
+      ${kpi('Unique\u2192Book (Set Rate)',pct(tUSetR),'#16a34a',1)}
+      ${kpi('Unique\u2192Close',pct(tUCloseR),'#15803d',1)}
+      ${kpi('Unique\u2192Cash',tUD>0?fmt(tUCashR):'$0','#10b981',1)}
+    </div>
+  </div>
+
+  <div class="sec" style="padding:0;overflow:hidden">
+    <div class="sec-h"><span>\ud83d\udcb0 REVENUE ATTRIBUTION</span></div>
+    <div class="g g4" style="padding:14px">
+      ${kpi('Close Rate',pct(tCloseR),tCloseR>=.2?'#22c55e':'#eab308',1)}
+      ${kpi('AOV (Cash/Close)',fmt(tAOV),'#f97316',1)}
+      ${kpi('Cash / Live Call',fmt(tCashPerLive),'#22c55e',1)}
+      ${kpi('Rev / Live Call',fmt(tRevPerLive),'#10b981',1)}
+      ${kpi('Avg Contract',fmt(tAvgCv),'#eab308',1)}
+    </div>
+  </div>
+  `}
+  `:`
+  <div class="sec">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+      <div>
+        <div style="font-size:20px;font-weight:900;margin-bottom:2px">🏆 Setter Leaderboard</div>
+        <div style="font-size:11px;color:var(--dmr)">Ranked by ${b.l} · ${b.s} → ${b.e}</div>
+      </div>
+    </div>
+    ${(()=>{const t=sw1+sw2+sw3;return t!==100?`<div style="padding:6px 12px;background:rgba(234,179,8,.1);border:1px solid rgba(234,179,8,.2);border-radius:8px;margin-bottom:12px;font-size:11px;color:#eab308;font-weight:600">\u26a0\ufe0f Weights total ${t}% \u2014 should equal 100%</div>`:''})()}
+    <div style="overflow-x:auto">
+      <table style="width:100%;border-collapse:collapse;font-size:13px">
+        <thead>
+          <tr>
+            <th style="padding:8px 14px;text-align:left;font-size:10px;font-weight:700;color:var(--dmr);background:rgba(22,163,74,.03)"></th>
+            <th colspan="2" style="padding:8px 10px;text-align:center;background:${bgColors[0]}"><input type="number" min="0" max="100" value="${sw1}" onchange="S.stLbW1=Number(this.value)||0;render()" style="width:52px;padding:4px 6px;font-size:12px;font-weight:800;border-radius:6px;background:rgba(255,255,255,.06);border:1px solid ${colors[0]};color:${colors[0]};font-family:'Montserrat',sans-serif;text-align:center;outline:none"><span style="font-size:10px;font-weight:700;color:${colors[0]};margin-left:2px">%</span></th>
+            <th colspan="2" style="padding:8px 10px;text-align:center;background:${bgColors[1]}"><input type="number" min="0" max="100" value="${sw2}" onchange="S.stLbW2=Number(this.value)||0;render()" style="width:52px;padding:4px 6px;font-size:12px;font-weight:800;border-radius:6px;background:rgba(255,255,255,.06);border:1px solid ${colors[1]};color:${colors[1]};font-family:'Montserrat',sans-serif;text-align:center;outline:none"><span style="font-size:10px;font-weight:700;color:${colors[1]};margin-left:2px">%</span></th>
+            <th colspan="2" style="padding:8px 10px;text-align:center;background:${bgColors[2]}"><input type="number" min="0" max="100" value="${sw3}" onchange="S.stLbW3=Number(this.value)||0;render()" style="width:52px;padding:4px 6px;font-size:12px;font-weight:800;border-radius:6px;background:rgba(255,255,255,.06);border:1px solid ${colors[2]};color:${colors[2]};font-family:'Montserrat',sans-serif;text-align:center;outline:none"><span style="font-size:10px;font-weight:700;color:${colors[2]};margin-left:2px">%</span></th>
+            <th style="padding:8px 14px;text-align:center;background:rgba(244,63,94,.03)"></th>
+          </tr>
+          <tr>
+            <th style="padding:12px 14px;text-align:left;font-size:12px;font-weight:800;color:var(--gl);background:rgba(22,163,74,.06);border-bottom:2px solid rgba(22,163,74,.2)">Name</th>
+            <th style="padding:12px 10px;text-align:center;background:${bgColors[0]};border-bottom:2px solid ${borderColors[0]}">${stColSel('stLbCol1',[...ST_LB_COLS.count,...ST_LB_COLS.money,...ST_LB_COLS.pcts],sc1)}</th>
+            <th style="padding:12px 10px;text-align:center;background:rgba(255,255,255,.02);border-bottom:1px solid rgba(255,255,255,.08);font-size:10px;font-weight:700;color:var(--dmr)">Rank</th>
+            <th style="padding:12px 10px;text-align:center;background:${bgColors[1]};border-bottom:2px solid ${borderColors[1]}">${stColSel('stLbCol2',[...ST_LB_COLS.count,...ST_LB_COLS.money,...ST_LB_COLS.pcts],sc2)}</th>
+            <th style="padding:12px 10px;text-align:center;background:rgba(255,255,255,.02);border-bottom:1px solid rgba(255,255,255,.08);font-size:10px;font-weight:700;color:var(--dmr)">Rank</th>
+            <th style="padding:12px 10px;text-align:center;background:${bgColors[2]};border-bottom:2px solid ${borderColors[2]}">${stColSel('stLbCol3',[...ST_LB_COLS.count,...ST_LB_COLS.money,...ST_LB_COLS.pcts],sc3)}</th>
+            <th style="padding:12px 10px;text-align:center;background:rgba(255,255,255,.02);border-bottom:1px solid rgba(255,255,255,.08);font-size:10px;font-weight:700;color:var(--dmr)">Rank</th>
+            <th style="padding:12px 14px;text-align:center;background:rgba(244,63,94,.06);border-bottom:2px solid rgba(244,63,94,.2);font-size:11px;font-weight:800;color:#f43f5e">Overall</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${data.map((d,i)=>{
+            const rank=finalRank[i];
+            const medal=rank===1?'🥇':rank===2?'🥈':rank===3?'🥉':'#'+rank;
+            const rowBg=rank===1?'rgba(234,179,8,.04)':rank===2?'rgba(148,163,184,.04)':rank===3?'rgba(180,83,9,.04)':'transparent';
+            return`<tr style="background:${rowBg};border-bottom:1px solid rgba(255,255,255,.04)">
+              <td style="padding:14px;font-weight:700;font-size:13px">${d.name}</td>
+              <td style="padding:12px 10px;text-align:center;font-weight:700;color:${colors[0]}">${stLbFormat(sc1,d[sc1]||0)}</td>
+              <td style="padding:12px 10px;text-align:center;font-size:11px;font-weight:700;color:${sr1[i]===1?'var(--gb)':'var(--dmr)'}">${sr1[i]}</td>
+              <td style="padding:12px 10px;text-align:center;font-weight:700;color:${colors[1]}">${stLbFormat(sc2,d[sc2]||0)}</td>
+              <td style="padding:12px 10px;text-align:center;font-size:11px;font-weight:700;color:${sr2[i]===1?'var(--gb)':'var(--dmr)'}">${sr2[i]}</td>
+              <td style="padding:12px 10px;text-align:center;font-weight:700;color:${colors[2]}">${stLbFormat(sc3,d[sc3]||0)}</td>
+              <td style="padding:12px 10px;text-align:center;font-size:11px;font-weight:700;color:${sr3[i]===1?'var(--gb)':'var(--dmr)'}">${sr3[i]}</td>
+              <td style="padding:12px 14px;text-align:center;font-size:18px;font-weight:900">${medal}</td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  `}`;
+}
+
+// ── Main render (YouTube tab removed) ──
+function render(){
+  const allTabs=[['dashboard','📊','Dashboard'],['sales_tracker','📈','Sales Tracker'],['setter_tracker','📋','Setter Tracker'],['setter','📞','Setter'],['closer','💰','Closer'],['enrollments','🎓','Enrollments'],['settings','⚙️','Settings']];
+  const allowed=ROLE_TABS[userRole]||[];
+  const tabs=allTabs.filter(([v])=>allowed.includes(v));
+  if(!allowed.includes(S.view)&&tabs.length)S.view=tabs[0][0];
+  const dr=[['today','Today'],['yesterday','Yesterday'],['this_week','This Week'],['this_month','This Month'],['last_month','Last Month']];
+  const dq=[['q1','Q1'],['q2','Q2'],['q3','Q3'],['q4','Q4']];
+  const dx=[['ytd','YTD'],['all_time','All Time']];
+  let c='';
+  switch(S.view){case'dashboard':c=renderDash();break;case'sales_tracker':c=renderSalesTracker();break;case'setter_tracker':c=renderSetterTracker();break;case'setter':c=renderSetter();break;case'closer':c=renderCloser();break;case'enrollments':c=renderEnroll();break;case'settings':c=renderSettings();break;default:c=renderDash()}
+  $('app').innerHTML=`<div class="hdr"><div><div class="brand-sub">COMMAND CENTER</div><div class="brand"><span>AI Agency</span> Command Center</div></div><div class="dr">${dr.map(([k,l])=>`<button class="${S.dateRange===k?'a':''}" onclick="S.dateRange='${k}';render()">${l}</button>`).join('')}<div class="sep"></div>${dq.map(([k,l])=>`<button class="${S.dateRange===k?'a':''}" onclick="S.dateRange='${k}';render()">${l}</button>`).join('')}<div class="sep"></div>${dx.map(([k,l])=>`<button class="${S.dateRange===k?'a':''}" onclick="S.dateRange='${k}';render()">${l}</button>`).join('')}<div class="sep"></div><input type="date" id="dr-start" class="${S.dateRange==='custom'?'a':''}" value="${S.customStart}" onchange="S.customStart=this.value;S.dateRange='custom';render()"><span style="color:var(--dmr);font-size:11px">→</span><input type="date" id="dr-end" class="${S.dateRange==='custom'?'a':''}" value="${S.customEnd}" onchange="S.customEnd=this.value;S.dateRange='custom';render()"></div></div><div class="nav">${tabs.map(([v,i,l])=>`<button class="${S.view===v?'a':''}" onclick="S.view='${v}';render()"><span style="font-size:16px">${i}</span>${l}</button>`).join('')}</div><div class="cnt">${c}</div>`;
+  setTimeout(watchDealClosed,0);
+}
+
+// ── Load data from Sheets ──
+async function reload(){
+  try{
+    const d=await apiRead();
+    const nd=r=>{if(r.date)r.date=normDate(r.date);return r;};
+    const ne=r=>{['date','dateJoined','p1Due','p2Due','p3Due'].forEach(k=>{if(r[k])r[k]=normDate(r[k])});return r;};
+    S.closer_reports=(d.closer_reports||[]).map(nd);
+    S.setter_reports=(d.setter_reports||[]).map(nd);
+    S.call_reports=(d.call_reports||[]).map(nd);
+    S.enrollments=(d.enrollments||[]).map(ne);
+    // Load shared config from Google Sheet (overrides localStorage defaults)
+    if(d.config){
+      if(d.config.closers&&Array.isArray(d.config.closers)&&d.config.closers.length>0){
+        S.closers=d.config.closers;
+        localStorage.setItem('aiagency_closers',JSON.stringify(S.closers));
+      }
+      if(d.config.setters&&Array.isArray(d.config.setters)&&d.config.setters.length>0){
+        S.setters=d.config.setters;
+        localStorage.setItem('aiagency_setters',JSON.stringify(S.setters));
+      }
+      if(d.config.packages&&Array.isArray(d.config.packages)&&d.config.packages.length>0){
+        S.packages=d.config.packages;
+        localStorage.setItem('aiagency_packages',JSON.stringify(S.packages));
+      }
+      if(d.config.discord&&typeof d.config.discord==='object'){
+        Object.assign(DISCORD,d.config.discord);
+        localStorage.setItem('aiagency_discord',JSON.stringify(DISCORD));
+      }
+    }
+    
+    dataReady=true;
+    if(userRole){
+      render();
+    }
+  }catch(e){
+    console.error('Load error',e);
+    const ls=$('loginScreen');if(ls)ls.style.display='none';
+    $('app').innerHTML='<div class="loading" style="color:#f43f5e">Failed to load data. Check your Apps Script URL.</div>';
+  }
+}
+
+// ── Init ──
+reload();
+</script>
+</body>
+</html>
