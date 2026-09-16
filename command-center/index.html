@@ -784,39 +784,62 @@ function renderSalesTracker(){
 }
 // Sourced from the 'signups' tab, written automatically by base44-signup.js on
 // every Close Won transition - this is real data, not manually-entered reports.
-function renderLiveSignups(){
-  const rows=S.signups||[];
+function signupMetrics(rows){
   const byRep={};
   rows.forEach(r=>{
     const rep=r.repName||'Unclaimed';
     if(!byRep[rep])byRep[rep]={count:0,revenue:0,commission:0};
     byRep[rep].count+=1;
     byRep[rep].revenue+=Number(r.revenue)||0;
-    const c=(S.commissionByPlan||{})[r.product];
+    const c=(S.commissionByPlan||{})[(r.product||'').replace('Base44 ','')];
     byRep[rep].commission+=c!=null?Number(c):0;
   });
-  const totalCount=rows.length;
-  const totalRevenue=rows.reduce((s,r)=>s+(Number(r.revenue)||0),0);
-  const totalCommission=Object.values(byRep).reduce((s,x)=>s+x.commission,0);
-  const leaderboard=Object.entries(byRep).sort((a,b)=>b[1].revenue-a[1].revenue);
+  return{
+    count:rows.length,
+    revenue:rows.reduce((s,r)=>s+(Number(r.revenue)||0),0),
+    commission:Object.values(byRep).reduce((s,x)=>s+x.commission,0),
+    byRep
+  };
+}
+function renderLiveSignups(){
+  const rows=S.signups||[];
+  const now=new Date();
+  const t=td();
+  const sw=new Date(now);sw.setDate(now.getDate()-now.getDay());
+  const weekStart=localDateStr(sw);
+  const monthStart=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-01';
+  const periods=[
+    ['Today',rows.filter(r=>r.date===t)],
+    ['This Week',rows.filter(r=>r.date>=weekStart&&r.date<=t)],
+    ['This Month',rows.filter(r=>r.date>=monthStart&&r.date<=t)],
+    ['All Time',rows]
+  ];
+  const allTime=signupMetrics(rows);
+  const leaderboard=Object.entries(allTime.byRep).sort((a,b)=>b[1].revenue-a[1].revenue);
   return`
-  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px">
-    <div class="hero-c"><div class="lbl">TOTAL SALES</div><div class="val" style="color:#38bdf8">${totalCount}</div></div>
-    <div class="hero-c hl"><div class="lbl">TOTAL REVENUE</div><div class="val" style="color:var(--gb)">${fmt(totalRevenue)}</div></div>
-    <div class="hero-c" style="border-color:rgba(16,185,129,.25)"><div class="lbl">TOTAL COMMISSION OWED</div><div class="val" style="color:#10b981">${fmt(totalCommission)}</div></div>
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px">
+    ${periods.map(([label,prows])=>{const m=signupMetrics(prows);return`
+    <div class="sec">
+      <div style="font-size:11px;font-weight:800;color:var(--dmr);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">${label}</div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <div style="font-size:20px;font-weight:900;color:#38bdf8">${m.count}<span style="font-size:10px;font-weight:700;color:var(--dmr);margin-left:4px">SALES</span></div>
+        <div style="font-size:14px;font-weight:800;color:var(--gb)">${fmt(m.revenue)}</div>
+        <div style="font-size:12px;font-weight:700;color:#10b981">${fmt(m.commission)} commission</div>
+      </div>
+    </div>`}).join('')}
   </div>
   <div class="sec">
-    <div style="font-size:14px;font-weight:800;margin-bottom:12px">🏆 Leaderboard (live, from Close)</div>
+    <div style="font-size:14px;font-weight:800;margin-bottom:12px">🏆 Leaderboard (live, from Close - all time)</div>
     <table style="width:100%;border-collapse:collapse">
       <thead><tr style="text-align:left;font-size:10px;color:var(--dmr)"><th style="padding:6px">Rep</th><th style="padding:6px">Sales</th><th style="padding:6px">Revenue</th><th style="padding:6px">Commission</th></tr></thead>
       <tbody>${leaderboard.length===0?'<tr><td colspan="4" style="padding:16px;text-align:center;color:var(--dmr)">No signups logged yet</td></tr>':leaderboard.map(([rep,x])=>`<tr style="border-top:1px solid rgba(255,255,255,.06)"><td style="padding:8px;font-weight:700">${rep}</td><td style="padding:8px">${x.count}</td><td style="padding:8px;color:var(--gb)">${fmt(x.revenue)}</td><td style="padding:8px;color:#10b981">${fmt(x.commission)}</td></tr>`).join('')}</tbody>
     </table>
   </div>
   <div class="sec" style="margin-top:16px">
-    <div style="font-size:14px;font-weight:800;margin-bottom:12px">Recent signups</div>
+    <div style="font-size:14px;font-weight:800;margin-bottom:12px">Daily sales</div>
     <table style="width:100%;border-collapse:collapse">
       <thead><tr style="text-align:left;font-size:10px;color:var(--dmr)"><th style="padding:6px">Date</th><th style="padding:6px">Name</th><th style="padding:6px">Rep</th><th style="padding:6px">Plan</th><th style="padding:6px">Revenue</th></tr></thead>
-      <tbody>${rows.length===0?'<tr><td colspan="5" style="padding:16px;text-align:center;color:var(--dmr)">Nothing yet</td></tr>':[...rows].reverse().slice(0,25).map(r=>`<tr style="border-top:1px solid rgba(255,255,255,.06)"><td style="padding:8px">${fmtDate(r.date)}</td><td style="padding:8px">${r.leadName||''}</td><td style="padding:8px">${r.repName||''}</td><td style="padding:8px">${r.product||''}</td><td style="padding:8px;color:var(--gb)">${fmt(r.revenue)}</td></tr>`).join('')}</tbody>
+      <tbody>${rows.length===0?'<tr><td colspan="5" style="padding:16px;text-align:center;color:var(--dmr)">Nothing yet</td></tr>':[...rows].sort((a,b)=>(b.date||'').localeCompare(a.date||'')).slice(0,50).map(r=>`<tr style="border-top:1px solid rgba(255,255,255,.06)"><td style="padding:8px">${r.date||''}</td><td style="padding:8px">${r.leadName||''}</td><td style="padding:8px">${r.repName||''}</td><td style="padding:8px">${r.product||''}</td><td style="padding:8px;color:var(--gb)">${fmt(r.revenue)}</td></tr>`).join('')}</tbody>
     </table>
   </div>`;
 }
