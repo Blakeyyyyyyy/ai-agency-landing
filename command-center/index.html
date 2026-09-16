@@ -216,7 +216,10 @@ function savePackages(){
 async function syncConfigToSheet(showToast){
   try{
     if(showToast)toast('Saving settings...');
-    const r=await apiSaveConfig({closers:S.closers,setters:S.setters,packages:S.packages,discord:DISCORD});
+    // saveConfig replaces the whole config blob (no merge on the Apps Script
+    // side) - revenueByPlan/commissionByPlan must be included every write or
+    // this call silently wipes the commission config.
+    const r=await apiSaveConfig({closers:S.closers,setters:S.setters,packages:S.packages,discord:DISCORD,revenueByPlan:S.revenueByPlan||{},commissionByPlan:S.commissionByPlan||{}});
     if(showToast)toast('Settings saved & synced!');
     return r;
   }catch(e){
@@ -776,8 +779,46 @@ function renderSalesTracker(){
   const b=db();
   return`
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px"><div style="font-size:14px;font-weight:700;color:rgba(255,255,255,.6)">Showing: <span style="color:var(--gl)">${b.l}</span></div><div style="font-size:11px;color:var(--dmr)">${b.s} → ${b.e}</div></div>
-  <div class="sub-tabs" style="margin-bottom:16px"><button class="${S.salesSub==='stats'?'a':''}" onclick="S.salesSub='stats';render()">📈 Sales Stats</button><button class="${S.salesSub==='leaderboard'?'a':''}" onclick="S.salesSub='leaderboard';render()">🏆 Leaderboard</button></div>
-  ${S.salesSub==='leaderboard'?renderLeaderboard():renderSalesStats()}`;
+  <div class="sub-tabs" style="margin-bottom:16px"><button class="${S.salesSub==='stats'?'a':''}" onclick="S.salesSub='stats';render()">📈 Sales Stats</button><button class="${S.salesSub==='leaderboard'?'a':''}" onclick="S.salesSub='leaderboard';render()">🏆 Leaderboard</button><button class="${S.salesSub==='live'?'a':''}" onclick="S.salesSub='live';render()">💵 Live Signups</button></div>
+  ${S.salesSub==='leaderboard'?renderLeaderboard():S.salesSub==='live'?renderLiveSignups():renderSalesStats()}`;
+}
+// Sourced from the 'signups' tab, written automatically by base44-signup.js on
+// every Close Won transition - this is real data, not manually-entered reports.
+function renderLiveSignups(){
+  const rows=S.signups||[];
+  const byRep={};
+  rows.forEach(r=>{
+    const rep=r.repName||'Unclaimed';
+    if(!byRep[rep])byRep[rep]={count:0,revenue:0,commission:0};
+    byRep[rep].count+=1;
+    byRep[rep].revenue+=Number(r.revenue)||0;
+    const c=(S.commissionByPlan||{})[r.product];
+    byRep[rep].commission+=c!=null?Number(c):0;
+  });
+  const totalCount=rows.length;
+  const totalRevenue=rows.reduce((s,r)=>s+(Number(r.revenue)||0),0);
+  const totalCommission=Object.values(byRep).reduce((s,x)=>s+x.commission,0);
+  const leaderboard=Object.entries(byRep).sort((a,b)=>b[1].revenue-a[1].revenue);
+  return`
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px">
+    <div class="hero-c"><div class="lbl">TOTAL SALES</div><div class="val" style="color:#38bdf8">${totalCount}</div></div>
+    <div class="hero-c hl"><div class="lbl">TOTAL REVENUE</div><div class="val" style="color:var(--gb)">${fmt(totalRevenue)}</div></div>
+    <div class="hero-c" style="border-color:rgba(16,185,129,.25)"><div class="lbl">TOTAL COMMISSION OWED</div><div class="val" style="color:#10b981">${fmt(totalCommission)}</div></div>
+  </div>
+  <div class="sec">
+    <div style="font-size:14px;font-weight:800;margin-bottom:12px">🏆 Leaderboard (live, from Close)</div>
+    <table style="width:100%;border-collapse:collapse">
+      <thead><tr style="text-align:left;font-size:10px;color:var(--dmr)"><th style="padding:6px">Rep</th><th style="padding:6px">Sales</th><th style="padding:6px">Revenue</th><th style="padding:6px">Commission</th></tr></thead>
+      <tbody>${leaderboard.length===0?'<tr><td colspan="4" style="padding:16px;text-align:center;color:var(--dmr)">No signups logged yet</td></tr>':leaderboard.map(([rep,x])=>`<tr style="border-top:1px solid rgba(255,255,255,.06)"><td style="padding:8px;font-weight:700">${rep}</td><td style="padding:8px">${x.count}</td><td style="padding:8px;color:var(--gb)">${fmt(x.revenue)}</td><td style="padding:8px;color:#10b981">${fmt(x.commission)}</td></tr>`).join('')}</tbody>
+    </table>
+  </div>
+  <div class="sec" style="margin-top:16px">
+    <div style="font-size:14px;font-weight:800;margin-bottom:12px">Recent signups</div>
+    <table style="width:100%;border-collapse:collapse">
+      <thead><tr style="text-align:left;font-size:10px;color:var(--dmr)"><th style="padding:6px">Date</th><th style="padding:6px">Name</th><th style="padding:6px">Rep</th><th style="padding:6px">Plan</th><th style="padding:6px">Revenue</th></tr></thead>
+      <tbody>${rows.length===0?'<tr><td colspan="5" style="padding:16px;text-align:center;color:var(--dmr)">Nothing yet</td></tr>':[...rows].reverse().slice(0,25).map(r=>`<tr style="border-top:1px solid rgba(255,255,255,.06)"><td style="padding:8px">${fmtDate(r.date)}</td><td style="padding:8px">${r.leadName||''}</td><td style="padding:8px">${r.repName||''}</td><td style="padding:8px">${r.product||''}</td><td style="padding:8px;color:var(--gb)">${fmt(r.revenue)}</td></tr>`).join('')}</tbody>
+    </table>
+  </div>`;
 }
 function renderSalesStats(){
   const sel=S.selectedClosers||S.closers;
@@ -990,6 +1031,17 @@ function renderSettings(){
   <button class="btn" style="background:rgba(255,255,255,.06);font-size:12px;padding:8px 16px;margin-top:4px" onclick="S.packages.push('New Package');savePackages();render()">+ Add Package</button></div>
   <button class="btn" style="margin-top:20px;background:var(--green)" onclick="syncConfigToSheet(true)">💾 Save Team Settings</button>
   <div style="font-size:11px;color:var(--dmr);margin-top:12px">Saves team names and packages to Google Sheets so all devices see the same dropdowns. Click this after making any changes.</div>
+  </div>
+  <div class="sec" style="margin-top:16px"><div style="font-size:18px;font-weight:800;margin-bottom:8px">💵 Revenue &amp; Commission Per Plan</div>
+  <div style="font-size:12px;color:var(--dim);margin-bottom:20px">Drives the Live Signups leaderboard and every commission figure base44-signup.js writes to Discord. Change here, not in code.</div>
+  <div style="display:flex;flex-direction:column;gap:10px">
+  ${Object.keys(S.revenueByPlan||{}).map(plan=>`<div style="display:flex;gap:8px;align-items:center">
+    <div style="flex:1;font-size:13px;font-weight:700">${plan}</div>
+    <div style="display:flex;align-items:center;gap:4px"><span style="font-size:11px;color:var(--dmr)">Revenue $</span><input type="number" value="${S.revenueByPlan[plan]}" onchange="S.revenueByPlan['${plan}']=Number(this.value)" style="width:80px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#fff;padding:8px;font-size:13px;font-family:'Montserrat',sans-serif"></div>
+    <div style="display:flex;align-items:center;gap:4px"><span style="font-size:11px;color:var(--dmr)">Commission $</span><input type="number" value="${(S.commissionByPlan||{})[plan]||0}" onchange="S.commissionByPlan['${plan}']=Number(this.value)" style="width:80px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#fff;padding:8px;font-size:13px;font-family:'Montserrat',sans-serif"></div>
+  </div>`).join('')}
+  </div>
+  <button class="btn" style="margin-top:16px;background:var(--green)" onclick="syncConfigToSheet(true)">💾 Save Revenue &amp; Commission</button>
   </div>
   <div class="sec" style="margin-top:16px"><div style="font-size:18px;font-weight:800;margin-bottom:8px">🔔 Discord Webhooks</div>
   <div style="font-size:12px;color:var(--dim);margin-bottom:20px">Paste your Discord webhook URLs below. Messages will be sent automatically when reports are submitted.</div>
@@ -1299,6 +1351,15 @@ async function reload(){
     S.setter_reports=(d.setter_reports||[]).map(nd);
     S.call_reports=(d.call_reports||[]).map(nd);
     S.enrollments=(d.enrollments||[]).map(ne);
+    S.signups=(d.signups||[]).map(nd);
+    // Commission config is separate from the Sheet-based config block below -
+    // it's stored via the Apps Script's own saveConfig/loadConfig (Script
+    // Properties), editable from Settings without a redeploy.
+    try{
+      const cfg=await(await fetch(API+'?action=loadConfig')).json();
+      S.revenueByPlan=cfg.revenueByPlan||{};
+      S.commissionByPlan=cfg.commissionByPlan||{};
+    }catch(e){S.revenueByPlan=S.revenueByPlan||{};S.commissionByPlan=S.commissionByPlan||{};}
     // Load shared config from Google Sheet (overrides localStorage defaults)
     if(d.config){
       if(d.config.closers&&Array.isArray(d.config.closers)&&d.config.closers.length>0){
