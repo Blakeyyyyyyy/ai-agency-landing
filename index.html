@@ -556,8 +556,15 @@ if(VSL_URL){
           var mccOpt = mccEl && mccEl.selectedOptions && mccEl.selectedOptions[0];
           var isoMatch = mccOpt && /([A-Z]{2})\s*\+\d/.exec(mccOpt.textContent);
           var ccName = isoMatch ? isoMatch[1] : cc;
-          fetch('https://blake-discord-relay.vercel.app/api/create-lead',{method:'POST',headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({name:name,email:email,phone:cc+' '+ph,country:ccName,source:src()}),keepalive:true}).catch(function(){});
+          var clPayload = JSON.stringify({name:name,email:email,phone:cc+' '+ph,country:ccName,source:src()});
+          // sendBeacon is built to survive the location.href redirect right below -
+          // the fetch()+keepalive+empty-catch this replaced silently dropped leads
+          // on any network blip or ad-blocker, with zero retry and zero trace.
+          if(navigator.sendBeacon){
+            navigator.sendBeacon('https://blake-discord-relay.vercel.app/api/create-lead', new Blob([clPayload],{type:'application/json'}));
+          } else {
+            fetch('https://blake-discord-relay.vercel.app/api/create-lead',{method:'POST',headers:{'Content-Type':'application/json'},body:clPayload,keepalive:true}).catch(function(){});
+          }
         }catch(e){}
         ev(email,name,'phone',cc+' '+ph);
         ev(email,name,'sms_consent',sms?'yes':'no');
