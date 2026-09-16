@@ -556,20 +556,8 @@ if(VSL_URL){
           var mccOpt = mccEl && mccEl.selectedOptions && mccEl.selectedOptions[0];
           var isoMatch = mccOpt && /([A-Z]{2})\s*\+\d/.exec(mccOpt.textContent);
           var ccName = isoMatch ? isoMatch[1] : cc;
-          var clPayload = JSON.stringify({name:name,email:email,phone:cc+' '+ph,country:ccName,source:src()});
-          // sendBeacon is built to survive the location.href redirect right below -
-          // fetch()+keepalive+empty-catch silently dropped leads on any network
-          // blip or ad-blocker, zero retry, zero trace. IMPORTANT: pass a plain
-          // string, not a Blob typed application/json - a JSON content-type is
-          // not CORS-safelisted, so a cross-origin beacon with that type needs a
-          // preflight the Beacon API can't reliably do, and silently never sends
-          // (confirmed live: 28 OPTIONS preflights, 5 completed POSTs). A plain
-          // string defaults to text/plain, which is CORS-safelisted - no
-          // preflight, guaranteed simple request.
-          var clSent = navigator.sendBeacon && navigator.sendBeacon('https://blake-discord-relay.vercel.app/api/create-lead', clPayload);
-          if(!clSent){
-            fetch('https://blake-discord-relay.vercel.app/api/create-lead',{method:'POST',headers:{'Content-Type':'application/json'},body:clPayload,keepalive:true}).catch(function(){});
-          }
+          fetch('https://blake-discord-relay.vercel.app/api/create-lead',{method:'POST',headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({name:name,email:email,phone:cc+' '+ph,country:ccName,source:src()}),keepalive:true}).catch(function(){});
         }catch(e){}
         ev(email,name,'phone',cc+' '+ph);
         ev(email,name,'sms_consent',sms?'yes':'no');

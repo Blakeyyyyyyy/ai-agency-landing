@@ -398,18 +398,8 @@ select.cc:focus{border-color:var(--accent);background:#0f151a;box-shadow:0 0 0 3
         // Supabase write above stays as backup / event log, unchanged.
         try{
           var ccName = (ccSel && CC[ccSel.selectedIndex]) ? CC[ccSel.selectedIndex][1] : '';
-          var clPayload = JSON.stringify({name:name,email:email,phone:A.phone||'',country:ccName,source:src});
-          // sendBeacon over fetch+keepalive+empty-catch - that combo silently
-          // dropped leads on any network blip or ad-blocker, zero retry, zero trace.
-          // Plain string, not a Blob typed application/json - JSON isn't a
-          // CORS-safelisted content type, so a cross-origin beacon with that type
-          // needs a preflight the Beacon API can't reliably do and silently never
-          // sends (confirmed live: 28 OPTIONS preflights, 5 completed POSTs).
-          // Plain string defaults to text/plain - CORS-safelisted, no preflight.
-          var clSent = navigator.sendBeacon && navigator.sendBeacon('https://blake-discord-relay.vercel.app/api/create-lead', clPayload);
-          if(!clSent){
-            fetch('https://blake-discord-relay.vercel.app/api/create-lead',{method:'POST',headers:{'Content-Type':'application/json'},body:clPayload,keepalive:true}).catch(function(){});
-          }
+          fetch('https://blake-discord-relay.vercel.app/api/create-lead',{method:'POST',headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({name:name,email:email,phone:A.phone||'',country:ccName,source:src}),keepalive:true}).catch(function(){});
         }catch(e){}
         saveAnswers(false);
         show('q1');
