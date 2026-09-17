@@ -443,13 +443,52 @@ function ff(l,id,type,val,opts){
   return`<div class="fl"><label>${l}</label><input id="${id}" type="${type==='number'?'text':type||'text'}" ${type==='number'?'inputmode="decimal"':''} value="${val??''}"></div>`;
 }
 
-// ── Dashboard: what we made, front and center. Was a call-report funnel
-// view (dials/pickups/offers etc, all $0 since nobody files those reports
-// for this business) - Liam wants the automated Base44 signup numbers here
-// instead, not three clicks deep under Sales Tracker. Old funnel view is
-// still reachable at Sales Tracker for whenever manual reports get used.
+// ── Dashboard: matches Winning Streak's own Command Center pattern (their
+// "Low Ticket" tab) - one period, switched via the date-range buttons in the
+// header (Today/This Week/This Month/...), not four fixed cards stacked.
+// Was a call-report funnel view (dials/pickups/offers, all $0 - nobody files
+// those reports for this business); Base44 signups now live here directly,
+// no sub-tab hunting. Old funnel view still reachable at Sales Tracker.
 function renderDash(){
-  return renderLiveSignups();
+  const b=db();
+  const rows=(S.signups||[]).filter(r=>inR(r.date));
+  const sm=signupMetrics(rows);
+  const allTime=signupMetrics(S.signups||[]);
+  const leaderboard=Object.entries(allTime.byRep).sort((a,c)=>c[1].revenue-a[1].revenue);
+  // Driven by whatever plans are actually configured (Settings -> Revenue &
+  // Commission Per Plan) - no Air Wallex card like WS's version, Blake
+  // doesn't have that product, and no plan tier names invented here either.
+  const products=Object.keys(S.revenueByPlan||{});
+  const byProduct={};
+  products.forEach(p=>{byProduct[p]=rows.filter(r=>(r.product||'').replace('Base44 ','')===p)});
+  return`
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:16px">
+    <div style="font-size:14px;font-weight:700;color:rgba(255,255,255,.6)">Showing: <span style="color:var(--gl)">${b.l}</span></div>
+    <div style="font-size:11px;color:var(--dmr)">${b.s} → ${b.e}</div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px">
+    <div class="hero-c hl"><div class="lbl">TOTAL REVENUE</div><div class="val" style="color:var(--gb)">${fmt(sm.revenue)}</div></div>
+    <div class="hero-c"><div class="lbl">TOTAL SALES</div><div class="val" style="color:#38bdf8">${sm.count}</div></div>
+    <div class="hero-c"><div class="lbl">AVG / SALE</div><div class="val" style="color:#eab308">${sm.count>0?fmt(sm.revenue/sm.count):'$0'}</div></div>
+    <div class="hero-c"><div class="lbl">COMMISSION OWED</div><div class="val" style="color:#10b981">${fmt(sm.commission)}</div></div>
+  </div>
+  ${products.length?`<div style="display:grid;grid-template-columns:repeat(${products.length},1fr);gap:12px;margin-bottom:16px">
+    ${products.map(p=>`<div class="hero-c"><div class="lbl">BASE44 ${p.toUpperCase()}</div><div class="val" style="color:#a855f7">${byProduct[p].length} <span style="font-size:12px;color:var(--dmr)">(${fmt(byProduct[p].reduce((s,r)=>s+(Number(r.revenue)||0),0))})</span></div></div>`).join('')}
+  </div>`:''}
+  <div class="sec">
+    <div style="font-size:14px;font-weight:800;margin-bottom:12px">🏆 Leaderboard (live, from Close - all time)</div>
+    <table style="width:100%;border-collapse:collapse">
+      <thead><tr style="text-align:left;font-size:10px;color:var(--dmr)"><th style="padding:6px">Rep</th><th style="padding:6px">Sales</th><th style="padding:6px">Revenue</th><th style="padding:6px">Commission</th></tr></thead>
+      <tbody>${leaderboard.length===0?'<tr><td colspan="4" style="padding:16px;text-align:center;color:var(--dmr)">No signups logged yet</td></tr>':leaderboard.map(([rep,x])=>`<tr style="border-top:1px solid rgba(255,255,255,.06)"><td style="padding:8px;font-weight:700">${rep}</td><td style="padding:8px">${x.count}</td><td style="padding:8px;color:var(--gb)">${fmt(x.revenue)}</td><td style="padding:8px;color:#10b981">${fmt(x.commission)}</td></tr>`).join('')}</tbody>
+    </table>
+  </div>
+  <div class="sec" style="margin-top:16px">
+    <div style="font-size:14px;font-weight:800;margin-bottom:12px">Daily sales</div>
+    <table style="width:100%;border-collapse:collapse">
+      <thead><tr style="text-align:left;font-size:10px;color:var(--dmr)"><th style="padding:6px">Date</th><th style="padding:6px">Name</th><th style="padding:6px">Rep</th><th style="padding:6px">Plan</th><th style="padding:6px">Revenue</th></tr></thead>
+      <tbody>${(S.signups||[]).length===0?'<tr><td colspan="5" style="padding:16px;text-align:center;color:var(--dmr)">Nothing yet</td></tr>':[...(S.signups||[])].sort((a,c)=>(c.date||'').localeCompare(a.date||'')).slice(0,50).map(r=>`<tr style="border-top:1px solid rgba(255,255,255,.06)"><td style="padding:8px">${r.date||''}</td><td style="padding:8px">${r.leadName||''}</td><td style="padding:8px">${r.repName||''}</td><td style="padding:8px">${r.product||''}</td><td style="padding:8px;color:var(--gb)">${fmt(r.revenue)}</td></tr>`).join('')}</tbody>
+    </table>
+  </div>`;
 }
 
 // ── Setter ──
