@@ -443,33 +443,13 @@ function ff(l,id,type,val,opts){
   return`<div class="fl"><label>${l}</label><input id="${id}" type="${type==='number'?'text':type||'text'}" ${type==='number'?'inputmode="decimal"':''} value="${val??''}"></div>`;
 }
 
-// ── Dashboard (YouTube section removed) ──
+// ── Dashboard: what we made, front and center. Was a call-report funnel
+// view (dials/pickups/offers etc, all $0 since nobody files those reports
+// for this business) - Liam wants the automated Base44 signup numbers here
+// instead, not three clicks deep under Sales Tracker. Old funnel view is
+// still reachable at Sales Tracker for whenever manual reports get used.
 function renderDash(){
-  const m=M(),b=db();
-  const bm=S.benchmarks;const funnel=[{f:'Total Dials',t:'Conversations',fv:m.tDi,tv:m.tCo,bench:bm.dialConvo},{f:'Pitched',t:'Booked Appts',fv:m.tPB||0,tv:m.tCB,bench:bm.pitchedBooked},{f:'Booked Appts',t:'Calls Taken',fv:m.tCB,tv:m.tSS,bench:bm.bookedCalls},{f:'Calls Taken',t:'Offers',fv:m.tSS,tv:m.tOf,bench:bm.callsOffers},{f:'Offers',t:'Closes',fv:m.tOf,tv:m.tCl,bench:bm.offersCloses}];
-  funnel.forEach(s=>{s.r=s.fv>0?s.tv/s.fv:0;s.gap=s.fv>0?s.bench-s.r:0;});
-  const ac=funnel.filter(s=>s.fv>0);const bn=ac.length>0?ac.reduce((w,s)=>s.gap>w.gap?s:w,ac[0]):null;
-  return`
-  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:16px">
-    <div style="font-size:14px;font-weight:700;color:rgba(255,255,255,.6)">Showing: <span style="color:var(--gl)">${b.l}</span></div>
-    <div style="display:flex;align-items:center;gap:8px">
-      <div style="font-size:11px;font-weight:700;color:var(--dim)">SOURCE:</div>
-      ${['all',...["Organic","IG Reels"]].map(s=>`<button onclick="S.selectedSource='${s}';render()" style="padding:5px 12px;font-size:11px;font-weight:700;border-radius:6px;cursor:pointer;font-family:'Montserrat',sans-serif;transition:all .2s;border:1px solid ${S.selectedSource===s?'rgba(22,163,74,.5)':'rgba(255,255,255,.1)'};background:${S.selectedSource===s?'rgba(22,163,74,.2)':'rgba(255,255,255,.04)'};color:${S.selectedSource===s?'var(--gl)':'var(--dim)'}">${s==='all'?'All':s}</button>`).join('')}
-      <div style="font-size:11px;color:var(--dmr);margin-left:8px">${b.s} → ${b.e}</div>
-    </div>
-  </div>
-  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px">
-    <div class="hero-c"><div class="lbl">CLOSES</div><div class="val">${m.tCl}</div></div>
-    <div class="hero-c"><div class="lbl">LIVE CALLS</div><div class="val">${m.tSS}</div></div>
-    <div class="hero-c"><div class="lbl">CALL CLOSE (%)</div><div class="val" style="color:${m.clR>=.2?'var(--gb)':'#fff'}">${pct(m.clR)}</div></div>
-    <div class="hero-c hl"><div class="lbl">TOTAL COLLECTED ($)</div><div class="val" style="color:var(--gb)">${fmt(m.tCa+m.tRC)}</div></div>
-  </div>
-  <div class="sec" style="padding:0;overflow:hidden;margin-bottom:16px"><div class="sec-h"><span>📊 PER-UNIT ECONOMICS</span></div><div class="g g3" style="padding:14px">${kpi('Cash / Booked Call',fmt(m.cBK),'#38bdf8')}${kpi('Rev / Booked Call',fmt(m.rBK),'#eab308')}${kpi('Cash / Live Call',fmt(m.cSS),'#22c55e')}${kpi('Rev / Live Call',fmt(m.rSS),'#10b981')}${kpi('Cash / Close',fmt(m.aov),'#f97316')}${kpi('Avg Contract',fmt(m.aCV),'#15803d')}</div></div>
-  <div class="sec" style="padding:0;overflow:hidden"><div class="sec-h"><span>💵 REVENUE</span></div><div class="g g3" style="padding:14px">${kpi('Cash Collected',fmt(m.tCa),'#22c55e')}${kpi('Total Revenue',fmt(m.tRev),'#10b981')}${kpi('Recurring Cash',fmt(m.tRC),'#15803d')}</div></div>
-  <div class="sec" style="padding:0;overflow:hidden"><div class="sec-h"><span>💰 CLOSER METRICS</span></div><div class="g g5" style="padding:14px">${kpi('Calls Booked',m.tSC,'#38bdf8',1)}${kpi('Confirmed',m.tCF,'#16a34a',1)}${kpi('Calls Taken',m.tSS,'#22c55e',1)}${kpi('Rescheduled',m.tRE,'#64748b',1)}${kpi('Cancelled (Lead)',m.tCL,'#f97316',1)}${kpi('Cancelled (Setter)',m.tCS,'#f43f5e',1)}${kpi('Ghosted',m.tGH,'#ef4444',1)}${kpi('Offers',m.tOf,'#eab308',1)}${kpi('Deposits',m.tDe,'#10b981',1)}${kpi('Closes',m.tCl,'#22c55e',1)}${kpi('Show Rate',pct(m.shR),m.shR>=.7?'#22c55e':'#eab308',1)}${kpi('Close Rate',pct(m.clR),m.clR>=.2?'#22c55e':'#eab308',1)}${kpi('Offer→Close',pct(m.ofClR),m.ofClR>=.3?'#22c55e':'#eab308',1)}${kpi('Booked→Close',pct(m.cl2c),'#15803d',1)}${kpi('Reschedule Rate',pct(m.reR),'#64748b',1)}${kpi('Cancel Rate (Lead)',pct(m.clLR),m.clLR<=.1?'#22c55e':'#f97316',1)}${kpi('Cancel Rate (Setter)',pct(m.csSR),m.csSR<=.05?'#22c55e':'#f43f5e',1)}${kpi('Ghost Rate',pct(m.ghR),m.ghR<=.1?'#22c55e':'#ef4444',1)}</div></div>
-  <div class="sec" style="padding:0;overflow:hidden"><div class="sec-h"><span>📞 SETTER METRICS</span></div><div class="g g5" style="padding:14px 14px 0">${kpi('Total Dials',m.tDi.toLocaleString(),'#38bdf8',1)}${kpi('Unique Leads',m.tUL.toLocaleString(),'#16a34a',1)}${kpi('Pick Ups',(m.tPU||0).toLocaleString(),'#06b6d4',1)}${kpi('Conversations',m.tCo.toLocaleString(),'#22c55e',1)}${kpi('Pitched',(m.tPB||0).toLocaleString(),'#a855f7',1)}${kpi('Booked',m.tCB.toLocaleString(),'#22c55e',1)}${kpi('Self-Booked',(m.tSB||0).toLocaleString(),'#eab308',1)}</div><div class="g g5" style="padding:10px 14px 14px">${kpi('Dials→PU',pct(m.d2pu),'',1)}${kpi('PU→Convo',pct(m.pu2co),'',1)}${kpi('Convo→Pitch',pct(m.co2pb),'',1)}${kpi('Pitch→Book',pct(m.pb2bk),'',1)}${kpi('Book→Close',pct(m.tCB>0?m.tCl/m.tCB:0),'',1)}${kpi('Set Rate (Dials)',pct(m.tDi>0?m.tCB/m.tDi:0),'',1)}${kpi('Set Rate (Unique)',pct(m.tUL>0?m.tCB/m.tUL:0),'',1)}${kpi('Unique→Close',pct(m.tUL>0?m.tCl/m.tUL:0),'',1)}${kpi('Unique→Cash',m.tUL>0?fmt(m.tCa/m.tUL):'$0','',1)}</div></div>
-  <div class="sec" style="padding:0;overflow:hidden"><div class="sec-h"><span>\u26a0\ufe0f FUNNEL BOTTLENECK DETECTOR</span></div><div style="padding:14px">${ac.length===0?'<div style="color:var(--dmr);text-align:center;padding:20px">Submit reports to see funnel</div>':`${bn&&bn.gap>0?`<div style="padding:14px 18px;border-radius:12px;margin-bottom:12px;background:rgba(244,63,94,.06);border:1px solid rgba(244,63,94,.15)"><div style="font-size:12px;font-weight:800;color:#f43f5e;margin-bottom:4px">\u26a0\ufe0f BIGGEST BOTTLENECK: ${bn.f} \u2192 ${bn.t}</div><div style="font-size:13px;color:rgba(255,255,255,.6)">Running at <span style="color:#f43f5e;font-weight:700">${pct(bn.r)}</span> vs <span style="color:var(--gl);font-weight:700">${pct(bn.bench)}</span> benchmark. ${bn.fv.toLocaleString()} \u2192 ${bn.tv.toLocaleString()}</div></div>`:''}${funnel.map(s=>{const isBn=bn&&s.f===bn.f&&s.gap>0;const atOrAbove=s.r>=s.bench;const col=atOrAbove?'#22c55e':s.gap>.3?'#f43f5e':s.gap>.15?'#f97316':'#eab308';const barW=s.bench>0?Math.min((s.r/s.bench)*100,100):0;return`<div class="funnel-r${isBn?' worst':''}"><div style="min-width:150px;font-size:11px;color:var(--dim);font-weight:600">${s.f} \u2192 ${s.t}</div><div style="flex:1;height:6px;border-radius:3px;background:rgba(255,255,255,.06);overflow:hidden;position:relative"><div style="width:${barW}%;height:100%;border-radius:3px;background:${col}"></div></div><span style="font-size:12px;font-weight:700;color:${col};min-width:50px;text-align:right">${pct(s.r)}</span><span style="font-size:10px;color:var(--dmr);min-width:55px;text-align:right">${pct(s.bench)}</span><span style="font-size:10px;color:var(--dmr);min-width:70px;text-align:right">${s.fv.toLocaleString()} \u2192 ${s.tv.toLocaleString()}</span></div>`}).join('')}`}</div></div>
-  <div class="sec"><div style="font-size:12px;font-weight:700;color:var(--dim);margin-bottom:14px;letter-spacing:.08em">🎓 ENROLLMENT OVERVIEW</div><div class="g g5">${kpi('Active',m.aE,'#16a34a',1)}${kpi('PIF',m.pif,'#22c55e',1)}${kpi('Split',m.spl,'#eab308',1)}${kpi('Recurring Collected',fmt(m.tRC),'#10b981',1)}${kpi('Pipeline Value',fmt(m.rP),'#15803d',1)}</div></div>`;
+  return renderLiveSignups();
 }
 
 // ── Setter ──
