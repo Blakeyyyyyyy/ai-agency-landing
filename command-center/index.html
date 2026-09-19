@@ -531,6 +531,16 @@ function editSetter(idx){
   render();
   window.scrollTo({top:0,behavior:'smooth'});
 }
+// Refresh only the setter_reports tab (the full 6-tab reload takes ~10s+).
+async function refreshSetterReports(){
+  try{
+    const d=await(await fetch(API+'?action=read&sheet=setter_reports')).json();
+    if(Array.isArray(d.setter_reports)){
+      S.setter_reports=d.setter_reports.filter(r=>r.setterName).map(r=>{if(r.date)r.date=normDate(r.date);return r;});
+      render();
+    }
+  }catch(e){console.error('setter refresh failed',e);reload();}
+}
 async function submitSetter(){
   // Validate all fields are filled
   const reqFields=[{id:'sf-d',label:'Work Date'},{id:'sf-nm',label:'Setter Name'},{id:'sf-di',label:'Total Dials'},{id:'sf-ul',label:'Unique Leads Dialed'},{id:'sf-pu',label:'Pick Ups'},{id:'sf-co',label:'Conversations'},{id:'sf-pb',label:'Pitched Bookings'},{id:'sf-ba',label:'Booked Appointments'},{id:'sf-sb',label:'Self-Booked'},{id:'sf-cs',label:'Calls Showed'},{id:'sf-w',label:'Win For The Day'},{id:'sf-i',label:'Improvement'}];
@@ -551,17 +561,26 @@ async function submitSetter(){
   }
   toast('Saving...');
   const data={date:V('sf-d'),setterName:V('sf-nm'),totalDials:N('sf-di'),uniqueLeadsDialed:N('sf-ul'),pickUps:N('sf-pu'),conversationsOnPhone:N('sf-co'),pitchedBookings:N('sf-pb'),bookedAppointments:N('sf-ba'),selfBooked:N('sf-sb'),callsShowed:N('sf-cs'),winForTheDay:V('sf-w'),improvementForNextDay:V('sf-i')};
-  if(S.editingSetterRow){
-    await apiUpdate('setter_reports',S.editingSetterRow,data);
-    S.editingSetter=null;S.editingSetterRow=null;
-    S.view='dashboard';
-    await reload();toast('Report updated!');
-  } else {
-    await apiWrite('setter_reports',data);
-    discordSetterEOD(data);
-    S.view='dashboard';
-    await reload();toast('Setter report saved!');
+  try{
+    if(S.editingSetterRow){
+      const r=await apiUpdate('setter_reports',S.editingSetterRow,data);
+      if(!r||r.status==='error')throw new Error((r&&r.message)||'update failed');
+      S.editingSetter=null;S.editingSetterRow=null;
+      toast('Report updated!');
+    } else {
+      const r=await apiWrite('setter_reports',data);
+      if(!r||r.status==='error'||r.written===false)throw new Error((r&&r.message)||'not written');
+      // Row is saved - announce immediately, before any slow refresh.
+      discordSetterEOD(data);
+      toast('Setter report saved!');
+    }
+  }catch(e){
+    console.error('EOD save failed',e);
+    toast('\u26a0\ufe0f Save failed - check your connection and press Submit again');
+    return;
   }
+  S.view='dashboard';render();
+  refreshSetterReports();
 }
 
 // ── Closer ──
