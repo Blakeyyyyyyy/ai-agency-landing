@@ -460,6 +460,18 @@ function updateB44Auto(){
   const t=$('sf-tot');if(t)t.value=m+y;
   const r=$('sf-rev');if(r)r.value='$'+(m*225+y*250);
 }
+// "Didn't Work Today" zeroes and locks the day's numbers instead of leaving
+// them blank - WS's own rule: blank means unfiled, 0 means filed and worked
+// none. Re-checking re-enables the fields so the setter can enter real numbers.
+function toggleNoWork(){
+  const off=$('sf-nowork')?.checked;
+  ['sf-di','sf-ul','sf-pu','sf-b4m','sf-b4y'].forEach(id=>{
+    const el=$(id);if(!el)return;
+    el.disabled=off;
+    if(off)el.value=0;
+  });
+  updateB44Auto();
+}
 
 // ── Dashboard: matches Winning Streak's own Command Center pattern (their
 // "Low Ticket" tab) - one period, switched via the date-range buttons in the
@@ -518,18 +530,18 @@ function renderSetter(){
   ${ed?'<div style="padding:8px 14px;background:rgba(234,179,8,.1);border:1px solid rgba(234,179,8,.2);border-radius:8px;margin-bottom:16px;font-size:12px;color:#eab308;font-weight:600;display:flex;justify-content:space-between;align-items:center"><span>✏️ EDITING REPORT FROM '+ed.date+'</span><span style="cursor:pointer;color:rgba(255,255,255,.4)" onclick="S.editingSetter=null;S.editingSetterRow=null;render()">✕ Cancel</span></div>':''}
   <div style="font-size:18px;font-weight:800;margin-bottom:4px">📞 Setter Daily Report</div><div style="font-size:12px;color:var(--dim);margin-bottom:24px">End-of-day entry</div><div style="display:flex;flex-direction:column;gap:16px">
     ${ff('Setter Name','sf-nm','text',ed?.setterName||nameList[0],nameList)}
-    <div class="g g2">${ff('Work Date','sf-d','date',ed?.date||td())}${ff('# Total Dials','sf-di','number',ed?.totalDials||0)}</div>
-    <div class="g g2">${ff('# Unique Leads Dialed','sf-ul','number',ed?.uniqueLeadsDialed||0)}${ff('# Pick Ups','sf-pu','number',ed?.pickUps||0)}</div>
-    ${ff('# Conversations','sf-co','number',ed?.conversationsOnPhone||0)}
+    <div class="g g2">${ff('Work Date','sf-d','date',ed?.date||td())}<div class="fl"><label>Didn't Work Today</label><div style="display:flex;align-items:center;height:100%;min-height:38px"><input id="sf-nowork" type="checkbox" style="width:18px;height:18px;accent-color:var(--green)" ${ed?.didntWorkToday==='Yes'?'checked':''} onchange="toggleNoWork()"></div></div></div>
+    <div class="g g2">${ff('# Total Dials','sf-di','number',ed?.totalDials||0)}${ff('# Unique Leads Dialed','sf-ul','number',ed?.uniqueLeadsDialed||0)}</div>
+    ${ff('# Pick Ups','sf-pu','number',ed?.pickUps||0)}
     <div class="g g2"><div class="fl"><label># Base 44 Monthly Sales</label><input id="sf-b4m" type="text" inputmode="decimal" value="${ed?.base44MonthlySales||0}" oninput="updateB44Auto()"></div><div class="fl"><label># Base 44 Yearly Sales</label><input id="sf-b4y" type="text" inputmode="decimal" value="${ed?.base44YearlySales||0}" oninput="updateB44Auto()"></div></div>
-    <div class="g g2"><div class="fl"><label>Total Base44 Sales (auto)</label><input id="sf-tot" type="text" value="${(Number(ed?.base44MonthlySales)||0)+(Number(ed?.base44YearlySales)||0)}" disabled style="opacity:.55"></div><div class="fl"><label>Base44 Revenue (auto)</label><input id="sf-rev" type="text" value="$${(Number(ed?.base44MonthlySales)||0)*225+(Number(ed?.base44YearlySales)||0)*250}" disabled style="opacity:.55"></div></div>
+    <div class="g g2"><div class="fl"><label>Total LT Sales (Auto)</label><input id="sf-tot" type="text" value="${(Number(ed?.base44MonthlySales)||0)+(Number(ed?.base44YearlySales)||0)}" disabled style="opacity:.55"></div><div class="fl"><label>LT Revenue (Auto)</label><input id="sf-rev" type="text" value="$${(Number(ed?.base44MonthlySales)||0)*225+(Number(ed?.base44YearlySales)||0)*250}" disabled style="opacity:.55"></div></div>
     ${ff('1 Win For The Day','sf-w','text',ed?.winForTheDay||'')}
     ${ff('1 Improvement','sf-i','text',ed?.improvementForNextDay||'')}
     <button class="btn" style="background:${ed?'#eab308':'var(--green)'}" onclick="submitSetter()">${ed?'💾 Update Report':'Submit Setter Report'}</button>
   </div></div>
   <div class="sec"><div style="font-size:13px;font-weight:700;color:var(--dim);margin-bottom:12px">RECENT REPORTS <span style="font-weight:400;font-size:11px;color:var(--dmr)">(tap to edit)</span></div>
   ${rec.length===0?'<div style="color:var(--dmr)">No reports yet</div>':''}
-  ${rec.map((r,i)=>{const ri=S.setter_reports.length-1-(rec.indexOf(r));return`<div class="rr" style="cursor:pointer;padding:12px 0;transition:background .2s" onmouseover="this.style.background='rgba(255,255,255,.03)'" onmouseout="this.style.background='transparent'" onclick="editSetter(${ri})"><div style="display:flex;justify-content:space-between;align-items:center;width:100%"><span>${fmtDate(r.date)}${r.setterName?' — <span style=color:var(--gl)>'+r.setterName+'</span>':''}</span><div style="display:flex;align-items:center;gap:12px"><span>Dials:${r.totalDials} | Unique:${r.uniqueLeadsDialed||0} | PU:${r.pickUps||0} | Convos:${r.conversationsOnPhone} | Monthly:${r.base44MonthlySales||0} | Yearly:${r.base44YearlySales||0} | Rev:$${r.base44RevenueAuto||0}</span><span onclick="deleteSetterReport(${ri},event)" title="Delete report" style="cursor:pointer;font-size:15px;color:rgba(244,63,94,.5);transition:color .2s" onmouseover="this.style.color='#f43f5e'" onmouseout="this.style.color='rgba(244,63,94,.5)'">🗑️</span></div></div></div>`}).join('')}
+  ${rec.map((r,i)=>{const ri=S.setter_reports.length-1-(rec.indexOf(r));return`<div class="rr" style="cursor:pointer;padding:12px 0;transition:background .2s" onmouseover="this.style.background='rgba(255,255,255,.03)'" onmouseout="this.style.background='transparent'" onclick="editSetter(${ri})"><div style="display:flex;justify-content:space-between;align-items:center;width:100%"><span>${fmtDate(r.date)}${r.setterName?' — <span style=color:var(--gl)>'+r.setterName+'</span>':''}</span><div style="display:flex;align-items:center;gap:12px"><span>${r.didntWorkToday==='Yes'?'Didn’t work today':`Dials:${r.totalDials} | Unique:${r.uniqueLeadsDialed||0} | PU:${r.pickUps||0} | Monthly:${r.base44MonthlySales||0} | Yearly:${r.base44YearlySales||0} | Rev:$${r.ltRevenueAuto||0}`}</span><span onclick="deleteSetterReport(${ri},event)" title="Delete report" style="cursor:pointer;font-size:15px;color:rgba(244,63,94,.5);transition:color .2s" onmouseover="this.style.color='#f43f5e'" onmouseout="this.style.color='rgba(244,63,94,.5)'">🗑️</span></div></div></div>`}).join('')}
   </div></div>`;
 }
 function editSetter(idx){
@@ -550,7 +562,7 @@ async function refreshSetterReports(){
 }
 async function submitSetter(){
   // Validate all fields are filled
-  const reqFields=[{id:'sf-d',label:'Work Date'},{id:'sf-nm',label:'Setter Name'},{id:'sf-di',label:'Total Dials'},{id:'sf-ul',label:'Unique Leads Dialed'},{id:'sf-pu',label:'Pick Ups'},{id:'sf-co',label:'Conversations'},{id:'sf-b4m',label:'Base 44 Monthly Sales'},{id:'sf-b4y',label:'Base 44 Yearly Sales'},{id:'sf-w',label:'Win For The Day'},{id:'sf-i',label:'Improvement'}];
+  const reqFields=[{id:'sf-d',label:'Work Date'},{id:'sf-nm',label:'Setter Name'},{id:'sf-di',label:'Total Dials'},{id:'sf-ul',label:'Unique Leads Dialed'},{id:'sf-pu',label:'Pick Ups'},{id:'sf-b4m',label:'Base 44 Monthly Sales'},{id:'sf-b4y',label:'Base 44 Yearly Sales'},{id:'sf-w',label:'Win For The Day'},{id:'sf-i',label:'Improvement'}];
   for(const f of reqFields){
     const el=document.getElementById(f.id);
     const val=el?el.value.trim():'';
@@ -568,7 +580,7 @@ async function submitSetter(){
   }
   toast('Saving...');
   const b4m=N('sf-b4m'),b4y=N('sf-b4y');
-  const data={date:V('sf-d'),setterName:V('sf-nm'),totalDials:N('sf-di'),uniqueLeadsDialed:N('sf-ul'),pickUps:N('sf-pu'),conversationsOnPhone:N('sf-co'),base44MonthlySales:b4m,base44YearlySales:b4y,totalBase44SalesAuto:b4m+b4y,base44RevenueAuto:b4m*225+b4y*250,winForTheDay:V('sf-w'),improvementForNextDay:V('sf-i')};
+  const data={date:V('sf-d'),setterName:V('sf-nm'),didntWorkToday:$('sf-nowork')?.checked?'Yes':'No',totalDials:N('sf-di'),uniqueLeadsDialed:N('sf-ul'),pickUps:N('sf-pu'),base44MonthlySales:b4m,base44YearlySales:b4y,totalLTSalesAuto:b4m+b4y,ltRevenueAuto:b4m*225+b4y*250,winForTheDay:V('sf-w'),improvementForNextDay:V('sf-i')};
   try{
     if(S.editingSetterRow){
       const r=await apiUpdate('setter_reports',S.editingSetterRow,data);
@@ -1212,7 +1224,7 @@ function renderEodList(){
   const td='padding:10px;text-align:center;font-size:12px;font-weight:600;white-space:nowrap';
   const tx='padding:10px;font-size:12px;color:var(--dim);min-width:160px';
   return`<div class="sec" style="margin-top:16px"><div style="font-size:16px;font-weight:800;margin-bottom:4px">\ud83d\udccb Submitted EOD Reports</div><div style="font-size:11px;color:var(--dmr);margin-bottom:14px">Latest ${rows.length} in the selected date range - use the Setter tab to edit or delete</div>
-  ${rows.length===0?'<div style="color:var(--dmr)">No EOD reports in this range</div>':`<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse"><thead><tr style="border-bottom:1px solid rgba(255,255,255,.1)"><th style="${th};text-align:left">Date</th><th style="${th};text-align:left">Setter</th><th style="${th}">Dials</th><th style="${th}">Unique</th><th style="${th}">PU</th><th style="${th}">Convos</th><th style="${th}">Monthly</th><th style="${th}">Yearly</th><th style="${th}">Total</th><th style="${th}">Revenue</th><th style="${th};text-align:left">Win</th><th style="${th};text-align:left">Improvement</th></tr></thead><tbody>${rows.map(r=>`<tr style="border-bottom:1px solid rgba(255,255,255,.05)"><td style="${td};text-align:left">${fmtDate(r.date)}</td><td style="${td};text-align:left;color:var(--gl)">${esc(r.setterName)}</td><td style="${td}">${esc(r.totalDials)}</td><td style="${td}">${esc(r.uniqueLeadsDialed)}</td><td style="${td}">${esc(r.pickUps)}</td><td style="${td}">${esc(r.conversationsOnPhone)}</td><td style="${td}">${esc(r.base44MonthlySales)}</td><td style="${td}">${esc(r.base44YearlySales)}</td><td style="${td}">${esc(r.totalBase44SalesAuto)}</td><td style="${td}">$${esc(r.base44RevenueAuto)}</td><td style="${tx}">${esc(r.winForTheDay)}</td><td style="${tx}">${esc(r.improvementForNextDay)}</td></tr>`).join('')}</tbody></table></div>`}</div>`;
+  ${rows.length===0?'<div style="color:var(--dmr)">No EOD reports in this range</div>':`<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse"><thead><tr style="border-bottom:1px solid rgba(255,255,255,.1)"><th style="${th};text-align:left">Date</th><th style="${th};text-align:left">Setter</th><th style="${th}">Off</th><th style="${th}">Dials</th><th style="${th}">Unique</th><th style="${th}">PU</th><th style="${th}">Monthly</th><th style="${th}">Yearly</th><th style="${th}">Total</th><th style="${th}">Revenue</th><th style="${th};text-align:left">Win</th><th style="${th};text-align:left">Improvement</th></tr></thead><tbody>${rows.map(r=>`<tr style="border-bottom:1px solid rgba(255,255,255,.05)"><td style="${td};text-align:left">${fmtDate(r.date)}</td><td style="${td};text-align:left;color:var(--gl)">${esc(r.setterName)}</td><td style="${td}">${r.didntWorkToday==='Yes'?'⚪':''}</td><td style="${td}">${esc(r.totalDials)}</td><td style="${td}">${esc(r.uniqueLeadsDialed)}</td><td style="${td}">${esc(r.pickUps)}</td><td style="${td}">${esc(r.base44MonthlySales)}</td><td style="${td}">${esc(r.base44YearlySales)}</td><td style="${td}">${esc(r.totalLTSalesAuto)}</td><td style="${td}">$${esc(r.ltRevenueAuto)}</td><td style="${tx}">${esc(r.winForTheDay)}</td><td style="${tx}">${esc(r.improvementForNextDay)}</td></tr>`).join('')}</tbody></table></div>`}</div>`;
 }
 function setterTrackerData(){
   const sm=(a,f)=>a.reduce((s,r)=>s+(Number(r[f])||0),0);
