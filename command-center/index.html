@@ -453,6 +453,13 @@ function ff(l,id,type,val,opts){
   if(opts)return`<div class="fl"><label>${l}</label><select id="${id}">${opts.map(o=>`<option value="${o}"${o==val?' selected':''}>${o}</option>`).join('')}</select></div>`;
   return`<div class="fl"><label>${l}</label><input id="${id}" type="${type==='number'?'text':type||'text'}" ${type==='number'?'inputmode="decimal"':''} value="${val??''}"></div>`;
 }
+// Base44 Monthly/Yearly count -> live Total/Revenue preview on the Setter EOD form.
+// $225/mo, $250/yr matches Base44's actual partner payout (clients/blake/CLAUDE.md §2).
+function updateB44Auto(){
+  const m=N('sf-b4m'),y=N('sf-b4y');
+  const t=$('sf-tot');if(t)t.value=m+y;
+  const r=$('sf-rev');if(r)r.value='$'+(m*225+y*250);
+}
 
 // ── Dashboard: matches Winning Streak's own Command Center pattern (their
 // "Low Ticket" tab) - one period, switched via the date-range buttons in the
@@ -513,16 +520,16 @@ function renderSetter(){
     ${ff('Setter Name','sf-nm','text',ed?.setterName||nameList[0],nameList)}
     <div class="g g2">${ff('Work Date','sf-d','date',ed?.date||td())}${ff('# Total Dials','sf-di','number',ed?.totalDials||0)}</div>
     <div class="g g2">${ff('# Unique Leads Dialed','sf-ul','number',ed?.uniqueLeadsDialed||0)}${ff('# Pick Ups','sf-pu','number',ed?.pickUps||0)}</div>
-    <div class="g g2">${ff('# Conversations','sf-co','number',ed?.conversationsOnPhone||0)}${ff('# Pitched Bookings','sf-pb','number',ed?.pitchedBookings||0)}</div>
-    <div class="g g2">${ff('# Booked Appointments','sf-ba','number',ed?.bookedAppointments||0)}${ff('# Self-Booked (Confirmed by You)','sf-sb','number',ed?.selfBooked||0)}</div>
-    ${ff('# Calls Booked By You That Showed Today','sf-cs','number',ed?.callsShowed||0)}
+    ${ff('# Conversations','sf-co','number',ed?.conversationsOnPhone||0)}
+    <div class="g g2"><div class="fl"><label># Base 44 Monthly Sales</label><input id="sf-b4m" type="text" inputmode="decimal" value="${ed?.base44MonthlySales||0}" oninput="updateB44Auto()"></div><div class="fl"><label># Base 44 Yearly Sales</label><input id="sf-b4y" type="text" inputmode="decimal" value="${ed?.base44YearlySales||0}" oninput="updateB44Auto()"></div></div>
+    <div class="g g2"><div class="fl"><label>Total Base44 Sales (auto)</label><input id="sf-tot" type="text" value="${(Number(ed?.base44MonthlySales)||0)+(Number(ed?.base44YearlySales)||0)}" disabled style="opacity:.55"></div><div class="fl"><label>Base44 Revenue (auto)</label><input id="sf-rev" type="text" value="$${(Number(ed?.base44MonthlySales)||0)*225+(Number(ed?.base44YearlySales)||0)*250}" disabled style="opacity:.55"></div></div>
     ${ff('1 Win For The Day','sf-w','text',ed?.winForTheDay||'')}
     ${ff('1 Improvement','sf-i','text',ed?.improvementForNextDay||'')}
     <button class="btn" style="background:${ed?'#eab308':'var(--green)'}" onclick="submitSetter()">${ed?'💾 Update Report':'Submit Setter Report'}</button>
   </div></div>
   <div class="sec"><div style="font-size:13px;font-weight:700;color:var(--dim);margin-bottom:12px">RECENT REPORTS <span style="font-weight:400;font-size:11px;color:var(--dmr)">(tap to edit)</span></div>
   ${rec.length===0?'<div style="color:var(--dmr)">No reports yet</div>':''}
-  ${rec.map((r,i)=>{const ri=S.setter_reports.length-1-(rec.indexOf(r));return`<div class="rr" style="cursor:pointer;padding:12px 0;transition:background .2s" onmouseover="this.style.background='rgba(255,255,255,.03)'" onmouseout="this.style.background='transparent'" onclick="editSetter(${ri})"><div style="display:flex;justify-content:space-between;align-items:center;width:100%"><span>${fmtDate(r.date)}${r.setterName?' — <span style=color:var(--gl)>'+r.setterName+'</span>':''}</span><div style="display:flex;align-items:center;gap:12px"><span>Dials:${r.totalDials} | PU:${r.pickUps||0} | Convos:${r.conversationsOnPhone} | Pitched:${r.pitchedBookings||0} | Booked:${r.bookedAppointments} | Self:${r.selfBooked||0} | Showed:${r.callsShowed||0}</span><span onclick="deleteSetterReport(${ri},event)" title="Delete report" style="cursor:pointer;font-size:15px;color:rgba(244,63,94,.5);transition:color .2s" onmouseover="this.style.color='#f43f5e'" onmouseout="this.style.color='rgba(244,63,94,.5)'">🗑️</span></div></div></div>`}).join('')}
+  ${rec.map((r,i)=>{const ri=S.setter_reports.length-1-(rec.indexOf(r));return`<div class="rr" style="cursor:pointer;padding:12px 0;transition:background .2s" onmouseover="this.style.background='rgba(255,255,255,.03)'" onmouseout="this.style.background='transparent'" onclick="editSetter(${ri})"><div style="display:flex;justify-content:space-between;align-items:center;width:100%"><span>${fmtDate(r.date)}${r.setterName?' — <span style=color:var(--gl)>'+r.setterName+'</span>':''}</span><div style="display:flex;align-items:center;gap:12px"><span>Dials:${r.totalDials} | Unique:${r.uniqueLeadsDialed||0} | PU:${r.pickUps||0} | Convos:${r.conversationsOnPhone} | Monthly:${r.base44MonthlySales||0} | Yearly:${r.base44YearlySales||0} | Rev:$${r.base44RevenueAuto||0}</span><span onclick="deleteSetterReport(${ri},event)" title="Delete report" style="cursor:pointer;font-size:15px;color:rgba(244,63,94,.5);transition:color .2s" onmouseover="this.style.color='#f43f5e'" onmouseout="this.style.color='rgba(244,63,94,.5)'">🗑️</span></div></div></div>`}).join('')}
   </div></div>`;
 }
 function editSetter(idx){
@@ -543,7 +550,7 @@ async function refreshSetterReports(){
 }
 async function submitSetter(){
   // Validate all fields are filled
-  const reqFields=[{id:'sf-d',label:'Work Date'},{id:'sf-nm',label:'Setter Name'},{id:'sf-di',label:'Total Dials'},{id:'sf-ul',label:'Unique Leads Dialed'},{id:'sf-pu',label:'Pick Ups'},{id:'sf-co',label:'Conversations'},{id:'sf-pb',label:'Pitched Bookings'},{id:'sf-ba',label:'Booked Appointments'},{id:'sf-sb',label:'Self-Booked'},{id:'sf-cs',label:'Calls Showed'},{id:'sf-w',label:'Win For The Day'},{id:'sf-i',label:'Improvement'}];
+  const reqFields=[{id:'sf-d',label:'Work Date'},{id:'sf-nm',label:'Setter Name'},{id:'sf-di',label:'Total Dials'},{id:'sf-ul',label:'Unique Leads Dialed'},{id:'sf-pu',label:'Pick Ups'},{id:'sf-co',label:'Conversations'},{id:'sf-b4m',label:'Base 44 Monthly Sales'},{id:'sf-b4y',label:'Base 44 Yearly Sales'},{id:'sf-w',label:'Win For The Day'},{id:'sf-i',label:'Improvement'}];
   for(const f of reqFields){
     const el=document.getElementById(f.id);
     const val=el?el.value.trim():'';
@@ -560,7 +567,8 @@ async function submitSetter(){
     return;
   }
   toast('Saving...');
-  const data={date:V('sf-d'),setterName:V('sf-nm'),totalDials:N('sf-di'),uniqueLeadsDialed:N('sf-ul'),pickUps:N('sf-pu'),conversationsOnPhone:N('sf-co'),pitchedBookings:N('sf-pb'),bookedAppointments:N('sf-ba'),selfBooked:N('sf-sb'),callsShowed:N('sf-cs'),winForTheDay:V('sf-w'),improvementForNextDay:V('sf-i')};
+  const b4m=N('sf-b4m'),b4y=N('sf-b4y');
+  const data={date:V('sf-d'),setterName:V('sf-nm'),totalDials:N('sf-di'),uniqueLeadsDialed:N('sf-ul'),pickUps:N('sf-pu'),conversationsOnPhone:N('sf-co'),base44MonthlySales:b4m,base44YearlySales:b4y,totalBase44SalesAuto:b4m+b4y,base44RevenueAuto:b4m*225+b4y*250,winForTheDay:V('sf-w'),improvementForNextDay:V('sf-i')};
   try{
     if(S.editingSetterRow){
       const r=await apiUpdate('setter_reports',S.editingSetterRow,data);
@@ -1204,7 +1212,7 @@ function renderEodList(){
   const td='padding:10px;text-align:center;font-size:12px;font-weight:600;white-space:nowrap';
   const tx='padding:10px;font-size:12px;color:var(--dim);min-width:160px';
   return`<div class="sec" style="margin-top:16px"><div style="font-size:16px;font-weight:800;margin-bottom:4px">\ud83d\udccb Submitted EOD Reports</div><div style="font-size:11px;color:var(--dmr);margin-bottom:14px">Latest ${rows.length} in the selected date range - use the Setter tab to edit or delete</div>
-  ${rows.length===0?'<div style="color:var(--dmr)">No EOD reports in this range</div>':`<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse"><thead><tr style="border-bottom:1px solid rgba(255,255,255,.1)"><th style="${th};text-align:left">Date</th><th style="${th};text-align:left">Setter</th><th style="${th}">Dials</th><th style="${th}">Unique</th><th style="${th}">PU</th><th style="${th}">Convos</th><th style="${th}">Pitched</th><th style="${th}">Booked</th><th style="${th}">Self</th><th style="${th}">Showed</th><th style="${th};text-align:left">Win</th><th style="${th};text-align:left">Improvement</th></tr></thead><tbody>${rows.map(r=>`<tr style="border-bottom:1px solid rgba(255,255,255,.05)"><td style="${td};text-align:left">${fmtDate(r.date)}</td><td style="${td};text-align:left;color:var(--gl)">${esc(r.setterName)}</td><td style="${td}">${esc(r.totalDials)}</td><td style="${td}">${esc(r.uniqueLeadsDialed)}</td><td style="${td}">${esc(r.pickUps)}</td><td style="${td}">${esc(r.conversationsOnPhone)}</td><td style="${td}">${esc(r.pitchedBookings)}</td><td style="${td}">${esc(r.bookedAppointments)}</td><td style="${td}">${esc(r.selfBooked)}</td><td style="${td}">${esc(r.callsShowed)}</td><td style="${tx}">${esc(r.winForTheDay)}</td><td style="${tx}">${esc(r.improvementForNextDay)}</td></tr>`).join('')}</tbody></table></div>`}</div>`;
+  ${rows.length===0?'<div style="color:var(--dmr)">No EOD reports in this range</div>':`<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse"><thead><tr style="border-bottom:1px solid rgba(255,255,255,.1)"><th style="${th};text-align:left">Date</th><th style="${th};text-align:left">Setter</th><th style="${th}">Dials</th><th style="${th}">Unique</th><th style="${th}">PU</th><th style="${th}">Convos</th><th style="${th}">Monthly</th><th style="${th}">Yearly</th><th style="${th}">Total</th><th style="${th}">Revenue</th><th style="${th};text-align:left">Win</th><th style="${th};text-align:left">Improvement</th></tr></thead><tbody>${rows.map(r=>`<tr style="border-bottom:1px solid rgba(255,255,255,.05)"><td style="${td};text-align:left">${fmtDate(r.date)}</td><td style="${td};text-align:left;color:var(--gl)">${esc(r.setterName)}</td><td style="${td}">${esc(r.totalDials)}</td><td style="${td}">${esc(r.uniqueLeadsDialed)}</td><td style="${td}">${esc(r.pickUps)}</td><td style="${td}">${esc(r.conversationsOnPhone)}</td><td style="${td}">${esc(r.base44MonthlySales)}</td><td style="${td}">${esc(r.base44YearlySales)}</td><td style="${td}">${esc(r.totalBase44SalesAuto)}</td><td style="${td}">$${esc(r.base44RevenueAuto)}</td><td style="${tx}">${esc(r.winForTheDay)}</td><td style="${tx}">${esc(r.improvementForNextDay)}</td></tr>`).join('')}</tbody></table></div>`}</div>`;
 }
 function setterTrackerData(){
   const sm=(a,f)=>a.reduce((s,r)=>s+(Number(r[f])||0),0);
