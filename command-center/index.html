@@ -158,6 +158,7 @@ const S={view:'dashboard',dateRange:'this_month',closerSub:'eod',closer_reports:
   editingEnroll:null, editingEnrollRow:null,
   closers:JSON.parse(localStorage.getItem('aiagency_closers')||'null')||['Closer 1'],
   setters:JSON.parse(localStorage.getItem('aiagency_setters')||'null')||['Setter 1'],
+  formerSetters:JSON.parse(localStorage.getItem('aiagency_former')||'null')||[],
   packages:JSON.parse(localStorage.getItem('aiagency_packages')||'null')||['Base44 Builder Pro Monthly'],
   customStart:'',
   customEnd:'',
@@ -180,7 +181,7 @@ if(S.selectedClosers){
 // Sync selectedSetters with setters on load
 if(S.selectedSetters){
   S.setters.forEach(c=>{if(!S.selectedSetters.includes(c))S.selectedSetters.push(c)});
-  S.selectedSetters=S.selectedSetters.filter(c=>S.setters.includes(c));
+  S.selectedSetters=S.selectedSetters.filter(c=>S.setters.includes(c)||S.formerSetters.includes(c));
   localStorage.setItem('aiagency_selectedSetters',JSON.stringify(S.selectedSetters));
 }
 const $=id=>document.getElementById(id);
@@ -259,7 +260,7 @@ function saveTeam(){
   }
   if(S.selectedSetters){
     S.setters.forEach(c=>{if(!S.selectedSetters.includes(c))S.selectedSetters.push(c)});
-    S.selectedSetters=S.selectedSetters.filter(c=>S.setters.includes(c));
+    S.selectedSetters=S.selectedSetters.filter(c=>S.setters.includes(c)||S.formerSetters.includes(c));
     localStorage.setItem('aiagency_selectedSetters',JSON.stringify(S.selectedSetters));
   }
 }
@@ -829,7 +830,7 @@ function toggleCloserFilter(name){
   render();
 }
 function toggleSetterFilter(name){
-  if(!S.selectedSetters)S.selectedSetters=[...S.setters];
+  if(!S.selectedSetters)S.selectedSetters=[...trackedSetters()];
   const idx=S.selectedSetters.indexOf(name);
   if(idx>-1)S.selectedSetters.splice(idx,1);else S.selectedSetters.push(name);
   localStorage.setItem('aiagency_selectedSetters',JSON.stringify(S.selectedSetters));
@@ -1233,7 +1234,7 @@ async function executeMasterReset(){
 // \u2500\u2500 Setter Tracker \u2500\u2500
 function renderEodList(){
   const esc=v=>String(v==null?'':v).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-  const sel=S.selectedSetters||S.setters;
+  const sel=S.selectedSetters||trackedSetters();
   const rows=S.setter_reports.filter(r=>inR(r.date)&&sel.includes(r.setterName)).sort((a,b)=>String(b.date).localeCompare(String(a.date))).slice(0,30);
   const th='padding:8px 10px;text-align:center;font-size:10px;font-weight:700;color:var(--dmr);text-transform:uppercase;white-space:nowrap';
   const td='padding:10px;text-align:center;font-size:12px;font-weight:600;white-space:nowrap';
@@ -1241,9 +1242,18 @@ function renderEodList(){
   return`<div class="sec" style="margin-top:16px"><div style="font-size:16px;font-weight:800;margin-bottom:4px">\ud83d\udccb Submitted EOD Reports</div><div style="font-size:11px;color:var(--dmr);margin-bottom:14px">Latest ${rows.length} in the selected date range - use the Setter tab to edit or delete</div>
   ${rows.length===0?'<div style="color:var(--dmr)">No EOD reports in this range</div>':`<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse"><thead><tr style="border-bottom:1px solid rgba(255,255,255,.1)"><th style="${th};text-align:left">Date</th><th style="${th};text-align:left">Setter</th><th style="${th}">Off</th><th style="${th}">Dials</th><th style="${th}">Unique</th><th style="${th}">PU</th><th style="${th}">Monthly</th><th style="${th}">Yearly</th><th style="${th}">Total</th><th style="${th}">Revenue</th><th style="${th};text-align:left">Win</th><th style="${th};text-align:left">Improvement</th></tr></thead><tbody>${rows.map(r=>`<tr style="border-bottom:1px solid rgba(255,255,255,.05)"><td style="${td};text-align:left">${fmtDate(r.date)}</td><td style="${td};text-align:left;color:var(--gl)">${esc(r.setterName)}</td><td style="${td}">${r.didntWorkToday==='Yes'?'⚪':''}</td><td style="${td}">${esc(r.totalDials)}</td><td style="${td}">${esc(r.uniqueLeadsDialed)}</td><td style="${td}">${esc(r.pickUps)}</td><td style="${td}">${esc(r.base44MonthlySales)}</td><td style="${td}">${esc(r.base44YearlySales)}</td><td style="${td}">${esc(r.totalLTSalesAuto)}</td><td style="${td}">$${esc(r.ltRevenueAuto)}</td><td style="${tx}">${esc(r.winForTheDay)}</td><td style="${tx}">${esc(r.improvementForNextDay)}</td></tr>`).join('')}</tbody></table></div>`}</div>`;
 }
+// Setters who left the team are removed from the active roster (EOD dropdown, missed-EOD
+// checks) but kept in config.formerSetters, so their past reports still count in tracker
+// totals and the submitted-EOD list instead of vanishing and disagreeing with the dashboard.
+// A former setter only appears for a date range where they actually have data.
+function trackedSetters(){
+  const former=(S.formerSetters||[]).filter(n=>!S.setters.includes(n)&&(
+    S.setter_reports.some(r=>r.setterName===n&&inR(r.date))||S.call_reports.some(r=>r.setterName===n&&inR(r.date))));
+  return [...S.setters,...former];
+}
 function setterTrackerData(){
   const sm=(a,f)=>a.reduce((s,r)=>s+(Number(r[f])||0),0);
-  return S.setters.map(name=>{
+  return trackedSetters().map(name=>{
     const sr=S.setter_reports.filter(r=>inR(r.date)&&r.setterName===name);
     const ca=S.call_reports.filter(r=>inR(r.date)&&r.setterName===name);
     const ud=sm(sr,'uniqueLeadsDialed'),td=sm(sr,'totalDials'),pu=sm(sr,'pickUps'),co=sm(sr,'conversationsOnPhone'),pb=sm(sr,'pitchedBookings'),bk=sm(sr,'bookedAppointments'),sb=sm(sr,'selfBooked'),cs=sm(sr,'callsShowed');
@@ -1264,7 +1274,7 @@ function renderSetterTracker(){
   const b=db();
   const allData=setterTrackerData();
   const sub=S.setterTrackerSub||'team';
-  const sel=S.selectedSetters||S.setters;
+  const sel=S.selectedSetters||trackedSetters();
   const data=allData.filter(d=>sel.includes(d.name));
   const sm=(a,f)=>a.reduce((s,r)=>s+(Number(r[f])||0),0);
   // Filtered totals
@@ -1314,10 +1324,10 @@ function renderSetterTracker(){
   const setterToggles=`<div class="sec" style="margin-bottom:16px">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
       <div style="font-size:18px;font-weight:800">\ud83d\udcca Setter Tracker</div>
-      <div style="font-size:10px;color:var(--dmr);font-weight:600">Showing: ${sel.join(', ')||'None'}</div>
+      <div style="font-size:10px;color:var(--dmr);font-weight:600">Showing: ${sel.filter(n=>trackedSetters().includes(n)).join(', ')||'None'}</div>
     </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
-      ${S.setters.map(c=>{const on=sel.includes(c);return`<button onclick="toggleSetterFilter('${c}')" style="padding:8px 18px;font-size:12px;font-weight:700;border-radius:8px;cursor:pointer;font-family:'Montserrat',sans-serif;transition:all .2s;border:1px solid ${on?'rgba(22,163,74,.5)':'rgba(255,255,255,.1)'};background:${on?'rgba(22,163,74,.2)':'rgba(255,255,255,.04)'};color:${on?'var(--gl)':'var(--dim)'}">${on?'\u2611':'\u2610'} ${c}</button>`}).join('')}
+      ${trackedSetters().map(c=>{const on=sel.includes(c);return`<button onclick="toggleSetterFilter('${c}')" style="padding:8px 18px;font-size:12px;font-weight:700;border-radius:8px;cursor:pointer;font-family:'Montserrat',sans-serif;transition:all .2s;border:1px solid ${on?'rgba(22,163,74,.5)':'rgba(255,255,255,.1)'};background:${on?'rgba(22,163,74,.2)':'rgba(255,255,255,.04)'};color:${on?'var(--gl)':'var(--dim)'}">${on?'\u2611':'\u2610'} ${c}</button>`}).join('')}
     </div>
   </div>`;
 
@@ -1479,6 +1489,7 @@ async function reload(){
     // every device sees the same setters/closers/packages, not its own localStorage.
     if(cfg){
       if(Array.isArray(cfg.setters)&&cfg.setters.length){S.setters=cfg.setters;localStorage.setItem('aiagency_setters',JSON.stringify(S.setters));}
+      S.formerSetters=Array.isArray(cfg.formerSetters)?cfg.formerSetters:[];localStorage.setItem('aiagency_former',JSON.stringify(S.formerSetters));
       if(Array.isArray(cfg.closers)&&cfg.closers.length){S.closers=cfg.closers;localStorage.setItem('aiagency_closers',JSON.stringify(S.closers));}
       if(Array.isArray(cfg.packages)&&cfg.packages.length){S.packages=cfg.packages;localStorage.setItem('aiagency_packages',JSON.stringify(S.packages));}
     }
