@@ -545,7 +545,14 @@ function renderSetter(){
   return`<div style="max-width:600px;margin:0 auto"><div class="sec">
   ${ed?'<div style="padding:8px 14px;background:rgba(234,179,8,.1);border:1px solid rgba(234,179,8,.2);border-radius:8px;margin-bottom:16px;font-size:12px;color:#eab308;font-weight:600;display:flex;justify-content:space-between;align-items:center"><span>✏️ EDITING REPORT FROM '+ed.date+'</span><span style="cursor:pointer;color:rgba(255,255,255,.4)" onclick="S.editingSetter=null;S.editingSetterRow=null;render()">✕ Cancel</span></div>':''}
   <div style="font-size:18px;font-weight:800;margin-bottom:4px">📞 Setter Daily Report</div><div style="font-size:12px;color:var(--dim);margin-bottom:24px">End-of-day entry</div><div style="display:flex;flex-direction:column;gap:16px">
-    ${ff('Setter Name','sf-nm','text',ed?.setterName||nameList[0],nameList)}
+    ${(()=>{
+      // Used to pre-select nameList[0], so anyone who skipped the dropdown filed as whoever was first
+      // on the roster (a real Zach/Armaan mixup). Now: this device's last submitter if still on the roster, else blank + required.
+      let last='';try{last=localStorage.getItem('aiagency_last_setter')||'';}catch(e){}
+      const cur=ed?.setterName||(nameList.includes(last)?last:'');
+      const opts=(cur&&!nameList.includes(cur))?[cur,...nameList]:nameList;
+      return`<div class="fl"><label>Setter Name</label><select id="sf-nm"><option value=""${cur?'':' selected'}>- Select your name -</option>${opts.map(o=>`<option value="${o}"${o===cur?' selected':''}>${o}</option>`).join('')}</select></div>`;
+    })()}
     <div class="g g2">${ff('Work Date','sf-d','date',ed?.date||td())}<div class="fl"><label>Didn't Work Today</label><div style="display:flex;align-items:center;height:100%;min-height:38px"><input id="sf-nowork" type="checkbox" style="width:18px;height:18px;accent-color:var(--green)" ${ed?.didntWorkToday==='Yes'?'checked':''} onchange="toggleNoWork()"></div></div></div>
     <div class="g g2">${ff('# Total Dials','sf-di','number',ed?.totalDials||0)}${ff('# Unique Leads Dialed','sf-ul','number',ed?.uniqueLeadsDialed||0)}</div>
     ${ff('# Pick Ups','sf-pu','number',ed?.pickUps||0)}
@@ -594,6 +601,10 @@ async function submitSetter(){
     document.getElementById('sf-di')?.focus();
     return;
   }
+  if(!S.editingSetterRow){
+    const dup=S.setter_reports.some(r=>r.setterName===V('sf-nm')&&normDate(r.date)===V('sf-d'));
+    if(dup&&!confirm(V('sf-nm')+' already has an EOD report for '+V('sf-d')+'. Submitting again will double-count it. Submit anyway?\n\n(Cancel, then tap the existing report under Recent Reports to edit it instead.)'))return;
+  }
   toast('Saving...');
   const b4m=N('sf-b4m'),b4y=N('sf-b4y');
   const data={date:V('sf-d'),setterName:V('sf-nm'),didntWorkToday:$('sf-nowork')?.checked?'Yes':'No',totalDials:N('sf-di'),uniqueLeadsDialed:N('sf-ul'),pickUps:N('sf-pu'),base44MonthlySales:b4m,base44YearlySales:b4y,totalLTSalesAuto:b4m+b4y,ltRevenueAuto:b4m*225+b4y*250,winForTheDay:V('sf-w'),improvementForNextDay:V('sf-i')};
@@ -608,6 +619,7 @@ async function submitSetter(){
       if(!r||r.status==='error'||r.written===false)throw new Error((r&&r.message)||'not written');
       // Row is saved - announce immediately, before any slow refresh.
       discordSetterEOD(data);
+      try{localStorage.setItem('aiagency_last_setter',data.setterName);}catch(e){}
       toast('Setter report saved!');
     }
   }catch(e){
