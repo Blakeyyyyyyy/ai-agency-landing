@@ -201,6 +201,7 @@ form.off,h1.off{display:none}
 .dots{display:flex;gap:6px;margin:0 0 20px}
 .dots i{width:22px;height:3px;border-radius:2px;background:#1d242a;transition:background .2s ease}
 .dots i.done{background:var(--accent)}
+.dots.n2 i:nth-child(3){display:none} /* organic traffic skips the income question - 2 steps, not 3 */
 .phoneerr{
   color:#ff7a6b;font-family:var(--body);font-size:.82rem;
   margin:14px 0 0;font-weight:500;
@@ -334,6 +335,14 @@ select.cc:focus{border-color:var(--accent);background:#0f151a;box-shadow:0 0 0 3
 
 <script>
 (function(){
+  // The income question (Liam, 28 Sep) is /go-only, never shown to organic traffic -
+  // /go always links here with ?src=paid (see go/index.html's own src() function),
+  // so that's the one signal this page needs, read once up top so both the question
+  // flow below and the submit handler agree on it.
+  var IS_PAID_TRAFFIC = false;
+  try { IS_PAID_TRAFFIC = (new URLSearchParams(window.location.search)).get('src') === 'paid'; } catch(eSrc){}
+  if(!IS_PAID_TRAFFIC){ try{ var dd=document.querySelectorAll('#q1 .dots, #q2 .dots'); for(var iDd=0;iDd<dd.length;iDd++){ dd[iDd].classList.add('n2'); } }catch(eDots){} }
+
   // ---------------------------------------------------------------- the video
   // Paste the Loom share link between the quotes and the player appears.
   // Example: https://www.loom.com/share/abc123
@@ -639,7 +648,7 @@ select.cc:focus{border-color:var(--accent);background:#0f151a;box-shadow:0 0 0 3
       })(btns[i]);
     }
   }
-  wire('q1','would_use','qincome');
+  wire('q1','would_use', IS_PAID_TRAFFIC ? 'qincome' : 'q2');
   // Push the answer to Close on the same lead created at initial submit - the lead
   // already exists by the time this question is answered, so this lands on
   // create-lead.js's own dedupe-by-email branch (see 28 Sep comment there), never
