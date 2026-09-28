@@ -206,6 +206,8 @@ footer{border-top:1px solid var(--line);padding:34px 0;text-align:center;font-fa
 .mf{width:100%;background:#0d0d0d;border:2px solid #333;border-radius:10px;color:#fff;font-family:var(--display);font-weight:700;font-size:.95rem;padding:10px 12px;margin-bottom:7px;outline:none}
 .mf::placeholder{color:#7d7d7d;font-weight:600}
 .mf:focus{border-color:var(--green)}
+.mlabel{display:block;color:#fff;font-family:var(--display);font-weight:800;font-size:.82rem;margin:2px 2px 6px}
+.mlabel .req{color:#ff4d4d;margin-left:2px}
 .mrow{display:grid;grid-template-columns:118px 1fr;gap:10px}
 .mchk{display:flex;gap:9px;align-items:flex-start;background:#0d0d0d;border:2px solid #333;border-radius:10px;padding:9px 11px;margin-bottom:7px;cursor:pointer}
 .mchk input{appearance:none;-webkit-appearance:none;flex:0 0 18px;height:18px;margin-top:1px;border:2px solid #555;border-radius:5px;background:#141414;cursor:pointer;position:relative}
@@ -536,8 +538,9 @@ if(VSL_URL){
       <input class="mf" id="mphone" type="tel" placeholder="Phone - e.g. 412 345 678" autocomplete="tel-national">
     </div>
     <div id="mphonehint" style="font-size:11.5px;color:#32d09f;font-weight:700;margin:1px 2px 0;line-height:1.4">Make sure your number's correct — it's how we call to unlock your Jarvis.</div>
-    <select class="mf" id="mincome" aria-label="Income right now">
-      <option value="" selected disabled>What's your income right now?</option>
+    <label class="mlabel" for="mincome">What's your income right now?<span class="req">*</span></label>
+    <select class="mf" id="mincome" aria-label="What's your income right now?" required>
+      <option value="" selected disabled>Select your income range</option>
       <option value="Under $2k">Under $2k</option>
       <option value="$2k-$5k">$2k - $5k</option>
       <option value="$5k-$10k">$5k - $10k</option>
@@ -586,7 +589,7 @@ if(VSL_URL){
     var PLEN={'+1':[10,10],'+44':[9,11],'+61':[8,10],'+64':[7,11],'+353':[7,11],'+91':[10,10],'+92':[9,11],'+880':[8,11],'+63':[9,11],'+62':[8,13],'+60':[7,11],'+65':[8,8],'+27':[9,10],'+234':[8,11],'+254':[9,10],'+233':[9,10],'+971':[8,10],'+966':[8,10],'+49':[9,12],'+33':[9,9],'+31':[9,9],'+34':[9,9],'+39':[8,11],'+48':[9,9],'+55':[10,11],'+52':[10,10],'+81':[9,11],'+82':[8,11],'+94':[9,9],'+977':[9,11]};
     var pr=PLEN[cc]||[7,15];
     if(pdig.length<pr[0]||pdig.length>pr[1]){ err.textContent='That number does not look right for the country you picked. Please check it - this is how we call you to unlock your Jarvis.'; return; }
-    if(!income){ err.textContent="Please let us know your income right now."; return; }
+    if(!income){ err.textContent="Please select your income range"; return; }
     if(!cost){ err.textContent='Please confirm you understand the $50 a month platform cost.'; return; }
     send.disabled=true; send.textContent='One moment...';
     fetch(U+'/rest/v1/waitlist',{method:'POST',
