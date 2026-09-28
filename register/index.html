@@ -2,6 +2,28 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+
+<!-- Meta Pixel - base code + PageView, fetched at runtime from api/pixel-config.js (same
+     pattern as /go and /confirm-go). Lead fires separately, right after a successful
+     register submit (see the submit handler below), sharing one event_id with the
+     server-side CAPI call in create-lead.js so Meta dedupes to a single Lead. -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+window.__pixelReady = fetch('https://blake-discord-relay.vercel.app/api/pixel-config').then(function(r){return r.json()}).then(function(d){
+  if(!d.pixelId) return false;
+  fbq('init', d.pixelId);
+  fbq('track', 'PageView');
+  return true;
+}).catch(function(){ return false; });
+</script>
+<noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=188764379886784&ev=PageView&noscript=1"/></noscript>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Build Your AI Agency</title>
 <meta name="description" content="Get your own Jarvis to build your AI agency.">
@@ -396,10 +418,21 @@ select.cc:focus{border-color:var(--accent);background:#0f151a;box-shadow:0 0 0 3
         try{fetch('https://services.leadconnectorhq.com/hooks/5ScFByVzgeiOD3WsNptM/webhook-trigger/d6fb8bfa-6adb-4806-afbb-5546034c0b54',{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:'name='+encodeURIComponent(name)+'&email='+encodeURIComponent(email)+'&phone='+encodeURIComponent(A.phone||'')+'&source='+encodeURIComponent(src)+'&tag=organic-waitlist',keepalive:true}).catch(function(){});}catch(e){}
         // Close is the system of record: create the lead there immediately.
         // Supabase write above stays as backup / event log, unchanged.
+        // One event_id shared between the browser pixel Lead below and the server-side
+        // CAPI Lead create-lead.js sends - Meta dedupes on (pixel id + event_id + event
+        // name), so without this a single register submit would count as two Leads.
+        var metaEventId = 'reg-' + Date.now() + '-' + Math.random().toString(36).slice(2, 10);
         try{
           var ccName = (ccSel && CC[ccSel.selectedIndex]) ? CC[ccSel.selectedIndex][1] : '';
           fetch('https://blake-discord-relay.vercel.app/api/create-lead',{method:'POST',headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({name:name,email:email,phone:A.phone||'',country:ccName,source:src}),keepalive:true}).catch(function(){});
+            body:JSON.stringify({name:name,email:email,phone:A.phone||'',country:ccName,source:src,event_id:metaEventId,source_url:location.href}),keepalive:true}).catch(function(){});
+        }catch(e){}
+        // Fire right after the submit succeeds, per Liam's spec (28 Sep) - waits on the
+        // pixel-config fetch in <head> so a very fast submit can't race past fbq('init').
+        try{
+          Promise.resolve(window.__pixelReady).then(function(ready){
+            if(ready) fbq('track', 'Lead', {}, {eventID: metaEventId});
+          });
         }catch(e){}
         saveAnswers(false);
         show('q1');
