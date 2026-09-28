@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>AI Technical Partner &middot; Apply</title>
+<meta name="description" content="Application for a senior AI technical partner working directly on Jarvis and our AI agency ecosystem.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;900&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<style>
+:root{--bg:#0a0a0a;--card:#181818;--dim:#e2e2e2;--green:#32d09f;--green-deep:#1fa87c;--ink:#fff;--line:#2c2c2c;--mut:#8d8d8d;
+--display:'Archivo',system-ui,-apple-system,sans-serif;--mono:'IBM Plex Mono',ui-monospace,monospace}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--display);font-weight:500;line-height:1.6;font-size:17px;-webkit-font-smoothing:antialiased}
+.wrap{max-width:760px;margin:0 auto;padding:40px 20px 90px}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--green);margin:0 0 10px}
+h1{font-weight:900;font-size:clamp(30px,5.2vw,44px);line-height:1.07;letter-spacing:-.03em;margin:0 0 14px}
+.lede{color:var(--dim);margin:0 0 6px}
+.mut{color:var(--mut);font-size:15px}
+.bar{position:sticky;top:0;z-index:5;background:rgba(10,10,10,.93);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding:12px 20px;margin-bottom:26px}
+.bar-in{max-width:760px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:14px;font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--mut)}
+.track{height:3px;background:var(--line);border-radius:3px;margin-top:9px;overflow:hidden}
+.track span{display:block;height:100%;background:var(--green);width:0;transition:width .35s cubic-bezier(.2,.7,.3,1)}
+fieldset{border:0;margin:0;padding:0}
+.step{display:none}
+.step.on{display:block;animation:in .3s ease}
+@keyframes in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+h2{font-weight:900;font-size:24px;letter-spacing:-.02em;margin:0 0 4px}
+.sub{color:var(--mut);font-size:15px;margin:0 0 26px}
+label{display:block;font-weight:700;margin:0 0 7px;font-size:16px}
+.hint{color:var(--mut);font-weight:500;font-size:14px;margin:-3px 0 9px}
+.f{margin:0 0 24px}
+input[type=text],input[type=email],input[type=url],select,textarea{width:100%;background:var(--card);border:1px solid var(--line);color:var(--ink);
+font-family:var(--display);font-size:16px;font-weight:500;padding:13px 14px;border-radius:11px;outline:none}
+textarea{min-height:130px;resize:vertical;line-height:1.55}
+input:focus,select:focus,textarea:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(50,208,159,.16)}
+select{appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--mut) 50%),linear-gradient(135deg,var(--mut) 50%,transparent 50%);
+background-position:calc(100% - 19px) 22px,calc(100% - 14px) 22px;background-size:5px 5px,5px 5px;background-repeat:no-repeat}
+.chips{display:flex;flex-wrap:wrap;gap:9px}
+.chip{position:relative}
+.chip input{position:absolute;opacity:0;width:0;height:0}
+.chip span{display:block;padding:9px 14px;border:1px solid var(--line);border-radius:999px;background:var(--card);cursor:pointer;font-size:15px;font-weight:600}
+.chip input:checked+span{border-color:var(--green);background:rgba(50,208,159,.13);color:var(--green)}
+.chip input:focus-visible+span{box-shadow:0 0 0 3px rgba(50,208,159,.25)}
+.nav{display:flex;gap:11px;align-items:center;margin-top:34px;flex-wrap:wrap}
+.btn{font-family:var(--display);font-weight:900;font-size:16px;padding:14px 26px;border-radius:12px;border:0;cursor:pointer;letter-spacing:-.01em}
+.btn-go{background:var(--green);color:#04231a}
+.btn-go:hover{background:var(--green-deep)}
+.btn-back{background:transparent;color:var(--mut);border:1px solid var(--line)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.note{color:var(--mut);font-size:14px;margin-top:16px}
+.err{color:#ff9b7d;font-size:15px;font-weight:700;min-height:22px;margin-top:10px}
+.case{border:1px solid var(--line);border-left:3px solid var(--green);background:var(--card);border-radius:12px;padding:16px 18px;margin:0 0 22px}
+.case p{margin:0 0 8px}
+.case ul{margin:6px 0 0;padding-left:18px;color:var(--dim)}
+.case li{margin:3px 0}
+.done{text-align:center;padding:60px 0}
+.done h2{font-size:30px}
+@media(max-width:520px){.wrap{padding:28px 16px 70px}.btn{width:100%}.nav{flex-direction:column-reverse}}
+</style>
+</head>
+<body>
+
+<div class="bar"><div class="bar-in" style="display:block">
+  <div style="display:flex;justify-content:space-between"><span>AI Technical Partner</span><span id="pc">1 / 7</span></div>
+  <div class="track"><span id="pb"></span></div>
+</div></div>
+
+<div class="wrap">
+<form id="f" novalidate>
+
+<!-- 1 -->
+<fieldset class="step on" data-step="1">
+  <p class="eyebrow">Apply</p>
+  <h1>AI Technical Partner</h1>
+  <p class="lede">Working directly with me on Jarvis, our AI agency ecosystem, and the AI operating systems we build inside real businesses.</p>
+  <p class="mut">This is not a standard developer role. It suits someone who has actually shipped AI systems into live businesses and understands the commercial side, not just the stack. Around 15 minutes. Short, specific answers beat long ones.</p>
+  <div class="f" style="margin-top:30px"><label for="name">Your name</label><input id="name" name="name" type="text" autocomplete="name" required></div>
+  <div class="f"><label for="email">Email</label><input id="email" name="email" type="email" autocomplete="email" required></div>
+  <div class="f"><label for="loc">Where are you based, and what timezone</label><input id="loc" name="location" type="text" placeholder="Melbourne, AEST" required></div>
+  <div class="f"><label for="role">What are you doing right now</label><input id="role" name="current_role" type="text" placeholder="Role, company, or what you are building" required></div>
+  <div class="nav"><button type="button" class="btn btn-go" data-next>Start</button></div>
+  <p class="err" data-err></p>
+</fieldset>
+
+<!-- 2 -->
+<fieldset class="step" data-step="2">
+  <h2>What you have actually built</h2>
+  <p class="sub">The part that matters most. Be specific about what you built yourself.</p>
+  <div class="f"><label for="agency">Have you worked at or run an AI agency?</label>
+    <select id="agency" name="agency_experience" required>
+      <option value="">Choose one</option>
+      <option>I have run one</option>
+      <option>I have worked at one</option>
+      <option>Neither, but I have implemented AI in businesses</option>
+      <option>Neither</option>
+    </select></div>
+  <div class="f" data-if="agency" data-unless="Neither"><label for="agency_what">What did you actually do there</label>
+    <p class="hint">Your role, what you delivered, and how the business made money.</p>
+    <textarea id="agency_what" name="agency_detail"></textarea></div>
+  <div class="f"><label for="count">How many businesses have you personally implemented AI systems for</label>
+    <select id="count" name="implementations" required>
+      <option value="">Choose one</option><option>None yet</option><option>1 to 3</option><option>4 to 10</option><option>11 to 30</option><option>30+</option>
+    </select></div>
+  <div class="f"><label for="best">The most complex AI system you have built for a real business</label>
+    <p class="hint">What it did, the stack, how long it took, and what it changed for the client.</p>
+    <textarea id="best" name="best_system" required></textarea></div>
+  <div class="f"><label for="mine">Which parts did you personally build, and which did someone else</label>
+    <textarea id="mine" name="personal_vs_team" required></textarea></div>
+  <div class="nav"><button type="button" class="btn btn-back" data-back>Back</button><button type="button" class="btn btn-go" data-next>Next</button></div>
+  <p class="err" data-err></p>
+</fieldset>
+
+<!-- 3 -->
+<fieldset class="step" data-step="3">
+  <h2>Technical depth</h2>
+  <p class="sub">Tick what you have genuinely shipped, not what you have read about.</p>
+  <div class="f"><label>What have you built with</label>
+    <div class="chips" id="skills">
+      <label class="chip"><input type="checkbox" name="skills" value="AI agents"><span>AI agents</span></label>
+      <label class="chip"><input type="checkbox" name="skills" value="APIs"><span>APIs</span></label>
+      <label class="chip"><input type="checkbox" name="skills" value="Webhooks"><span>Webhooks</span></label>
+      <label class="chip"><input type="checkbox" name="skills" value="MCP"><span>MCP</span></label>
+      <label class="chip"><input type="checkbox" name="skills" value="RAG"><span>RAG</span></label>
+      <label class="chip"><input type="checkbox" name="skills" value="Databases"><span>Databases</span></label>
+      <label class="chip"><input type="checkbox" name="skills" value="Voice AI"><span>Voice AI</span></label>
+      <label class="chip"><input type="checkbox" name="skills" value="CRM integrations"><span>CRM integrations</span></label>
+      <label class="chip"><input type="checkbox" name="skills" value="No-code automation"><span>No-code automation</span></label>
+      <label class="chip"><input type="checkbox" name="skills" value="Production monitoring"><span>Production monitoring</span></label>
+    </div></div>
+  <div class="f" data-if="skills" data-has="Voice AI"><label for="voice">Which voice platforms, and what did you ship on them</label>
+    <p class="hint">Retell, Vapi, Bland, Twilio, something else.</p>
+    <textarea id="voice" name="voice_detail"></textarea></div>
+  <div class="f" data-if="skills" data-has="RAG"><label for="rag">Describe a RAG system you built</label>
+    <p class="hint">Chunking, retrieval, how you kept it accurate in production.</p>
+    <textarea id="rag" name="rag_detail"></textarea></div>
+  <div class="f" data-if="skills" data-has="MCP"><label for="mcp">What have you built with MCP</label><textarea id="mcp" name="mcp_detail"></textarea></div>
+  <div class="f"><label for="models">Which models are you using right now, and what for</label>
+    <p class="hint">Where you reach for each one and why. If you use one for everything, say that.</p>
+    <textarea id="models" name="models" required></textarea></div>
+  <div class="f"><label for="code">Code or no-code, and why</label>
+    <p class="hint">Where you draw the line, and what makes you cross it.</p>
+    <textarea id="code" name="code_vs_nocode" required></textarea></div>
+  <div class="nav"><button type="button" class="btn btn-back" data-back>Back</button><button type="button" class="btn btn-go" data-next>Next</button></div>
+  <p class="err" data-err></p>
+</fieldset>
+
+<!-- 4 -->
+<fieldset class="step" data-step="4">
+  <h2>When it breaks</h2>
+  <p class="sub">Anyone can demo. This is about what happens at 2am on a client's account.</p>
+  <div class="f"><label for="silent">How do you stop an AI agent quietly breaking a client's business</label>
+    <p class="hint">Not "testing". What you actually put in place so a failure surfaces.</p>
+    <textarea id="silent" name="failure_handling" required></textarea></div>
+  <div class="f"><label for="creds">How do you handle production credentials and permissions</label>
+    <p class="hint">Where keys live, and how you stop an agent doing something it should not.</p>
+    <textarea id="creds" name="security" required></textarea></div>
+  <div class="nav"><button type="button" class="btn btn-back" data-back>Back</button><button type="button" class="btn btn-go" data-next>Next</button></div>
+  <p class="err" data-err></p>
+</fieldset>
+
+<!-- 5 -->
+<fieldset class="step" data-step="5">
+  <h2>The commercial side</h2>
+  <p class="sub">Plenty of people can build. Far fewer know what is worth building.</p>
+  <div class="f"><label for="audit">You are dropped into a business tomorrow. How do you find the highest value AI opportunity</label>
+    <p class="hint">What you look at, and what you ask the owner.</p>
+    <textarea id="audit" name="audit_approach" required></textarea></div>
+  <div class="f"><label for="bad">An AI system that sounds impressive but is a bad business decision</label>
+    <p class="hint">A real one, and why it does not pay.</p>
+    <textarea id="bad" name="bad_idea" required></textarea></div>
+  <div class="f"><label for="margin">What actually destroys the margins of an AI automation agency</label>
+    <textarea id="margin" name="margins" required></textarea></div>
+  <div class="f"><label for="product">How would you turn custom builds into something repeatable</label>
+    <p class="hint">We want to deliver $15k to $25k systems in one to two weeks. What gets templated, what stays custom.</p>
+    <textarea id="product" name="productisation" required></textarea></div>
+  <div class="nav"><button type="button" class="btn btn-back" data-back>Back</button><button type="button" class="btn btn-go" data-next>Next</button></div>
+  <p class="err" data-err></p>
+</fieldset>
+
+<!-- 6 -->
+<fieldset class="step" data-step="6">
+  <h2>The build</h2>
+  <p class="sub">The one that decides it. Take your time.</p>
+  <div class="case">
+    <p><strong>A service business doing $5M a year.</strong></p>
+    <ul>
+      <li>20 staff, a CRM, a sales team</li>
+      <li>Inbound leads, inbound calls, customer support</li>
+      <li>Internal SOPs and documents</li>
+      <li>Appointment booking, and follow-up they keep dropping</li>
+      <li>Admin staff doing the same things every day</li>
+    </ul>
+    <p style="margin-top:10px">Design the AI operating system you would propose.</p>
+  </div>
+  <div class="f"><label for="case">Your answer</label>
+    <p class="hint">Cover what you would automate, which parts are agents and which are plain automation, the tools, how it connects, what the agents are allowed to do, what you would not automate, roughly how long it takes, what you would charge, and how you would prove it worked.</p>
+    <textarea id="case" name="case_study" style="min-height:300px" required></textarea></div>
+  <div class="nav"><button type="button" class="btn btn-back" data-back>Back</button><button type="button" class="btn btn-go" data-next>Next</button></div>
+  <p class="err" data-err></p>
+</fieldset>
+
+<!-- 7 -->
+<fieldset class="step" data-step="7">
+  <h2>Your work, and the fit</h2>
+  <p class="sub">Last one.</p>
+  <div class="f"><label for="links">Links to your work</label>
+    <p class="hint">LinkedIn, GitHub, live systems, anything I can look at. One per line.</p>
+    <textarea id="links" name="links" style="min-height:96px" required></textarea></div>
+  <div class="f"><label for="loom">A short video walking through your best build</label>
+    <p class="hint">Loom or similar. Optional, but it is the fastest way to stand out.</p>
+    <input id="loom" name="loom" type="url" placeholder="https://"></div>
+  <div class="f"><label for="recent">What have you actually tested in the last 30 days</label>
+    <p class="hint">Models, tools, anything you have been pulling apart.</p>
+    <textarea id="recent" name="recent_experiments" required></textarea></div>
+  <div class="f"><label for="why">Why this, specifically</label><textarea id="why" name="why" required></textarea></div>
+  <div class="f"><label for="shape">What are you after</label>
+    <select id="shape" name="arrangement" required>
+      <option value="">Choose one</option><option>Employment</option><option>Contract</option><option>Partnership</option><option>Equity upside</option><option>Open to a mix</option>
+    </select></div>
+  <div class="f"><label for="money">Compensation you are looking for</label><input id="money" name="compensation" type="text" required></div>
+  <div class="f"><label for="start">When could you start</label><input id="start" name="start" type="text" placeholder="Immediately, 4 weeks notice, etc" required></div>
+  <div class="f"><label for="anything">Anything else</label><textarea id="anything" name="anything" style="min-height:90px"></textarea></div>
+  <div class="nav"><button type="button" class="btn btn-back" data-back>Back</button><button type="submit" class="btn btn-go" id="send">Send application</button></div>
+  <p class="err" data-err></p>
+</fieldset>
+
+</form>
+
+<div class="done" id="done" hidden>
+  <p class="eyebrow">Received</p>
+  <h2>Got it.</h2>
+  <p class="lede">I read these myself. If it looks like a fit you will hear from me directly.</p>
+</div>
+</div>
+
+<script>
+var URL_="https://klyiqncsgxcrbdgonaaj.supabase.co", KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtseWlxbmNzZ3hjcmJkZ29uYWFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0MjkxMTQsImV4cCI6MjA5MTAwNTExNH0.WuM-vY6LBoNF2XiQJG2YX5CDOa-AWVGlhobfeuBOLl8";
+var steps=[].slice.call(document.querySelectorAll('.step')), i=0, f=document.getElementById('f');
+function vis(){
+  document.querySelectorAll('[data-if]').forEach(function(el){
+    var src=el.getAttribute('data-if'), has=el.getAttribute('data-has'), unless=el.getAttribute('data-unless'), show=true;
+    if(has){ var on=[].slice.call(document.querySelectorAll('[name="'+src+'"]:checked')).map(function(c){return c.value}); show=on.indexOf(has)>-1; }
+    else if(unless){ var v=(document.getElementById(src)||{}).value||''; show=v!=='' && v.indexOf(unless)<0; }
+    el.style.display=show?'':'none';
+    el.querySelectorAll('textarea,input,select').forEach(function(x){ x.disabled=!show; });
+  });
+}
+function paint(){
+  steps.forEach(function(s,n){ s.classList.toggle('on', n===i); });
+  document.getElementById('pc').textContent=(i+1)+' / '+steps.length;
+  document.getElementById('pb').style.width=Math.round((i)/(steps.length-1)*100)+'%';
+  window.scrollTo({top:0,behavior:'smooth'});
+  vis();
+}
+function ok(step){
+  var bad=null;
+  step.querySelectorAll('[required]').forEach(function(el){
+    if(el.disabled||el.offsetParent===null) return;
+    var v=(el.value||'').trim();
+    if(!v && !bad) bad=el;
+    if(el.type==='email' && v && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v) && !bad) bad=el;
+  });
+  var e=step.querySelector('[data-err]');
+  if(bad){ e.textContent='Fill this one in before moving on.'; bad.focus(); bad.style.borderColor='#ff9b7d'; setTimeout(function(){bad.style.borderColor=''},1800); return false; }
+  e.textContent=''; return true;
+}
+f.addEventListener('click',function(ev){
+  var n=ev.target.closest('[data-next]'), b=ev.target.closest('[data-back]');
+  if(n){ if(ok(steps[i])){ i=Math.min(i+1,steps.length-1); paint(); } }
+  if(b){ i=Math.max(i-1,0); paint(); }
+});
+f.addEventListener('change',vis);
+f.addEventListener('submit',function(ev){
+  ev.preventDefault();
+  if(!ok(steps[i])) return;
+  var btn=document.getElementById('send'); btn.disabled=true; btn.textContent='Sending';
+  var d={}, fd=new FormData(f);
+  fd.forEach(function(v,k){ if(d[k]){ d[k]=[].concat(d[k],v) } else { d[k]=v } });
+  if(d.skills && !Array.isArray(d.skills)) d.skills=[d.skills];
+  var row={ name:d.name, email:d.email, payload:d, submitted_at:new Date().toISOString(),
+            source:(new URLSearchParams(location.search)).get('src')||'direct' };
+  fetch(URL_+'/rest/v1/cto_applications',{method:'POST',headers:{'apikey':KEY,'Authorization':'Bearer '+KEY,
+    'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify(row)})
+  .then(function(r){
+    if(!r.ok) throw new Error(r.status);
+    f.hidden=true; document.querySelector('.bar').hidden=true; document.getElementById('done').hidden=false;
+    window.scrollTo({top:0});
+  })
+  .catch(function(){
+    btn.disabled=false; btn.textContent='Send application';
+    steps[i].querySelector('[data-err]').textContent='That did not send. Try once more, or email it to me directly.';
+  });
+});
+paint();
+</script>
+</body>
+</html>
