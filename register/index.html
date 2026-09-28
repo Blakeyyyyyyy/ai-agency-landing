@@ -341,7 +341,12 @@ select.cc:focus{border-color:var(--accent);background:#0f151a;box-shadow:0 0 0 3
   // flow below and the submit handler agree on it.
   var IS_PAID_TRAFFIC = false;
   try { IS_PAID_TRAFFIC = (new URLSearchParams(window.location.search)).get('src') === 'paid'; } catch(eSrc){}
-  if(!IS_PAID_TRAFFIC){ try{ var dd=document.querySelectorAll('#q1 .dots, #q2 .dots'); for(var iDd=0;iDd<dd.length;iDd++){ dd[iDd].classList.add('n2'); } }catch(eDots){} }
+  if(!IS_PAID_TRAFFIC){
+    try{ var dd=document.querySelectorAll('#q1 .dots, #q2 .dots'); for(var iDd=0;iDd<dd.length;iDd++){ dd[iDd].classList.add('n2'); } }catch(eDots){}
+    // Actually removed from the DOM, not just unreachable - "hidden but still there"
+    // isn't good enough for organic traffic (Liam, 28 Sep).
+    try{ var qi=document.getElementById('qincome'); if(qi && qi.parentNode) qi.parentNode.removeChild(qi); }catch(eRm){}
+  }
 
   // ---------------------------------------------------------------- the video
   // Paste the Loom share link between the quotes and the player appears.
@@ -654,7 +659,9 @@ select.cc:focus{border-color:var(--accent);background:#0f151a;box-shadow:0 0 0 3
   // create-lead.js's own dedupe-by-email branch (see 28 Sep comment there), never
   // creates a second Lead/Opportunity or a duplicate #new-lead ping.
   (function(){
-    var box=document.getElementById('qincome'), btns=box.querySelectorAll('.opt[data-v]');
+    var box=document.getElementById('qincome');
+    if(!box) return; // organic - node was removed above, nothing to wire
+    var btns=box.querySelectorAll('.opt[data-v]');
     for(var i=0;i<btns.length;i++){(function(b){
       b.addEventListener('click',function(){
         A.income=b.getAttribute('data-v'); logEvent('income',A.income); b.classList.add('picked');
