@@ -58,6 +58,17 @@ background-position:calc(100% - 19px) 22px,calc(100% - 14px) 22px;background-siz
 .case li{margin:3px 0}
 .done{text-align:center;padding:60px 0}
 .done h2{font-size:30px}
+.loc-wrap{position:relative}
+.loc-list{position:absolute;left:0;right:0;top:calc(100% + 6px);margin:0;padding:6px;list-style:none;background:var(--card);
+  border:1px solid var(--line);border-radius:11px;max-height:min(320px,60vh);overflow-y:auto;z-index:20;box-shadow:0 14px 32px rgba(0,0,0,.5)}
+.loc-list[hidden]{display:none}
+.loc-opt{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:44px;padding:10px 12px;border-radius:8px;cursor:pointer}
+.loc-opt .loc-c{color:var(--ink);font-weight:600;font-size:15px}
+.loc-opt .loc-k{color:var(--mut);font-size:12px;font-family:var(--mono);white-space:nowrap}
+.loc-opt.active,.loc-opt:hover{background:rgba(50,208,159,.15)}
+.loc-opt.active .loc-c{color:var(--green)}
+.loc-tz{display:none;align-items:center;gap:7px;font-family:var(--mono);font-size:13px;color:var(--green);margin-top:9px}
+.loc-tz.on{display:flex}
 @media(max-width:520px){.wrap{padding:28px 16px 70px}.btn{width:100%}.nav{flex-direction:column-reverse}}
 </style>
 </head>
@@ -78,7 +89,15 @@ background-position:calc(100% - 19px) 22px,calc(100% - 14px) 22px;background-siz
   <p class="mut">This is not a standard developer role. It suits someone who has shipped AI systems into live businesses and understands the commercial side, not just the stack. Five minutes. Short and specific beats long.</p>
   <div class="f" style="margin-top:30px"><label for="name">What is your name</label><input id="name" name="name" type="text" autocomplete="name" required></div>
   <div class="f"><label for="email">What is your email</label><input id="email" name="email" type="email" autocomplete="email" required></div>
-  <div class="f"><label for="loc">Where are you based, and what timezone are you in</label><input id="loc" name="location" type="text" placeholder="Melbourne, AEST" required></div>
+  <div class="f"><label for="loc-input">Where are you based, and what timezone are you in</label>
+    <div class="loc-wrap">
+      <input id="loc-input" type="text" placeholder="Start typing a city, e.g. Gold Coast" autocomplete="off"
+        role="combobox" aria-expanded="false" aria-controls="loc-list" aria-autocomplete="list" aria-activedescendant="" required>
+      <input id="loc" name="location" type="hidden">
+      <ul class="loc-list" id="loc-list" role="listbox" hidden></ul>
+    </div>
+    <div class="loc-tz" id="loc-tz"></div>
+  </div>
   <div class="f"><label for="role">What are you currently doing for work</label><input id="role" name="current_role" type="text" required></div>
   <div class="nav"><button type="button" class="btn btn-go" data-next>Start</button></div>
   <p class="err" data-err></p>
@@ -166,6 +185,207 @@ background-position:calc(100% - 19px) 22px,calc(100% - 14px) 22px;background-siz
 
 <script>
 var URL_="https://klyiqncsgxcrbdgonaaj.supabase.co", KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtseWlxbmNzZ3hjcmJkZ29uYWFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0MjkxMTQsImV4cCI6MjA5MTAwNTExNH0.WuM-vY6LBoNF2XiQJG2YX5CDOa-AWVGlhobfeuBOLl8";
+
+var CITIES=[
+{c:'Gold Coast',k:'Australia',tz:'Australia/Brisbane'},{c:'Sydney',k:'Australia',tz:'Australia/Sydney'},
+{c:'Melbourne',k:'Australia',tz:'Australia/Melbourne'},{c:'Brisbane',k:'Australia',tz:'Australia/Brisbane'},
+{c:'Perth',k:'Australia',tz:'Australia/Perth'},{c:'Adelaide',k:'Australia',tz:'Australia/Adelaide'},
+{c:'Canberra',k:'Australia',tz:'Australia/Sydney'},{c:'Hobart',k:'Australia',tz:'Australia/Hobart'},
+{c:'Darwin',k:'Australia',tz:'Australia/Darwin'},{c:'Newcastle',k:'Australia',tz:'Australia/Sydney'},
+{c:'Wollongong',k:'Australia',tz:'Australia/Sydney'},{c:'Sunshine Coast',k:'Australia',tz:'Australia/Brisbane'},
+{c:'Cairns',k:'Australia',tz:'Australia/Brisbane'},{c:'Geelong',k:'Australia',tz:'Australia/Melbourne'},
+{c:'Townsville',k:'Australia',tz:'Australia/Brisbane'},{c:'Toowoomba',k:'Australia',tz:'Australia/Brisbane'},
+{c:'Ballarat',k:'Australia',tz:'Australia/Melbourne'},{c:'Bendigo',k:'Australia',tz:'Australia/Melbourne'},
+{c:'Launceston',k:'Australia',tz:'Australia/Hobart'},{c:'Alice Springs',k:'Australia',tz:'Australia/Darwin'},
+{c:'Auckland',k:'New Zealand',tz:'Pacific/Auckland'},{c:'Wellington',k:'New Zealand',tz:'Pacific/Auckland'},
+{c:'Christchurch',k:'New Zealand',tz:'Pacific/Auckland'},
+{c:'New York',k:'United States',tz:'America/New_York'},{c:'Los Angeles',k:'United States',tz:'America/Los_Angeles'},
+{c:'San Francisco',k:'United States',tz:'America/Los_Angeles'},{c:'San Jose',k:'United States',tz:'America/Los_Angeles'},
+{c:'Seattle',k:'United States',tz:'America/Los_Angeles'},{c:'Austin',k:'United States',tz:'America/Chicago'},
+{c:'Chicago',k:'United States',tz:'America/Chicago'},{c:'Boston',k:'United States',tz:'America/New_York'},
+{c:'Denver',k:'United States',tz:'America/Denver'},{c:'Miami',k:'United States',tz:'America/New_York'},
+{c:'Atlanta',k:'United States',tz:'America/New_York'},{c:'Dallas',k:'United States',tz:'America/Chicago'},
+{c:'Houston',k:'United States',tz:'America/Chicago'},{c:'Portland',k:'United States',tz:'America/Los_Angeles'},
+{c:'San Diego',k:'United States',tz:'America/Los_Angeles'},{c:'Washington DC',k:'United States',tz:'America/New_York'},
+{c:'Philadelphia',k:'United States',tz:'America/New_York'},{c:'Phoenix',k:'United States',tz:'America/Phoenix'},
+{c:'Las Vegas',k:'United States',tz:'America/Los_Angeles'},{c:'Minneapolis',k:'United States',tz:'America/Chicago'},
+{c:'Detroit',k:'United States',tz:'America/Detroit'},{c:'Salt Lake City',k:'United States',tz:'America/Denver'},
+{c:'Raleigh',k:'United States',tz:'America/New_York'},{c:'Nashville',k:'United States',tz:'America/Chicago'},
+{c:'Charlotte',k:'United States',tz:'America/New_York'},{c:'Columbus',k:'United States',tz:'America/New_York'},
+{c:'Indianapolis',k:'United States',tz:'America/Indiana/Indianapolis'},{c:'Pittsburgh',k:'United States',tz:'America/New_York'},
+{c:'Baltimore',k:'United States',tz:'America/New_York'},{c:'Sacramento',k:'United States',tz:'America/Los_Angeles'},
+{c:'Honolulu',k:'United States',tz:'Pacific/Honolulu'},{c:'Anchorage',k:'United States',tz:'America/Anchorage'},
+{c:'San Antonio',k:'United States',tz:'America/Chicago'},{c:'Orlando',k:'United States',tz:'America/New_York'},
+{c:'Tampa',k:'United States',tz:'America/New_York'},{c:'Kansas City',k:'United States',tz:'America/Chicago'},
+{c:'Toronto',k:'Canada',tz:'America/Toronto'},{c:'Vancouver',k:'Canada',tz:'America/Vancouver'},
+{c:'Montreal',k:'Canada',tz:'America/Toronto'},{c:'Calgary',k:'Canada',tz:'America/Edmonton'},
+{c:'Ottawa',k:'Canada',tz:'America/Toronto'},{c:'Edmonton',k:'Canada',tz:'America/Edmonton'},
+{c:'Winnipeg',k:'Canada',tz:'America/Winnipeg'},{c:'Quebec City',k:'Canada',tz:'America/Toronto'},
+{c:'Halifax',k:'Canada',tz:'America/Halifax'},
+{c:'London',k:'United Kingdom',tz:'Europe/London'},{c:'Manchester',k:'United Kingdom',tz:'Europe/London'},
+{c:'Birmingham',k:'United Kingdom',tz:'Europe/London'},{c:'Edinburgh',k:'United Kingdom',tz:'Europe/London'},
+{c:'Glasgow',k:'United Kingdom',tz:'Europe/London'},{c:'Bristol',k:'United Kingdom',tz:'Europe/London'},
+{c:'Leeds',k:'United Kingdom',tz:'Europe/London'},{c:'Liverpool',k:'United Kingdom',tz:'Europe/London'},
+{c:'Cambridge',k:'United Kingdom',tz:'Europe/London'},{c:'Oxford',k:'United Kingdom',tz:'Europe/London'},
+{c:'Belfast',k:'United Kingdom',tz:'Europe/London'},{c:'Cardiff',k:'United Kingdom',tz:'Europe/London'},
+{c:'Newcastle upon Tyne',k:'United Kingdom',tz:'Europe/London'},
+{c:'Dublin',k:'Ireland',tz:'Europe/Dublin'},{c:'Cork',k:'Ireland',tz:'Europe/Dublin'},
+{c:'Berlin',k:'Germany',tz:'Europe/Berlin'},{c:'Munich',k:'Germany',tz:'Europe/Berlin'},
+{c:'Hamburg',k:'Germany',tz:'Europe/Berlin'},{c:'Frankfurt',k:'Germany',tz:'Europe/Berlin'},
+{c:'Cologne',k:'Germany',tz:'Europe/Berlin'},{c:'Amsterdam',k:'Netherlands',tz:'Europe/Amsterdam'},
+{c:'Rotterdam',k:'Netherlands',tz:'Europe/Amsterdam'},{c:'The Hague',k:'Netherlands',tz:'Europe/Amsterdam'},
+{c:'Paris',k:'France',tz:'Europe/Paris'},{c:'Lyon',k:'France',tz:'Europe/Paris'},
+{c:'Marseille',k:'France',tz:'Europe/Paris'},{c:'Madrid',k:'Spain',tz:'Europe/Madrid'},
+{c:'Barcelona',k:'Spain',tz:'Europe/Madrid'},{c:'Valencia',k:'Spain',tz:'Europe/Madrid'},
+{c:'Lisbon',k:'Portugal',tz:'Europe/Lisbon'},{c:'Porto',k:'Portugal',tz:'Europe/Lisbon'},
+{c:'Rome',k:'Italy',tz:'Europe/Rome'},{c:'Milan',k:'Italy',tz:'Europe/Rome'},
+{c:'Turin',k:'Italy',tz:'Europe/Rome'},{c:'Naples',k:'Italy',tz:'Europe/Rome'},
+{c:'Zurich',k:'Switzerland',tz:'Europe/Zurich'},{c:'Geneva',k:'Switzerland',tz:'Europe/Zurich'},
+{c:'Basel',k:'Switzerland',tz:'Europe/Zurich'},{c:'Vienna',k:'Austria',tz:'Europe/Vienna'},
+{c:'Brussels',k:'Belgium',tz:'Europe/Brussels'},{c:'Antwerp',k:'Belgium',tz:'Europe/Brussels'},
+{c:'Stockholm',k:'Sweden',tz:'Europe/Stockholm'},{c:'Gothenburg',k:'Sweden',tz:'Europe/Stockholm'},
+{c:'Oslo',k:'Norway',tz:'Europe/Oslo'},{c:'Copenhagen',k:'Denmark',tz:'Europe/Copenhagen'},
+{c:'Helsinki',k:'Finland',tz:'Europe/Helsinki'},{c:'Warsaw',k:'Poland',tz:'Europe/Warsaw'},
+{c:'Krakow',k:'Poland',tz:'Europe/Warsaw'},{c:'Prague',k:'Czechia',tz:'Europe/Prague'},
+{c:'Budapest',k:'Hungary',tz:'Europe/Budapest'},{c:'Bucharest',k:'Romania',tz:'Europe/Bucharest'},
+{c:'Sofia',k:'Bulgaria',tz:'Europe/Sofia'},{c:'Athens',k:'Greece',tz:'Europe/Athens'},
+{c:'Reykjavik',k:'Iceland',tz:'Atlantic/Reykjavik'},{c:'Tallinn',k:'Estonia',tz:'Europe/Tallinn'},
+{c:'Riga',k:'Latvia',tz:'Europe/Riga'},{c:'Vilnius',k:'Lithuania',tz:'Europe/Vilnius'},
+{c:'Zagreb',k:'Croatia',tz:'Europe/Zagreb'},{c:'Belgrade',k:'Serbia',tz:'Europe/Belgrade'},
+{c:'Ljubljana',k:'Slovenia',tz:'Europe/Ljubljana'},{c:'Bratislava',k:'Slovakia',tz:'Europe/Bratislava'},
+{c:'Luxembourg City',k:'Luxembourg',tz:'Europe/Luxembourg'},{c:'Kyiv',k:'Ukraine',tz:'Europe/Kyiv'},
+{c:'Moscow',k:'Russia',tz:'Europe/Moscow'},{c:'Saint Petersburg',k:'Russia',tz:'Europe/Moscow'},
+{c:'Istanbul',k:'Turkey',tz:'Europe/Istanbul'},{c:'Ankara',k:'Turkey',tz:'Europe/Istanbul'},
+{c:'Bengaluru',k:'India',tz:'Asia/Kolkata'},{c:'Mumbai',k:'India',tz:'Asia/Kolkata'},
+{c:'Delhi',k:'India',tz:'Asia/Kolkata'},{c:'Hyderabad',k:'India',tz:'Asia/Kolkata'},
+{c:'Chennai',k:'India',tz:'Asia/Kolkata'},{c:'Pune',k:'India',tz:'Asia/Kolkata'},
+{c:'Kolkata',k:'India',tz:'Asia/Kolkata'},{c:'Ahmedabad',k:'India',tz:'Asia/Kolkata'},
+{c:'Gurugram',k:'India',tz:'Asia/Kolkata'},{c:'Noida',k:'India',tz:'Asia/Kolkata'},
+{c:'Chandigarh',k:'India',tz:'Asia/Kolkata'},{c:'Jaipur',k:'India',tz:'Asia/Kolkata'},
+{c:'Kochi',k:'India',tz:'Asia/Kolkata'},
+{c:'Singapore',k:'Singapore',tz:'Asia/Singapore'},{c:'Kuala Lumpur',k:'Malaysia',tz:'Asia/Kuala_Lumpur'},
+{c:'Penang',k:'Malaysia',tz:'Asia/Kuala_Lumpur'},{c:'Jakarta',k:'Indonesia',tz:'Asia/Jakarta'},
+{c:'Denpasar',k:'Indonesia',tz:'Asia/Makassar'},{c:'Bangkok',k:'Thailand',tz:'Asia/Bangkok'},
+{c:'Manila',k:'Philippines',tz:'Asia/Manila'},{c:'Cebu',k:'Philippines',tz:'Asia/Manila'},
+{c:'Ho Chi Minh City',k:'Vietnam',tz:'Asia/Ho_Chi_Minh'},{c:'Hanoi',k:'Vietnam',tz:'Asia/Ho_Chi_Minh'},
+{c:'Phnom Penh',k:'Cambodia',tz:'Asia/Phnom_Penh'},{c:'Yangon',k:'Myanmar',tz:'Asia/Yangon'},
+{c:'Tokyo',k:'Japan',tz:'Asia/Tokyo'},{c:'Osaka',k:'Japan',tz:'Asia/Tokyo'},
+{c:'Seoul',k:'South Korea',tz:'Asia/Seoul'},{c:'Busan',k:'South Korea',tz:'Asia/Seoul'},
+{c:'Shanghai',k:'China',tz:'Asia/Shanghai'},{c:'Beijing',k:'China',tz:'Asia/Shanghai'},
+{c:'Shenzhen',k:'China',tz:'Asia/Shanghai'},{c:'Guangzhou',k:'China',tz:'Asia/Shanghai'},
+{c:'Hong Kong',k:'Hong Kong',tz:'Asia/Hong_Kong'},{c:'Taipei',k:'Taiwan',tz:'Asia/Taipei'},
+{c:'Kaohsiung',k:'Taiwan',tz:'Asia/Taipei'},
+{c:'Dubai',k:'United Arab Emirates',tz:'Asia/Dubai'},{c:'Abu Dhabi',k:'United Arab Emirates',tz:'Asia/Dubai'},
+{c:'Doha',k:'Qatar',tz:'Asia/Qatar'},{c:'Riyadh',k:'Saudi Arabia',tz:'Asia/Riyadh'},
+{c:'Jeddah',k:'Saudi Arabia',tz:'Asia/Riyadh'},{c:'Manama',k:'Bahrain',tz:'Asia/Bahrain'},
+{c:'Kuwait City',k:'Kuwait',tz:'Asia/Kuwait'},{c:'Muscat',k:'Oman',tz:'Asia/Muscat'},
+{c:'Tel Aviv',k:'Israel',tz:'Asia/Jerusalem'},{c:'Jerusalem',k:'Israel',tz:'Asia/Jerusalem'},
+{c:'Amman',k:'Jordan',tz:'Asia/Amman'},{c:'Beirut',k:'Lebanon',tz:'Asia/Beirut'},
+{c:'Mexico City',k:'Mexico',tz:'America/Mexico_City'},{c:'Guadalajara',k:'Mexico',tz:'America/Mexico_City'},
+{c:'Monterrey',k:'Mexico',tz:'America/Monterrey'},{c:'Sao Paulo',k:'Brazil',tz:'America/Sao_Paulo'},
+{c:'Rio de Janeiro',k:'Brazil',tz:'America/Sao_Paulo'},{c:'Brasilia',k:'Brazil',tz:'America/Sao_Paulo'},
+{c:'Buenos Aires',k:'Argentina',tz:'America/Argentina/Buenos_Aires'},{c:'Santiago',k:'Chile',tz:'America/Santiago'},
+{c:'Bogota',k:'Colombia',tz:'America/Bogota'},{c:'Medellin',k:'Colombia',tz:'America/Bogota'},
+{c:'Lima',k:'Peru',tz:'America/Lima'},{c:'Montevideo',k:'Uruguay',tz:'America/Montevideo'},
+{c:'San Jose',k:'Costa Rica',tz:'America/Costa_Rica'},{c:'Panama City',k:'Panama',tz:'America/Panama'},
+{c:'Cape Town',k:'South Africa',tz:'Africa/Johannesburg'},{c:'Johannesburg',k:'South Africa',tz:'Africa/Johannesburg'},
+{c:'Pretoria',k:'South Africa',tz:'Africa/Johannesburg'},{c:'Durban',k:'South Africa',tz:'Africa/Johannesburg'},
+{c:'Nairobi',k:'Kenya',tz:'Africa/Nairobi'},{c:'Lagos',k:'Nigeria',tz:'Africa/Lagos'},
+{c:'Abuja',k:'Nigeria',tz:'Africa/Lagos'},{c:'Accra',k:'Ghana',tz:'Africa/Accra'},
+{c:'Cairo',k:'Egypt',tz:'Africa/Cairo'},{c:'Casablanca',k:'Morocco',tz:'Africa/Casablanca'},
+{c:'Tunis',k:'Tunisia',tz:'Africa/Tunis'},{c:'Kigali',k:'Rwanda',tz:'Africa/Kigali'},
+{c:'Addis Ababa',k:'Ethiopia',tz:'Africa/Addis_Ababa'},
+{c:'Suva',k:'Fiji',tz:'Pacific/Fiji'}
+];
+
+(function locTypeahead(){
+  var input=document.getElementById('loc-input'), hidden=document.getElementById('loc'),
+      list=document.getElementById('loc-list'), tzBox=document.getElementById('loc-tz'),
+      active=-1, matches=[], picked=null;
+
+  function tzOffsetLabel(tz){
+    try{
+      var parts=new Intl.DateTimeFormat('en-US',{timeZone:tz,timeZoneName:'shortOffset'}).formatToParts(new Date());
+      var p=parts.filter(function(x){return x.type==='timeZoneName'})[0];
+      return p ? p.value.replace('GMT','UTC') : '';
+    }catch(e){ return ''; }
+  }
+
+  function search(q){
+    q=q.toLowerCase();
+    if(!q) return [];
+    var pre=[], sub=[];
+    CITIES.forEach(function(city){
+      var cl=city.c.toLowerCase(), kl=city.k.toLowerCase();
+      if(cl.indexOf(q)===0 || kl.indexOf(q)===0) pre.push(city);
+      else if(cl.indexOf(q)>-1 || kl.indexOf(q)>-1) sub.push(city);
+    });
+    return pre.concat(sub).slice(0,8);
+  }
+
+  function close(){
+    list.hidden=true; list.innerHTML=''; active=-1;
+    input.setAttribute('aria-expanded','false');
+    input.setAttribute('aria-activedescendant','');
+  }
+
+  function render(){
+    if(!matches.length){ close(); return; }
+    list.innerHTML='';
+    matches.forEach(function(city,idx){
+      var li=document.createElement('li');
+      li.className='loc-opt'+(idx===active?' active':'');
+      li.id='loc-opt-'+idx;
+      li.setAttribute('role','option');
+      li.setAttribute('aria-selected', idx===active ? 'true':'false');
+      li.innerHTML='<span class="loc-c"></span><span class="loc-k"></span>';
+      li.querySelector('.loc-c').textContent=city.c;
+      li.querySelector('.loc-k').textContent=city.k;
+      li.addEventListener('mousedown', function(ev){ ev.preventDefault(); pick(city); });
+      list.appendChild(li);
+    });
+    list.hidden=false;
+    input.setAttribute('aria-expanded','true');
+    input.setAttribute('aria-activedescendant', active>-1 ? 'loc-opt-'+active : '');
+  }
+
+  function showTz(city){
+    var off=tzOffsetLabel(city.tz);
+    tzBox.textContent=city.tz+(off ? ' · '+off : '');
+    tzBox.classList.add('on');
+  }
+  function hideTz(){ tzBox.classList.remove('on'); tzBox.textContent=''; }
+
+  function pick(city){
+    picked=city;
+    input.value=city.c+', '+city.k;
+    var off=tzOffsetLabel(city.tz);
+    hidden.value=city.c+', '+city.k+' ('+city.tz+(off ? ', '+off : '')+')';
+    showTz(city);
+    close();
+  }
+
+  input.addEventListener('input', function(){
+    picked=null; hideTz();
+    hidden.value=input.value;
+    active=-1;
+    matches=search(input.value.trim());
+    render();
+  });
+
+  input.addEventListener('keydown', function(ev){
+    if(list.hidden && ev.key!=='Escape') return;
+    if(ev.key==='ArrowDown'){ ev.preventDefault(); if(!matches.length) return; active=Math.min(active+1, matches.length-1); render(); }
+    else if(ev.key==='ArrowUp'){ ev.preventDefault(); if(!matches.length) return; active=Math.max(active-1, 0); render(); }
+    else if(ev.key==='Enter'){ if(active>-1 && matches[active]){ ev.preventDefault(); pick(matches[active]); } }
+    else if(ev.key==='Escape'){ close(); }
+  });
+
+  input.addEventListener('blur', function(){ setTimeout(close, 120); });
+
+  hidden.value=input.value;
+})();
+
 var steps=[].slice.call(document.querySelectorAll('.step')), i=0, f=document.getElementById('f');
 function paint(){
   steps.forEach(function(s,n){ s.classList.toggle('on', n===i); });
