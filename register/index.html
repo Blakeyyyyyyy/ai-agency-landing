@@ -283,7 +283,7 @@ select.cc:focus{border-color:var(--accent);background:#0f151a;box-shadow:0 0 0 3
   </form>
 
   <div class="q" id="q1">
-    <div class="dots"><i></i><i></i></div>
+    <div class="dots"><i></i><i></i><i></i></div>
     <div class="peek">Picture this</div>
     <div class="qlines">
       <p>Your Jarvis <em class="g">finds the businesses</em>.</p>
@@ -298,8 +298,20 @@ select.cc:focus{border-color:var(--accent);background:#0f151a;box-shadow:0 0 0 3
     </div>
   </div>
 
+  <div class="q" id="qincome">
+    <div class="dots"><i class="done"></i><i></i><i></i></div>
+    <div class="peek">Quick one</div>
+    <h2 class="qhead">What's your income right now?</h2>
+    <div class="opts">
+      <button type="button" class="opt" data-v="Under $2k">Under $2k</button>
+      <button type="button" class="opt" data-v="$2k-$5k">$2k - $5k</button>
+      <button type="button" class="opt" data-v="$5k-$10k">$5k - $10k</button>
+      <button type="button" class="opt" data-v="$10k+">$10k+</button>
+    </div>
+  </div>
+
   <div class="q" id="q2">
-    <div class="dots"><i class="done"></i><i></i></div>
+    <div class="dots"><i class="done"></i><i class="done"></i><i></i></div>
     <div class="peek">The course is 100% free</div>
     <h2 class="qhead">Do you have at least <em class="g">$50</em> to get your <em class="g">Jarvis</em> set up and running your entire AI agency?</h2>
     <p class="qsub">That covers the platform your Jarvis runs on. None of it comes to me.</p>
@@ -450,7 +462,7 @@ select.cc:focus{border-color:var(--accent);background:#0f151a;box-shadow:0 0 0 3
 
   // ---------------------------------------------------------------- questions
   var JOINED = '', JOINED_NAME = '', SRC = '';
-  var A = { would_use:null, has_capital:null, phone:null };
+  var A = { would_use:null, income:null, has_capital:null, phone:null };
   // One pageview per browser: first visit sets a local flag and logs a single
   // 'pageview' event, repeat visits log nothing. Page CVR = signups / these.
   try{
@@ -627,7 +639,24 @@ select.cc:focus{border-color:var(--accent);background:#0f151a;box-shadow:0 0 0 3
       })(btns[i]);
     }
   }
-  wire('q1','would_use','q2');
+  wire('q1','would_use','qincome');
+  // Push the answer to Close on the same lead created at initial submit - the lead
+  // already exists by the time this question is answered, so this lands on
+  // create-lead.js's own dedupe-by-email branch (see 28 Sep comment there), never
+  // creates a second Lead/Opportunity or a duplicate #new-lead ping.
+  (function(){
+    var box=document.getElementById('qincome'), btns=box.querySelectorAll('.opt[data-v]');
+    for(var i=0;i<btns.length;i++){(function(b){
+      b.addEventListener('click',function(){
+        A.income=b.getAttribute('data-v'); logEvent('income',A.income); b.classList.add('picked');
+        try{
+          fetch('https://blake-discord-relay.vercel.app/api/create-lead',{method:'POST',headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({name:JOINED_NAME,email:JOINED,income:A.income}),keepalive:true}).catch(function(){});
+        }catch(e){}
+        window.setTimeout(function(){ show('q2'); },170);
+      });
+    })(btns[i]);}
+  })();
   // q2: "Yes ready" -> landing page to watch VSL + apply (carry their info). "Not right now" -> soft close.
   (function(){
     var box=document.getElementById('q2'), btns=box.querySelectorAll('.opt[data-v]');
