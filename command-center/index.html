@@ -888,7 +888,11 @@ function signupMetrics(rows){
     if(!byRep[rep])byRep[rep]={count:0,revenue:0,commission:0};
     byRep[rep].count+=1;
     byRep[rep].revenue+=Number(r.revenue)||0;
-    const c=(S.commissionByPlan||{})[(r.product||'').replace('Base44 ','')];
+    // Prefer the commission frozen on the row itself at write time (30 Sep 2026 on)
+    // over the live Settings value - a rate change (like Yearly 10%->15% the same
+    // day) must never silently reprice a sale that already happened. Only rows from
+    // before this column existed fall back to the live per-plan lookup.
+    const c=r.commission!=null&&r.commission!==''?Number(r.commission):(S.commissionByPlan||{})[(r.product||'').replace('Base44 ','')];
     byRep[rep].commission+=c!=null?Number(c):0;
   });
   return{
