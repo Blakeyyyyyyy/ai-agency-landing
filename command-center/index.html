@@ -876,8 +876,8 @@ function renderSalesTracker(){
   const b=db();
   return`
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px"><div style="font-size:14px;font-weight:700;color:rgba(255,255,255,.6)">Showing: <span style="color:var(--gl)">${b.l}</span></div><div style="font-size:11px;color:var(--dmr)">${b.s} → ${b.e}</div></div>
-  <div class="sub-tabs" style="margin-bottom:16px"><button class="${S.salesSub==='stats'?'a':''}" onclick="S.salesSub='stats';render()">📈 Sales Stats</button><button class="${S.salesSub==='leaderboard'?'a':''}" onclick="S.salesSub='leaderboard';render()">🏆 Leaderboard</button><button class="${S.salesSub==='live'?'a':''}" onclick="S.salesSub='live';render()">💵 Live Signups</button></div>
-  ${S.salesSub==='leaderboard'?renderLeaderboard():S.salesSub==='live'?renderLiveSignups():renderSalesStats()}`;
+  <div class="sub-tabs" style="margin-bottom:16px"><button class="${S.salesSub==='stats'?'a':''}" onclick="S.salesSub='stats';render()">📈 Sales Stats</button><button class="${S.salesSub==='leaderboard'?'a':''}" onclick="S.salesSub='leaderboard';render()">🏆 Leaderboard</button><button class="${S.salesSub==='live'?'a':''}" onclick="S.salesSub='live';render()">💵 Live Signups</button><button class="${S.salesSub==='weekly'?'a':''}" onclick="S.salesSub='weekly';render()">🗓️ Weekly</button></div>
+  ${S.salesSub==='leaderboard'?renderLeaderboard():S.salesSub==='live'?renderLiveSignups():S.salesSub==='weekly'?renderWeekly():renderSalesStats()}`;
 }
 // Sourced from the 'signups' tab, written automatically by base44-signup.js on
 // every Close Won transition - this is real data, not manually-entered reports.
@@ -943,6 +943,66 @@ function renderLiveSignups(){
       <tbody>${rows.length===0?'<tr><td colspan="5" style="padding:16px;text-align:center;color:var(--dmr)">Nothing yet</td></tr>':[...rows].sort((a,b)=>(b.date||'').localeCompare(a.date||'')).slice(0,50).map(r=>`<tr style="border-top:1px solid rgba(255,255,255,.06)"><td style="padding:8px">${r.date||''}</td><td style="padding:8px">${r.leadName||''}</td><td style="padding:8px">${r.repName||''}</td><td style="padding:8px">${r.product||''}</td><td style="padding:8px;color:var(--gb)">${fmt(r.revenue)}</td></tr>`).join('')}</tbody>
     </table>
   </div>`;
+}
+// Mon-Sun week bucketing for payout review - read-only, derived entirely from
+// each signup row's own 'date' (already plain yyyy-mm-dd text, see base44-signup.js).
+// Nothing here writes to the sheet; it's the same S.signups the other Sales
+// Tracker views already read, just grouped differently.
+function mondayOf(dateStr){
+  const[y,m,d]=dateStr.split('-').map(Number);
+  const dt=new Date(y,m-1,d);
+  const dow=dt.getDay();
+  dt.setDate(dt.getDate()+(dow===0?-6:1-dow));
+  return localDateStr(dt);
+}
+function sundayOf(mondayStr){
+  const[y,m,d]=mondayStr.split('-').map(Number);
+  const dt=new Date(y,m-1,d);
+  dt.setDate(dt.getDate()+6);
+  return localDateStr(dt);
+}
+function weeklyMetrics(rows){
+  const weeks={};
+  rows.forEach(r=>{
+    if(!r.date)return;
+    const wk=mondayOf(r.date);
+    if(!weeks[wk])weeks[wk]={count:0,revenue:0,commission:0,reps:{}};
+    const rep=r.repName||'Unclaimed';
+    if(!weeks[wk].reps[rep])weeks[wk].reps[rep]={count:0,revenue:0,commission:0};
+    const rev=Number(r.revenue)||0;
+    // Same frozen-commission-first rule as signupMetrics() - a rate change must
+    // never silently reprice a week that's already been paid out.
+    const c=r.commission!=null&&r.commission!==''?Number(r.commission):(S.commissionByPlan||{})[(r.product||'').replace('Base44 ','')];
+    const comm=c!=null?Number(c):0;
+    weeks[wk].count+=1;weeks[wk].revenue+=rev;weeks[wk].commission+=comm;
+    weeks[wk].reps[rep].count+=1;weeks[wk].reps[rep].revenue+=rev;weeks[wk].reps[rep].commission+=comm;
+  });
+  return weeks;
+}
+function renderWeekly(){
+  const rows=S.signups||[];
+  const weeks=weeklyMetrics(rows);
+  const weekKeys=Object.keys(weeks).sort((a,b)=>b.localeCompare(a));
+  return`
+  <div class="sec" style="margin-bottom:16px">
+    <div style="font-size:14px;font-weight:800;margin-bottom:4px">🗓️ Weekly Payout (Mon-Sun)</div>
+    <div style="font-size:11px;color:var(--dmr)">Read-only - grouped from each sale's own date, nothing written back to the sheet</div>
+  </div>
+  ${weekKeys.length===0?'<div class="sec" style="text-align:center;padding:40px 20px;color:var(--dmr)">No signups yet</div>':weekKeys.map(wk=>{
+    const w=weeks[wk];
+    const reps=Object.entries(w.reps).sort((a,b)=>b[1].commission-a[1].commission);
+    return`
+    <div class="sec" style="margin-bottom:14px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:6px">
+        <div style="font-size:13px;font-weight:800;color:var(--gl)">${wk} → ${sundayOf(wk)}</div>
+        <div style="font-size:12px;font-weight:700;color:var(--dmr)">${w.count} sales · <span style="color:var(--gb)">${fmt(w.revenue)}</span> · <span style="color:#10b981">${fmt(w.commission)} commission</span></div>
+      </div>
+      <table style="width:100%;border-collapse:collapse">
+        <thead><tr style="text-align:left;font-size:10px;color:var(--dmr)"><th style="padding:6px">Rep</th><th style="padding:6px">Sales</th><th style="padding:6px">Revenue</th><th style="padding:6px">Commission</th></tr></thead>
+        <tbody>${reps.map(([rep,x])=>`<tr style="border-top:1px solid rgba(255,255,255,.06)"><td style="padding:8px;font-weight:700">${rep}</td><td style="padding:8px">${x.count}</td><td style="padding:8px;color:var(--gb)">${fmt(x.revenue)}</td><td style="padding:8px;color:#10b981">${fmt(x.commission)}</td></tr>`).join('')}</tbody>
+      </table>
+    </div>`;
+  }).join('')}`;
 }
 function renderSalesStats(){
   const sel=S.selectedClosers||S.closers;
