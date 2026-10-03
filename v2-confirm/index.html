@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<!-- Meta Pixel 188764379886784 - fetches enable/disable + id from pixel-config.js so the
+     ID never has to be hardcoded into two places and can be flipped off org-wide from
+     one Vercel env var (see api/pixel-config.js). -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fetch('https://blake-discord-relay.vercel.app/api/pixel-config').then(function(r){return r.json()}).then(function(d){
+  if(!d.pixelId) return;
+  fbq('init', d.pixelId);
+  fbq('track', 'PageView');
+  fbq('track', 'Lead');
+}).catch(function(){});
+</script>
+<noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=188764379886784&ev=PageView&noscript=1"/></noscript>
+<noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=188764379886784&ev=PageView&noscript=1"/></noscript>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>You're in. Now answer your phone.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;900&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<style>
+:root{--bg:#0a0a0a;--card:#1f2327;--card2:#262b30;--line:#3a4046;--green:#32d09f;--f:'Archivo',Arial,sans-serif;--mono:'IBM Plex Mono',Menlo,monospace}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:#fff;font-family:var(--f);font-weight:600;line-height:1.6;font-size:17px;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1060px;margin:0 auto;padding:0 20px}
+section{padding:72px 0;position:relative}
+section:nth-of-type(odd){background:#111418}
+.center{text-align:center}
+.tag{display:inline-block;font-family:var(--mono);font-size:1rem;letter-spacing:.12em;text-transform:uppercase;color:var(--green);background:rgba(50,208,159,.1);border:1px solid rgba(50,208,159,.28);padding:6px 14px;border-radius:99px;margin-bottom:16px}
+h1,h2,h3{font-weight:900;letter-spacing:-.5px;line-height:1.14;text-wrap:balance;color:#fff}
+h2{font-size:clamp(1.7rem,4.5vw,2.4rem);margin-bottom:14px}
+.g{color:var(--green)}
+.lede{color:#fff;font-size:1.12rem;max-width:640px;margin:0 auto;font-weight:600}
+.hero{padding:44px 0 40px;text-align:center;background:radial-gradient(60% 50% at 50% 0%,rgba(50,208,159,.10),transparent 70%)}
+.hero h1{font-size:clamp(2.2rem,7vw,3.6rem);max-width:900px;margin:0 auto 18px}
+.hero .sub{color:#fff;max-width:640px;margin:0 auto;font-size:1.15rem;font-weight:700}
+.badge-live{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:1rem;color:#fff;background:rgba(50,208,159,.14);border:1px solid rgba(50,208,159,.4);padding:6px 14px;border-radius:99px;margin-bottom:18px}
+.badge-live i{width:9px;height:9px;border-radius:50%;background:var(--green);display:inline-block}
+.vid{max-width:320px;margin:30px auto 0;border:1px solid var(--line);border-radius:18px;overflow:hidden;background:#000}
+.steps{display:grid;gap:18px;margin-top:36px}
+@media(min-width:820px){.steps{grid-template-columns:repeat(3,1fr)}}
+.step{background:var(--card2);border:1px solid var(--line);border-radius:20px;padding:28px 24px}
+.stepnum{font-size:3.6rem;font-weight:900;color:var(--green);line-height:1;margin-bottom:10px}
+.badges{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.badge{font-family:var(--mono);font-size:1rem;color:#fff;background:rgba(50,208,159,.14);border:1px solid rgba(50,208,159,.4);padding:4px 12px;border-radius:99px}
+.step h3{font-size:1.5rem;margin-bottom:10px}
+.step p{color:#fff;font-size:1.05rem;font-weight:600}
+.pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.pill{font-size:1rem;color:#fff;background:#15191c;border:1px solid var(--line);padding:6px 14px;border-radius:99px;font-weight:700}
+.pill::before{content:'✓ ';color:var(--green)}
+.stack-wrap{max-width:720px;margin:34px auto 0;background:var(--card);border:1px solid var(--line);border-radius:22px;overflow:hidden;text-align:left}
+.stack-head{display:flex;justify-content:space-between;padding:16px 22px;background:#15191c;border-bottom:1px solid var(--line);font-family:var(--mono);font-size:1rem;color:var(--green);letter-spacing:.06em;text-transform:uppercase}
+.srow{display:flex;gap:16px;align-items:center;padding:20px 22px;border-bottom:1px solid var(--line)}
+.sicon{flex:0 0 46px;height:46px;border-radius:12px;background:rgba(50,208,159,.16);color:var(--green);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:1.1rem}
+.stext{flex:1;min-width:0}
+.stext b{display:block;font-size:1.15rem;color:#fff}
+.stext span{display:block;color:#fff;font-size:1rem;font-weight:600;line-height:1.45;margin-top:2px}
+.sprice{flex:0 0 auto;font-weight:900;font-size:1.25rem;color:var(--green);text-align:right;white-space:nowrap}
+.stotal{display:flex;justify-content:space-between;align-items:center;padding:22px;background:#15191c;flex-wrap:wrap;gap:8px}
+.stotal .lbl{font-family:var(--mono);font-size:1rem;color:#fff}
+.stotal s{color:#fff;font-weight:700;font-size:1.1rem;opacity:.85}
+.stotal .today{font-size:1.9rem;font-weight:900;color:var(--green);width:100%;text-align:center;margin-top:6px}
+.lightbox{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.92);display:none;align-items:center;justify-content:center;padding:18px;cursor:zoom-out}
+.lightbox.on{display:flex}
+.lightbox img{max-width:100%;max-height:100%;object-fit:contain;border-radius:12px}
+.remind{max-width:720px;margin:0 auto;background:var(--card);border:2px solid var(--green);border-radius:22px;padding:34px 26px;text-align:center}
+.remind h2{font-size:clamp(1.7rem,5vw,2.3rem);margin-bottom:12px}
+.remind p{color:#fff;font-size:1.1rem;font-weight:600;margin-bottom:10px}
+footer{border-top:1px solid var(--line);padding:34px 0;text-align:center;font-family:var(--mono);font-size:1rem;color:#fff;letter-spacing:.06em}
+@media(max-width:720px){section{padding:52px 0}.wrap{padding:0 18px}}
+
+.wins-view{margin-top:34px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch;touch-action:pan-x;padding:8px 0 18px;-webkit-mask-image:linear-gradient(to right,transparent 0,#000 9%,#000 91%,transparent 100%);mask-image:linear-gradient(to right,transparent 0,#000 9%,#000 91%,transparent 100%)}
+.wins-view::-webkit-scrollbar{display:none}
+.wins-track{display:flex;gap:14px;width:max-content;animation:winsMarquee 40s linear infinite}
+.wins-view:hover .wins-track,.wins-view.touching .wins-track{animation-play-state:paused}
+@keyframes winsMarquee{from{transform:translateX(0)}to{transform:translateX(calc((-100% - 14px) / 3))}}
+.win{flex:0 0 auto;height:420px;width:auto;border-radius:14px;overflow:hidden;cursor:zoom-in;background:none}
+.win img{height:100%;width:auto;max-width:none;display:block}
+@media(max-width:720px){.win{height:320px}}
+@media(prefers-reduced-motion:reduce){.wins-track{animation:none}}
+
+
+</style>
+</head>
+<body>
+<header class="hero"><div class="wrap">
+  <div class="badge-live"><i></i> Your phone is about to ring</div>
+  <h1>You're in. Now <span class="g">answer your phone.</span></h1>
+  <p class="sub">Our team calls you in the next 5 to 10 minutes from an unknown number, to build your Jarvis with you and unlock the course.</p>
+  <div class="vid">
+    <div id="vidalytics_embed_9IP6TpB3xBREHQpG" style="width: 100%; position:relative; padding-top: 177.78%;"></div>
+    <script type="text/javascript">
+    (function (v, i, d, a, l, y, t, c, s) {
+        y='_'+d.toLowerCase();c=d+'L';if(!v[d]){v[d]={};}if(!v[c]){v[c]={};}if(!v[y]){v[y]={};}var vl='Loader',vli=v[y][vl],vsl=v[c][vl + 'Script'],vlf=v[c][vl + 'Loaded'],ve='Embed';
+        if (!vsl){vsl=function(u,cb){
+            if(t){cb();return;}s=i.createElement("script");s.type="text/javascript";s.async=1;s.src=u;
+            if(s.readyState){s.onreadystatechange=function(){if(s.readyState==="loaded"||s.readyState=="complete"){s.onreadystatechange=null;vlf=1;cb();}};}else{s.onload=function(){vlf=1;cb();};}
+            i.getElementsByTagName("head")[0].appendChild(s);
+        };}
+        vsl(l+'loader.min.js',function(){if(!vli){var vlc=v[c][vl];vli=new vlc();}vli.loadScript(l+'player.min.js',function(){var vec=v[d][ve];t=new vec();t.run(a);});});
+    })(window, document, 'Vidalytics', 'vidalytics_embed_9IP6TpB3xBREHQpG', 'https://fast.vidalytics.com/embeds/Z0zRExfJ/9IP6TpB3xBREHQpG/');
+    </script>
+  </div>
+</div></header>
+
+<section style="padding-top:44px"><div class="wrap">
+  <div class="center">
+    <div class="tag">Follow these steps</div>
+    <h2>3 things before <span class="g">we call.</span></h2>
+  </div>
+  <div class="steps">
+    <div class="step">
+      <div class="stepnum">01</div>
+      <div class="badges"><span class="badge">Right now</span><span class="badge">30 seconds</span></div>
+      <h3>Phone off <span class="g">silent</span></h3>
+      <p>Most missed calls are a phone on Do Not Disturb. Turn these on before the call:</p>
+      <div class="pills">
+        <span class="pill">Do Not Disturb OFF</span>
+        <span class="pill">Silent mode OFF</span>
+        <span class="pill">Ringer volume up</span>
+        <span class="pill">Phone unlocked and next to you</span>
+      </div>
+    </div>
+    <div class="step">
+      <div class="stepnum">02</div>
+      <div class="badges"><span class="badge">Within 10 minutes</span></div>
+      <h3>Pick up the <span class="g">unknown number</span></h3>
+      <p>That call is us, not spam. If you miss it, your spot goes to the next person on the list.</p>
+      <div class="pills"><span class="pill">Answer unknown numbers</span></div>
+    </div>
+    <div class="step">
+      <div class="stepnum">03</div>
+      <div class="badges"><span class="badge">15 minutes</span></div>
+      <h3>Laptop <span class="g">ready</span></h3>
+      <p>Be somewhere you can talk. We build your Jarvis with you, live, on a quick 15 minute call.</p>
+      <div class="pills"><span class="pill">Laptop open</span><span class="pill">Quiet spot</span></div>
+    </div>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <div class="center">
+    <div class="tag">While you wait</div>
+    <h2>See what you're <span class="g">getting.</span></h2>
+    <p class="lede">Everything below unlocks on the call, free.</p>
+  </div>
+  <div class="stack-wrap">
+    <div class="stack-head"><span>Your package</span><span>4 items</span></div>
+    <div class="srow"><div class="sicon">J</div><div class="stext"><b>Your own Jarvis AI</b><span>Your AI co-founder that finds leads, builds your services and helps you sell.</span></div><div class="sprice">$2,000</div></div>
+    <div class="srow"><div class="sicon">C</div><div class="stext"><b>The AI Agency course</b><span>Built for your Jarvis to run. Jarvis does the work, you follow along.</span></div><div class="sprice">$5,500</div></div>
+    <div class="srow"><div class="sicon">3</div><div class="stext"><b>3 ready-to-sell AI services</b><span>AI websites, an AI receptionist and property video walkthroughs.</span></div><div class="sprice">$1,000</div></div>
+    <div class="srow"><div class="sicon">+</div><div class="stext"><b>The private community</b><span>Get unstuck fast alongside people doing the same thing.</span></div><div class="sprice">Included</div></div>
+    <div class="stotal"><span class="lbl">Total value <s>$8,500</s></span><span class="today">Your price today: Free</span></div>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <div class="center">
+    <div class="tag">Student results</div>
+    <h2>Real people. Real Jarvis builds. <span class="g">Real results.</span></h2>
+  </div>
+  <div class="wins-view" id="winsView"><div class="wins-track" id="winsTrack"><div class="win"><img src="/results/result-02.webp" alt="Student result 1" loading="lazy"></div><div class="win"><img src="/results/result-03.webp" alt="Student result 2" loading="lazy"></div><div class="win"><img src="/results/result-04.webp" alt="Student result 3" loading="lazy"></div><div class="win"><img src="/results/result-05.webp" alt="Student result 4" loading="lazy"></div><div class="win"><img src="/results/result-06.webp" alt="Student result 5" loading="lazy"></div><div class="win"><img src="/results/result-07.webp" alt="Student result 6" loading="lazy"></div><div class="win"><img src="/results/result-08.webp" alt="Student result 7" loading="lazy"></div><div class="win"><img src="/results/result-02.webp" alt="Student result 1" loading="lazy"></div><div class="win"><img src="/results/result-03.webp" alt="Student result 2" loading="lazy"></div><div class="win"><img src="/results/result-04.webp" alt="Student result 3" loading="lazy"></div><div class="win"><img src="/results/result-05.webp" alt="Student result 4" loading="lazy"></div><div class="win"><img src="/results/result-06.webp" alt="Student result 5" loading="lazy"></div><div class="win"><img src="/results/result-07.webp" alt="Student result 6" loading="lazy"></div><div class="win"><img src="/results/result-08.webp" alt="Student result 7" loading="lazy"></div><div class="win"><img src="/results/result-02.webp" alt="Student result 1" loading="lazy"></div><div class="win"><img src="/results/result-03.webp" alt="Student result 2" loading="lazy"></div><div class="win"><img src="/results/result-04.webp" alt="Student result 3" loading="lazy"></div><div class="win"><img src="/results/result-05.webp" alt="Student result 4" loading="lazy"></div><div class="win"><img src="/results/result-06.webp" alt="Student result 5" loading="lazy"></div><div class="win"><img src="/results/result-07.webp" alt="Student result 6" loading="lazy"></div><div class="win"><img src="/results/result-08.webp" alt="Student result 7" loading="lazy"></div></div></div></div></div>
+  
+  <div class="lightbox" id="lightbox"><img id="lightboxImg" alt=""></div>
+</div></section>
+
+<section><div class="wrap">
+  <div class="remind">
+    <h2>Your phone is about to <span class="g">ring.</span></h2>
+    <p>Silent off. Do Not Disturb off. Laptop open.</p>
+    <p>Pick up the unknown number. That's your Jarvis starting.</p>
+  </div>
+</div></section>
+
+<footer><div class="wrap">The AI Agency Builder</div></footer>
+
+<script>
+(function(){
+  var view=document.getElementById('winsView');
+  if(!view) return;
+  var track=document.getElementById('winsTrack');
+  var W=function(){ return (track.scrollWidth+14)/3; };
+  view.addEventListener('scroll',function(){
+    var w=W();
+    if(view.scrollLeft>=w) view.scrollLeft-=w;
+    else if(view.scrollLeft<1) view.scrollLeft+=w;
+  },{passive:true});
+  var t=null;
+  function touching(){ view.classList.add('touching'); clearTimeout(t); }
+  function released(){ clearTimeout(t); t=setTimeout(function(){ view.classList.remove('touching'); },1200); }
+  view.addEventListener('touchstart',touching,{passive:true});
+  view.addEventListener('touchend',released,{passive:true});
+  view.addEventListener('touchcancel',released,{passive:true});
+  var lb=document.getElementById('lightbox'), lbi=document.getElementById('lightboxImg');
+  document.querySelectorAll('.win img').forEach(function(im){
+    im.parentNode.addEventListener('click',function(){ lbi.src=im.src; lbi.alt=im.alt; lb.classList.add('on'); });
+  });
+  lb.addEventListener('click',function(){ lb.classList.remove('on'); });
+})();
+</script>
+</body>
+</html>
