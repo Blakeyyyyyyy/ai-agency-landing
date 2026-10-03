@@ -263,12 +263,15 @@ p,li,span,summary,details p{color:#ffffff}
 .sfoot p{font-family:var(--mono);font-size:1rem;color:#ffffff;margin:14px 0 0}
 .sfoot small{display:block;margin-top:12px;font-size:1rem;color:#ffffff;font-weight:700}
 .wins-head{text-align:center}
-.wins-view{margin-top:34px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:6px 4px 18px}
+.wins-view{margin-top:34px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch;touch-action:pan-x;padding:8px 0 18px;-webkit-mask-image:linear-gradient(to right,transparent 0,#000 9%,#000 91%,transparent 100%);mask-image:linear-gradient(to right,transparent 0,#000 9%,#000 91%,transparent 100%)}
 .wins-view::-webkit-scrollbar{display:none}
-.wins-track{display:flex;gap:16px;width:max-content}
-.win{flex:0 0 auto;height:420px;width:300px;display:flex;align-items:center;justify-content:center;background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;scroll-snap-align:center;cursor:zoom-in}
-.win img{height:100%;width:100%;object-fit:contain;display:block}
-@media(max-width:720px){.win{height:320px;width:230px}}
+.wins-track{display:flex;gap:14px;width:max-content;animation:winsMarquee 40s linear infinite}
+.wins-view:hover .wins-track,.wins-view.touching .wins-track{animation-play-state:paused}
+@keyframes winsMarquee{from{transform:translateX(0)}to{transform:translateX(calc((-100% - 14px) / 3))}}
+.win{flex:0 0 auto;height:420px;width:auto;border-radius:14px;overflow:hidden;cursor:zoom-in;background:none}
+.win img{height:100%;width:auto;max-width:none;display:block}
+@media(max-width:720px){.win{height:320px}}
+@media(prefers-reduced-motion:reduce){.wins-track{animation:none}}
 .lightbox{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.92);display:none;align-items:center;justify-content:center;padding:18px;cursor:zoom-out}
 .lightbox.on{display:flex}
 .lightbox img{max-width:100%;max-height:100%;object-fit:contain;border-radius:12px}
@@ -375,31 +378,32 @@ footer,footer div{color:#ffffff}
     <div class="eyebrow">Student results</div>
     <h2>Real people. Real Jarvis builds. Real results.</h2>
   </div>
-  <div class="wins-view" id="winsView"><div class="wins-track" id="winsTrack"><div class="win"><img src="/results/result-01.webp" alt="Student result 1" loading="lazy"></div><div class="win"><img src="/results/result-02.webp" alt="Student result 2" loading="lazy"></div><div class="win"><img src="/results/result-03.webp" alt="Student result 3" loading="lazy"></div><div class="win"><img src="/results/result-04.webp" alt="Student result 4" loading="lazy"></div><div class="win"><img src="/results/result-05.webp" alt="Student result 5" loading="lazy"></div><div class="win"><img src="/results/result-06.webp" alt="Student result 6" loading="lazy"></div><div class="win"><img src="/results/result-07.webp" alt="Student result 7" loading="lazy"></div><div class="win"><img src="/results/result-08.webp" alt="Student result 8" loading="lazy"></div></div></div>
+  <div class="wins-view" id="winsView"><div class="wins-track" id="winsTrack"><div class="win"><img src="/results/result-02.webp" alt="Student result 1" loading="lazy"></div><div class="win"><img src="/results/result-03.webp" alt="Student result 2" loading="lazy"></div><div class="win"><img src="/results/result-04.webp" alt="Student result 3" loading="lazy"></div><div class="win"><img src="/results/result-05.webp" alt="Student result 4" loading="lazy"></div><div class="win"><img src="/results/result-06.webp" alt="Student result 5" loading="lazy"></div><div class="win"><img src="/results/result-07.webp" alt="Student result 6" loading="lazy"></div><div class="win"><img src="/results/result-08.webp" alt="Student result 7" loading="lazy"></div><div class="win"><img src="/results/result-02.webp" alt="Student result 1" loading="lazy"></div><div class="win"><img src="/results/result-03.webp" alt="Student result 2" loading="lazy"></div><div class="win"><img src="/results/result-04.webp" alt="Student result 3" loading="lazy"></div><div class="win"><img src="/results/result-05.webp" alt="Student result 4" loading="lazy"></div><div class="win"><img src="/results/result-06.webp" alt="Student result 5" loading="lazy"></div><div class="win"><img src="/results/result-07.webp" alt="Student result 6" loading="lazy"></div><div class="win"><img src="/results/result-08.webp" alt="Student result 7" loading="lazy"></div><div class="win"><img src="/results/result-02.webp" alt="Student result 1" loading="lazy"></div><div class="win"><img src="/results/result-03.webp" alt="Student result 2" loading="lazy"></div><div class="win"><img src="/results/result-04.webp" alt="Student result 3" loading="lazy"></div><div class="win"><img src="/results/result-05.webp" alt="Student result 4" loading="lazy"></div><div class="win"><img src="/results/result-06.webp" alt="Student result 5" loading="lazy"></div><div class="win"><img src="/results/result-07.webp" alt="Student result 6" loading="lazy"></div><div class="win"><img src="/results/result-08.webp" alt="Student result 7" loading="lazy"></div></div></div></div></div>
   <div class="lightbox" id="lightbox"><img id="lightboxImg" alt=""></div>
   <div class="cta-under"><a class="btn big openonly" href="/register/">Claim Your Free Jarvis + Course →</a><small>No strings. 100% free to claim.</small></div>
 </div></section>
 <script>
 (function(){
-  var view=document.getElementById('winsView'), paused=false, dir=1;
-  if(view){
-    var tick=function(){
-      if(paused) return;
-      var max=view.scrollWidth-view.clientWidth;
-      if(max<=0) return;
-      view.scrollLeft+=dir*0.6;
-      if(view.scrollLeft>=max-1) dir=-1;
-      if(view.scrollLeft<=0) dir=1;
-    };
-    setInterval(tick,30);
-    ['mouseenter','touchstart','pointerdown'].forEach(function(e){ view.addEventListener(e,function(){paused=true;},{passive:true}); });
-    ['mouseleave','touchend','pointerup'].forEach(function(e){ view.addEventListener(e,function(){paused=false;},{passive:true}); });
-    var lb=document.getElementById('lightbox'), lbi=document.getElementById('lightboxImg');
-    document.querySelectorAll('.win img').forEach(function(im){
-      im.parentNode.addEventListener('click',function(){ lbi.src=im.src; lbi.alt=im.alt; lb.classList.add('on'); });
-    });
-    lb.addEventListener('click',function(){ lb.classList.remove('on'); });
-  }
+  var view=document.getElementById('winsView');
+  if(!view) return;
+  var track=document.getElementById('winsTrack');
+  var W=function(){ return (track.scrollWidth+14)/3; };
+  view.addEventListener('scroll',function(){
+    var w=W();
+    if(view.scrollLeft>=w) view.scrollLeft-=w;
+    else if(view.scrollLeft<1) view.scrollLeft+=w;
+  },{passive:true});
+  var t=null;
+  function touching(){ view.classList.add('touching'); clearTimeout(t); }
+  function released(){ clearTimeout(t); t=setTimeout(function(){ view.classList.remove('touching'); },1200); }
+  view.addEventListener('touchstart',touching,{passive:true});
+  view.addEventListener('touchend',released,{passive:true});
+  view.addEventListener('touchcancel',released,{passive:true});
+  var lb=document.getElementById('lightbox'), lbi=document.getElementById('lightboxImg');
+  document.querySelectorAll('.win img').forEach(function(im){
+    im.parentNode.addEventListener('click',function(){ lbi.src=im.src; lbi.alt=im.alt; lb.classList.add('on'); });
+  });
+  lb.addEventListener('click',function(){ lb.classList.remove('on'); });
 })();
 </script>
 
