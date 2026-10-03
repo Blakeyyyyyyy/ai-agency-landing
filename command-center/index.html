@@ -1561,7 +1561,7 @@ function payoutRows(){
   (S.comm_adjust||[]).forEach(a=>{
     if(!a.period||!payees.has(a.repName))return;
     const w=get(a.repName,a.period);const amt=Number(a.amount)||0;
-    if(/bonus/i.test(a.kind||'')){w.bonus+=amt;if(/^PENDING/i.test(a.reason||''))w.pending.push(a);}
+    if(/bonus/i.test(a.kind||'')){if(/^PENDING/i.test(a.reason||''))w.pending.push(a);else w.bonus+=amt;}
     else w.adjust+=amt;
   });
   (S.comm_status||[]).forEach(s=>{
