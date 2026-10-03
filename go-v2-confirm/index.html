@@ -18,7 +18,7 @@ fetch('https://blake-discord-relay.vercel.app/api/pixel-config').then(function(r
   if(!d.pixelId) return;
   fbq('init', d.pixelId);
   fbq('track', 'PageView');
-  fbq('track', 'Lead');
+  fbq('track', 'Lead', {ab_test:'paid', ab_variant:'B'});
 }).catch(function(){});
 </script>
 <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=188764379886784&ev=PageView&noscript=1"/></noscript>

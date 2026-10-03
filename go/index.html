@@ -2,6 +2,21 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<script>
+(function(){
+  var TEST='paid', A_PATH='/go', B_PATH='/go-v2/', KEY='ab_'+TEST;
+  function cookie(n){var m=document.cookie.match(new RegExp('(?:^|; )'+n+'=([^;]*)'));return m?m[1]:null;}
+  var q=new URLSearchParams(location.search), forced=(q.get('variant')||'').toUpperCase(), v=null;
+  if(forced==='A'||forced==='B') v=forced;
+  if(!v){ var c=cookie(KEY); if(c==='A'||c==='B') v=c; }
+  if(!v){ try{ var l=localStorage.getItem(KEY); if(l==='A'||l==='B') v=l; }catch(e){} }
+  if(!v) v=Math.random()<0.5?'A':'B';
+  document.cookie=KEY+'='+v+'; path=/; max-age='+(30*86400)+'; SameSite=Lax';
+  try{ localStorage.setItem(KEY,v); }catch(e){}
+  window.AB={test:TEST,variant:v};
+  if(v==='B'){ window.AB_REDIRECT=true; location.replace(B_PATH+location.search+location.hash); }
+})();
+</script>
 
 <!-- Meta Pixel 188764379886784 - fetches enable/disable + id from pixel-config.js so the
      ID never has to be hardcoded into two places and can be flipped off org-wide from
@@ -18,7 +33,7 @@ s.parentNode.insertBefore(t,s)}(window, document,'script',
 fetch('https://blake-discord-relay.vercel.app/api/pixel-config').then(function(r){return r.json()}).then(function(d){
   if(!d.pixelId) return;
   fbq('init', d.pixelId);
-  fbq('track', 'PageView');
+  fbq('track', 'PageView', {ab_test:window.AB&&AB.test, ab_variant:window.AB&&AB.variant});
 }).catch(function(){});
 </script>
 <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=188764379886784&ev=PageView&noscript=1"/></noscript>
@@ -243,6 +258,19 @@ footer{border-top:1px solid var(--line);padding:34px 0;text-align:center;font-fa
 </style>
 </head>
 <body>
+<script>
+(function(){
+  var U="https://klyiqncsgxcrbdgonaaj.supabase.co", K="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtseWlxbmNzZ3hjcmJkZ29uYWFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0MjkxMTQsImV4cCI6MjA5MTAwNTExNH0.WuM-vY6LBoNF2XiQJG2YX5CDOa-AWVGlhobfeuBOLl8";
+  var vid; try{ vid=localStorage.getItem('ab_vid'); if(!vid){ vid=Math.random().toString(36).slice(2)+Date.now().toString(36); localStorage.setItem('ab_vid',vid); } }catch(e){ vid='anon-'+Date.now(); }
+  window.AB_VISITOR=vid;
+  window.abLog=function(event){
+    var ab=window.AB; if(!ab||window.AB_REDIRECT) return;
+    try{ fetch('https://blake-discord-relay.vercel.app/api/ab-event',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({event:event,test:ab.test,variant:ab.variant,visitor:vid,path:location.pathname}),keepalive:true}).catch(function(){}); }catch(e){}
+    try{ fetch(U+'/rest/v1/waitlist_events',{method:'POST',headers:{'Content-Type':'application/json','apikey':K,'Authorization':'Bearer '+K,'Prefer':'return=minimal'},body:JSON.stringify({email:'ab-'+vid,name:'',question:'ab_'+event,answer:ab.test+':'+ab.variant}),keepalive:true}).catch(function(){}); }catch(e){}
+  };
+  window.abLog('page_view');
+})();
+</script>
 
 <nav><div class="wrap navin">
   <a class="logo" href="#top"><span class="chip">AI</span> AGENCY</a>
@@ -560,7 +588,7 @@ if(VSL_URL){
   var err=document.getElementById('merr'), send=document.getElementById('msend');
   var LBL='Claim your free Jarvis →';
   function src(){ return 'paid'; } // /go is the paid-traffic page, always Paid
-  function openM(e){ if(e) e.preventDefault(); w.classList.add('on'); document.body.style.overflow='hidden';
+  function openM(e){ if(e) e.preventDefault(); if(window.abLog) window.abLog('modal_open'); w.classList.add('on'); document.body.style.overflow='hidden';
     setTimeout(function(){ document.getElementById('mname').focus(); },80); }
   function closeM(){ w.classList.remove('on'); document.body.style.overflow=''; }
   var links=document.querySelectorAll('a[href^="/register/"]');
@@ -591,6 +619,7 @@ if(VSL_URL){
     if(pdig.length<pr[0]||pdig.length>pr[1]){ err.textContent='That number does not look right for the country you picked. Please check it - this is how we call you to unlock your Jarvis.'; return; }
     if(!income){ err.textContent="Please select your income range"; return; }
     if(!cost){ err.textContent='Please confirm you understand the $50 a month platform cost.'; return; }
+    if(window.abLog) window.abLog('form_submit');
     send.disabled=true; send.textContent='One moment...';
     fetch(U+'/rest/v1/waitlist',{method:'POST',
       headers:{'Content-Type':'application/json','apikey':K,'Authorization':'Bearer '+K,'Prefer':'return=minimal'},
@@ -606,7 +635,7 @@ if(VSL_URL){
           var isoMatch = mccOpt && /([A-Z]{2})\s*\+\d/.exec(mccOpt.textContent);
           var ccName = isoMatch ? isoMatch[1] : cc;
           fetch('https://blake-discord-relay.vercel.app/api/create-lead',{method:'POST',headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({name:name,email:email,phone:cc+' '+ph,country:ccName,source:src(),income:income}),keepalive:true}).catch(function(){});
+            body:JSON.stringify({name:name,email:email,phone:cc+' '+ph,country:ccName,source:src(),income:income,variant:(window.AB&&AB.variant)||'',visitor:window.AB_VISITOR||''}),keepalive:true}).catch(function(){});
         }catch(e){}
         ev(email,name,'phone',cc+' '+ph);
         ev(email,name,'sms_consent',sms?'yes':'no');

@@ -137,7 +137,7 @@ const API = 'https://script.google.com/macros/s/AKfycby6C4tcqW0JagNAef1X_yxI7AvY
 
 // ── Passwords & Roles ──
 const PASSWORDS={"forge9670":"setter","vault4808":"closer","course6198":"leadership"};
-const ROLE_TABS={setter:['dashboard','setter_tracker','setter'],closer:['dashboard','setter_tracker','setter','sales_tracker','closer','enrollments'],leadership:['dashboard','setter_tracker','setter','sales_tracker','closer','enrollments','payouts','settings']};
+const ROLE_TABS={setter:['dashboard','setter_tracker','setter'],closer:['dashboard','setter_tracker','setter','sales_tracker','closer','enrollments'],leadership:['dashboard','setter_tracker','setter','sales_tracker','closer','enrollments','payouts','ab_test','settings']};
 let userRole=sessionStorage.getItem('aiagency_role')||null;
 function doLogin(){
   const pw=document.getElementById('loginPw').value.trim();
@@ -1542,6 +1542,46 @@ function renderSetterTracker(){
 }
 
 
+
+// ── A/B test (organic and paid landing pages) ──
+async function loadAbStats(){
+  const p=new URLSearchParams();
+  if(S.abFrom)p.set('from',S.abFrom);
+  if(S.abTo)p.set('to',S.abTo);
+  try{
+    const r=await fetch('https://blake-discord-relay.vercel.app/api/ab-stats?'+p.toString());
+    S.abStats=await r.json();
+  }catch(e){
+    S.abStats={ok:false,rows:[],error:String(e)};
+  }
+  S.abLoading=false;
+  render();
+}
+function renderAbTest(){
+  if(!S.abStats&&!S.abLoading){S.abLoading=true;loadAbStats();}
+  const rows=(S.abStats&&S.abStats.rows)||[];
+  const names={organic:'Organic: / (A) vs /v2/ (B)',paid:'Paid: /go (A) vs /go-v2/ (B)'};
+  const block=t=>{
+    const r=rows.filter(x=>x.test===t);
+    const cell='padding:8px';
+    return`<div class="sec" style="margin-bottom:16px"><div style="font-size:14px;font-weight:800;margin-bottom:10px">${names[t]}</div>
+    <table style="width:100%;border-collapse:collapse;font-size:13px">
+      <thead><tr style="text-align:left;color:var(--dmr)"><th style="padding:6px">Variant</th><th style="padding:6px">Visitors</th><th style="padding:6px">Modal opens</th><th style="padding:6px">Registrations</th><th style="padding:6px">Registration rate</th></tr></thead>
+      <tbody>${['A','B'].map(v=>{const x=r.find(y=>y.variant===v)||{visitors:0,modalOpens:0,registrations:0,regRate:0};return`<tr style="border-top:1px solid rgba(255,255,255,.06)"><td style="${cell};font-weight:800">${v}</td><td style="${cell}">${x.visitors}</td><td style="${cell}">${x.modalOpens}</td><td style="${cell}">${x.registrations}</td><td style="${cell};font-weight:800;color:var(--gb)">${x.regRate}%</td></tr>`}).join('')}</tbody>
+    </table></div>`;
+  };
+  return`
+  <div class="sec" style="margin-bottom:16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+    <span style="font-size:12px;font-weight:700;color:var(--dim)">Date range (AEST):</span>
+    <input id="abFrom" type="date" value="${S.abFrom||''}" style="background:#0d1117;color:#fff;border:1px solid rgba(255,255,255,.15);border-radius:6px;padding:6px">
+    <span style="color:var(--dmr)">to</span>
+    <input id="abTo" type="date" value="${S.abTo||''}" style="background:#0d1117;color:#fff;border:1px solid rgba(255,255,255,.15);border-radius:6px;padding:6px">
+    <button onclick="S.abFrom=document.getElementById('abFrom').value;S.abTo=document.getElementById('abTo').value;S.abStats=null;S.abLoading=true;loadAbStats()" style="padding:6px 12px;border-radius:6px;background:var(--green);color:#04140f;font-weight:800;border:0;cursor:pointer">Apply</button>
+    <span style="font-size:11px;color:var(--dmr)">${S.abLoading?'Loading…':((S.abStats&&S.abStats.ok===false)?'Could not load: '+(S.abStats.error||''):'')}</span>
+  </div>
+  ${block('organic')}${block('paid')}
+  <div style="font-size:11px;color:var(--dmr);margin-top:6px">Visitors = unique visitors who loaded the page. Modal opens and registrations are counted per visitor/event. Registration rate = registrations / visitors.</div>`;
+}
 // ── Payouts (leadership) ──
 function commRules(){
   try{return JSON.parse((S.comm_config||[]).find(c=>c.key==='commission_rules')?.value||'{}')}catch(e){return {}}
@@ -1672,7 +1712,7 @@ function renderPayouts(){
 
 // ── Main render (YouTube tab removed) ──
 function render(){
-  const allTabs=[['dashboard','📊','Dashboard'],['sales_tracker','📈','Sales Tracker'],['setter_tracker','📋','Setter Tracker'],['setter','📞','Setter'],['closer','💰','Closer'],['enrollments','🎓','Enrollments'],['payouts','💸','Payouts'],['settings','⚙️','Settings']];
+  const allTabs=[['dashboard','📊','Dashboard'],['sales_tracker','📈','Sales Tracker'],['setter_tracker','📋','Setter Tracker'],['setter','📞','Setter'],['closer','💰','Closer'],['enrollments','🎓','Enrollments'],['payouts','💸','Payouts'],['ab_test','🧪','A/B Test'],['settings','⚙️','Settings']];
   const allowed=ROLE_TABS[userRole]||[];
   const tabs=allTabs.filter(([v])=>allowed.includes(v));
   if(!allowed.includes(S.view)&&tabs.length)S.view=tabs[0][0];
@@ -1680,7 +1720,7 @@ function render(){
   const dq=[['q1','Q1'],['q2','Q2'],['q3','Q3'],['q4','Q4']];
   const dx=[['ytd','YTD'],['all_time','All Time']];
   let c='';
-  switch(S.view){case'dashboard':c=renderDash();break;case'sales_tracker':c=renderSalesTracker();break;case'setter_tracker':c=renderSetterTracker()+renderEodList();break;case'setter':c=renderSetter();break;case'closer':c=renderCloser();break;case'enrollments':c=renderEnroll();break;case'settings':c=renderSettings();break;case'payouts':c=renderPayouts();break;default:c=renderDash()}
+  switch(S.view){case'dashboard':c=renderDash();break;case'sales_tracker':c=renderSalesTracker();break;case'setter_tracker':c=renderSetterTracker()+renderEodList();break;case'setter':c=renderSetter();break;case'closer':c=renderCloser();break;case'enrollments':c=renderEnroll();break;case'settings':c=renderSettings();break;case'payouts':c=renderPayouts();break;case'ab_test':c=renderAbTest();break;default:c=renderDash()}
   $('app').innerHTML=`<div class="hdr"><div><div class="brand-sub">COMMAND CENTER</div><div class="brand"><span>AI Agency</span> Command Center</div></div><div class="dr">${dr.map(([k,l])=>`<button class="${S.dateRange===k?'a':''}" onclick="S.dateRange='${k}';render()">${l}</button>`).join('')}<div class="sep"></div>${dq.map(([k,l])=>`<button class="${S.dateRange===k?'a':''}" onclick="S.dateRange='${k}';render()">${l}</button>`).join('')}<div class="sep"></div>${dx.map(([k,l])=>`<button class="${S.dateRange===k?'a':''}" onclick="S.dateRange='${k}';render()">${l}</button>`).join('')}<div class="sep"></div><input type="date" id="dr-start" class="${S.dateRange==='custom'?'a':''}" value="${S.customStart}" onchange="S.customStart=this.value;S.dateRange='custom';render()"><span style="color:var(--dmr);font-size:11px">→</span><input type="date" id="dr-end" class="${S.dateRange==='custom'?'a':''}" value="${S.customEnd}" onchange="S.customEnd=this.value;S.dateRange='custom';render()"></div></div><div class="nav">${tabs.map(([v,i,l])=>`<button class="${S.view===v?'a':''}" onclick="S.view='${v}';render()"><span style="font-size:16px">${i}</span>${l}</button>`).join('')}</div><div class="cnt">${c}</div>`;
   setTimeout(watchDealClosed,0);
 }
