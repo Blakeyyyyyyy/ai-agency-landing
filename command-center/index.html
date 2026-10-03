@@ -137,7 +137,7 @@ const API = 'https://script.google.com/macros/s/AKfycby6C4tcqW0JagNAef1X_yxI7AvY
 
 // ── Passwords & Roles ──
 const PASSWORDS={"forge9670":"setter","vault4808":"closer","course6198":"leadership"};
-const ROLE_TABS={setter:['dashboard','setter_tracker','setter'],closer:['dashboard','setter_tracker','setter','sales_tracker','closer','enrollments'],leadership:['dashboard','setter_tracker','setter','sales_tracker','closer','enrollments','settings']};
+const ROLE_TABS={setter:['dashboard','setter_tracker','setter'],closer:['dashboard','setter_tracker','setter','sales_tracker','closer','enrollments'],leadership:['dashboard','setter_tracker','setter','sales_tracker','closer','enrollments','payouts','settings']};
 let userRole=sessionStorage.getItem('aiagency_role')||null;
 function doLogin(){
   const pw=document.getElementById('loginPw').value.trim();
@@ -903,21 +903,33 @@ function signupMetrics(rows){
   };
 }
 function renderLiveSignups(){
-  const rows=S.signups||[];
+  const allRows=S.signups||[];
   const now=new Date();
   const t=td();
   const sw=new Date(now);sw.setDate(now.getDate()-now.getDay());
   const weekStart=localDateStr(sw);
   const monthStart=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-01';
   const periods=[
-    ['Today',rows.filter(r=>r.date===t)],
-    ['This Week',rows.filter(r=>r.date>=weekStart&&r.date<=t)],
-    ['This Month',rows.filter(r=>r.date>=monthStart&&r.date<=t)],
-    ['All Time',rows]
+    ['Today',allRows.filter(r=>r.date===t)],
+    ['This Week',allRows.filter(r=>r.date>=weekStart&&r.date<=t)],
+    ['This Month',allRows.filter(r=>r.date>=monthStart&&r.date<=t)],
+    ['All Time',allRows]
   ];
-  const allTime=signupMetrics(rows);
-  const leaderboard=Object.entries(allTime.byRep).sort((a,b)=>b[1].revenue-a[1].revenue);
+  const rng=allRows.filter(r=>(!S.setterFrom||(r.date||'')>=S.setterFrom)&&(!S.setterTo||(r.date||'')<=S.setterTo));
+  const rangeMetrics=signupMetrics(rng);
+  const split={};
+  rng.forEach(r=>{const k=r.repName||'Unclaimed';split[k]=split[k]||{m:0,y:0};if(/monthly/i.test(r.product||''))split[k].m++;else split[k].y++;});
+  const leaderboard=Object.entries(rangeMetrics.byRep).sort((a,b)=>b[1].revenue-a[1].revenue);
+  const rangeLabel=(S.setterFrom||S.setterTo)?`${S.setterFrom||'start'} to ${S.setterTo||'today'}`:'All time';
   return`
+  <div class="sec" style="margin-bottom:16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+    <span style="font-size:12px;font-weight:700;color:var(--dim)">Setter range:</span>
+    <input type="date" value="${S.setterFrom||''}" onchange="S.setterFrom=this.value;render()" style="background:#0d1117;color:#fff;border:1px solid rgba(255,255,255,.15);border-radius:6px;padding:6px">
+    <span style="color:var(--dmr)">→</span>
+    <input type="date" value="${S.setterTo||''}" onchange="S.setterTo=this.value;render()" style="background:#0d1117;color:#fff;border:1px solid rgba(255,255,255,.15);border-radius:6px;padding:6px">
+    <button onclick="S.setterFrom='';S.setterTo='';render()" style="padding:6px 12px;border-radius:6px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:#fff;cursor:pointer">Clear</button>
+    <span style="font-size:11px;color:var(--dmr)">Showing ${rangeLabel}</span>
+  </div>
   <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px">
     ${periods.map(([label,prows])=>{const m=signupMetrics(prows);return`
     <div class="sec">
@@ -930,17 +942,17 @@ function renderLiveSignups(){
     </div>`}).join('')}
   </div>
   <div class="sec">
-    <div style="font-size:14px;font-weight:800;margin-bottom:12px">🏆 Leaderboard (live, from Close - all time)</div>
+    <div style="font-size:14px;font-weight:800;margin-bottom:12px">🏆 Setters (${rangeLabel})</div>
     <table style="width:100%;border-collapse:collapse">
-      <thead><tr style="text-align:left;font-size:10px;color:var(--dmr)"><th style="padding:6px">Rep</th><th style="padding:6px">Sales</th><th style="padding:6px">Revenue</th><th style="padding:6px">Commission</th></tr></thead>
-      <tbody>${leaderboard.length===0?'<tr><td colspan="4" style="padding:16px;text-align:center;color:var(--dmr)">No signups logged yet</td></tr>':leaderboard.map(([rep,x])=>`<tr style="border-top:1px solid rgba(255,255,255,.06)"><td style="padding:8px;font-weight:700">${rep}</td><td style="padding:8px">${x.count}</td><td style="padding:8px;color:var(--gb)">${fmt(x.revenue)}</td><td style="padding:8px;color:#10b981">${fmt(x.commission)}</td></tr>`).join('')}</tbody>
+      <thead><tr style="text-align:left;font-size:10px;color:var(--dmr)"><th style="padding:6px">Rep</th><th style="padding:6px">Monthly</th><th style="padding:6px">Yearly</th><th style="padding:6px">Revenue</th><th style="padding:6px">Commission</th></tr></thead>
+      <tbody>${leaderboard.length===0?'<tr><td colspan="5" style="padding:16px;text-align:center;color:var(--dmr)">No signups in this range</td></tr>':leaderboard.map(([rep,x])=>{const sp=split[rep]||{m:0,y:0};return`<tr style="border-top:1px solid rgba(255,255,255,.06)"><td style="padding:8px;font-weight:700">${rep}</td><td style="padding:8px">${sp.m}</td><td style="padding:8px">${sp.y}</td><td style="padding:8px;color:var(--gb)">${fmt(x.revenue)}</td><td style="padding:8px;color:#10b981">${fmt(x.commission)}</td></tr>`}).join('')}</tbody>
     </table>
   </div>
   <div class="sec" style="margin-top:16px">
     <div style="font-size:14px;font-weight:800;margin-bottom:12px">Daily sales</div>
     <table style="width:100%;border-collapse:collapse">
       <thead><tr style="text-align:left;font-size:10px;color:var(--dmr)"><th style="padding:6px">Date</th><th style="padding:6px">Name</th><th style="padding:6px">Rep</th><th style="padding:6px">Plan</th><th style="padding:6px">Revenue</th></tr></thead>
-      <tbody>${rows.length===0?'<tr><td colspan="5" style="padding:16px;text-align:center;color:var(--dmr)">Nothing yet</td></tr>':[...rows].sort((a,b)=>(b.date||'').localeCompare(a.date||'')).slice(0,50).map(r=>`<tr style="border-top:1px solid rgba(255,255,255,.06)"><td style="padding:8px">${r.date||''}</td><td style="padding:8px">${r.leadName||''}</td><td style="padding:8px">${r.repName||''}</td><td style="padding:8px">${r.product||''}</td><td style="padding:8px;color:var(--gb)">${fmt(r.revenue)}</td></tr>`).join('')}</tbody>
+      <tbody>${allRows.length===0?'<tr><td colspan="5" style="padding:16px;text-align:center;color:var(--dmr)">Nothing yet</td></tr>':[...allRows].sort((a,b)=>(b.date||'').localeCompare(a.date||'')).slice(0,50).map(r=>`<tr style="border-top:1px solid rgba(255,255,255,.06)"><td style="padding:8px">${r.date||''}</td><td style="padding:8px">${r.leadName||''}</td><td style="padding:8px">${r.repName||''}</td><td style="padding:8px">${r.product||''}</td><td style="padding:8px;color:var(--gb)">${fmt(r.revenue)}</td></tr>`).join('')}</tbody>
     </table>
   </div>`;
 }
@@ -1529,9 +1541,137 @@ function renderSetterTracker(){
   `}`;
 }
 
+
+// ── Payouts (leadership) ──
+function commRules(){
+  try{return JSON.parse((S.comm_config||[]).find(c=>c.key==='commission_rules')?.value||'{}')}catch(e){return {}}
+}
+function payoutRows(){
+  const W={};
+  const get=(rep,period)=>{const k=rep+'|'+period;if(!W[k])W[k]={repName:rep,period,monthly:0,yearly:0,revenue:0,commission:0,bonus:0,adjust:0,paid:0,paidAt:'',status:'unpaid',locked:false,snapshot:null,pending:[]};return W[k];};
+  (S.signups||[]).forEach(r=>{
+    if(!r.date||!r.repName)return;
+    const w=get(r.repName,mondayOf(r.date));
+    if(/monthly/i.test(r.product||''))w.monthly++;else w.yearly++;
+    w.revenue+=Number(r.revenue)||0;
+    const c=r.commission!=null&&r.commission!==''?Number(r.commission):(S.commissionByPlan||{})[(r.product||'').replace('Base44 ','')];
+    w.commission+=Number(c)||0;
+  });
+  (S.comm_adjust||[]).forEach(a=>{
+    if(!a.period||!a.repName)return;
+    const w=get(a.repName,a.period);const amt=Number(a.amount)||0;
+    if(/bonus/i.test(a.kind||'')){w.bonus+=amt;if(/^PENDING/i.test(a.reason||''))w.pending.push(a);}
+    else w.adjust+=amt;
+  });
+  (S.comm_status||[]).forEach(s=>{
+    if(!s.period||!s.repName)return;
+    const w=get(s.repName,s.period);
+    if(s.status==='paid'){w.status='paid';w.paid+=Number(s.amount)||0;w.paidAt=s.paidAt||w.paidAt;}
+  });
+  (S.comm_locks||[]).forEach(l=>{
+    if(!l.period||!l.repName)return;
+    const w=get(l.repName,l.period);w.locked=true;
+    try{w.snapshot=JSON.parse(l.snapshotJSON||'[]');}catch(e){w.snapshot=[];}
+  });
+  Object.values(W).forEach(w=>{
+    if(w.locked&&w.snapshot){
+      w.monthly=w.snapshot.filter(x=>/monthly/i.test(x.product||'')).length;
+      w.yearly=w.snapshot.length-w.monthly;
+      w.commission=w.snapshot.reduce((a,x)=>a+(Number(x.commission)||0),0);
+    }
+    w.owed=w.commission+w.bonus+w.adjust-w.paid;
+  });
+  return Object.values(W).sort((a,b)=>b.period.localeCompare(a.period)||a.repName.localeCompare(b.repName));
+}
+async function commWrite(sheet,data){
+  const r=await apiWrite(sheet,data);
+  if(!r||r.status==='error')throw new Error((r&&r.message)||'write failed');
+}
+async function markWeekPaid(period,repName){
+  if(userRole!=='leadership')return;
+  const w=payoutRows().find(x=>x.period===period&&x.repName===repName);
+  if(!w)return;
+  const amt=prompt(`Amount paid to ${repName} for week ${period}?`,String(Math.max(0,w.owed).toFixed(2)));
+  if(amt===null)return;
+  const paidAt=prompt('Paid date (YYYY-MM-DD)?',td());
+  if(paidAt===null)return;
+  const proof=prompt('Payment proof link (optional)?','')||'';
+  const now=new Date().toISOString();
+  const sales=(S.signups||[]).filter(r=>r.repName===repName&&r.date&&mondayOf(r.date)===period);
+  const snap=sales.map(r=>({date:r.date,leadName:r.leadName,leadEmail:r.leadEmail,product:r.product,commission:Number(r.commission)||0}));
+  try{
+    if(!w.locked){
+      await commWrite('comm_locks',{period,lockedAt:now,lockedBy:userRole,snapshotJSON:JSON.stringify(snap),repName,lockedKeys:snap.map(x=>`${x.leadEmail}|${x.date}|${x.product}`).join(',')});
+    }
+    await commWrite('comm_status',{period,repName,status:'paid',amount:Number(amt)||0,note:'',updatedAt:now,updatedBy:userRole,paymentProofUrl:proof,paidAt});
+    toast('Marked paid and locked.');
+    await reload();render();
+  }catch(e){toast('Mark paid failed: '+e.message);}
+}
+async function addWeekBonus(period,repName,kind){
+  if(userRole!=='leadership')return;
+  const amt=prompt(kind==='adjustment'?'Adjustment amount (use minus to deduct)?':'Bonus amount (USD)?',kind==='adjustment'?'0':'100');
+  if(amt===null||isNaN(Number(amt)))return;
+  const reason=prompt('Reason?','');
+  if(reason===null)return;
+  try{
+    await commWrite('comm_adjust',{id:`${kind}-${Date.now()}`,period,closeKey:'',kind:kind==='adjustment'?'adjustment':'bonus',repName,amount:Number(amt),reason,createdAt:new Date().toISOString(),createdBy:userRole});
+    toast('Saved.');
+    await reload();render();
+  }catch(e){toast('Save failed: '+e.message);}
+}
+async function approveBonus(rowIndex){
+  if(userRole!=='leadership')return;
+  const a=(S.comm_adjust||[]).find(x=>x._rowIndex===rowIndex);
+  if(!a)return;
+  try{
+    const r=await apiUpdate('comm_adjust',rowIndex,{id:a.id,period:a.period,closeKey:a.closeKey,kind:a.kind,repName:a.repName,amount:a.amount,reason:String(a.reason||'').replace(/^PENDING approval:/i,'Approved:'),createdAt:a.createdAt,createdBy:a.createdBy});
+    if(!r||r.status==='error')throw new Error((r&&r.message)||'update failed');
+    toast('Approved.');
+    await reload();render();
+  }catch(e){toast('Approve failed: '+e.message);}
+}
+function renderPayouts(){
+  if(userRole!=='leadership')return'<div class="sec" style="text-align:center;padding:40px;color:var(--dmr)">Leadership only</div>';
+  const rows=payoutRows().filter(w=>(!S.payoutFrom||w.period>=S.payoutFrom)&&(!S.payoutTo||w.period<=S.payoutTo));
+  const money=v=>fmt(Math.round((Number(v)||0)*100)/100);
+  const pending=(S.comm_adjust||[]).filter(a=>/^PENDING/i.test(a.reason||''));
+  return`
+  <div class="sec" style="margin-bottom:16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+    <span style="font-size:12px;font-weight:700;color:var(--dim)">Week starting from:</span>
+    <input type="date" value="${S.payoutFrom||''}" onchange="S.payoutFrom=this.value;render()" style="background:#0d1117;color:#fff;border:1px solid rgba(255,255,255,.15);border-radius:6px;padding:6px">
+    <span style="color:var(--dmr)">to</span>
+    <input type="date" value="${S.payoutTo||''}" onchange="S.payoutTo=this.value;render()" style="background:#0d1117;color:#fff;border:1px solid rgba(255,255,255,.15);border-radius:6px;padding:6px">
+    <button onclick="S.payoutFrom='';S.payoutTo='';render()" style="padding:6px 12px;border-radius:6px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:#fff;cursor:pointer">Clear</button>
+  </div>
+  ${pending.length?`<div class="sec" style="margin-bottom:16px;border-color:rgba(234,179,8,.4)"><div style="font-size:13px;font-weight:800;color:#eab308;margin-bottom:10px">Pending bonuses (${pending.length})</div>${pending.map(a=>`<div style="display:flex;gap:10px;align-items:center;justify-content:space-between;padding:8px 0;border-top:1px solid rgba(255,255,255,.06)"><span>${a.repName} · ${a.period} · ${money(a.amount)} · ${a.reason}</span><button onclick="approveBonus(${a._rowIndex})" style="padding:6px 12px;border-radius:6px;background:var(--green);color:#04140f;font-weight:800;border:0;cursor:pointer">Approve</button></div>`).join('')}</div>`:''}
+  <div class="sec" style="overflow-x:auto">
+    <table style="width:100%;border-collapse:collapse;font-size:12px">
+      <thead><tr style="text-align:left;color:var(--dmr)">
+        <th style="padding:6px">Week</th><th style="padding:6px">Setter</th><th style="padding:6px">Monthly</th><th style="padding:6px">Yearly</th><th style="padding:6px">Revenue</th><th style="padding:6px">Commission</th><th style="padding:6px">Bonuses</th><th style="padding:6px">Adjustments</th><th style="padding:6px">Total owed</th><th style="padding:6px">Status</th><th style="padding:6px">Actions</th>
+      </tr></thead>
+      <tbody>${rows.length===0?'<tr><td colspan="11" style="padding:16px;text-align:center;color:var(--dmr)">No weeks in this range</td></tr>':rows.map(w=>`<tr style="border-top:1px solid rgba(255,255,255,.06)">
+        <td style="padding:8px;white-space:nowrap">${w.period} → ${localDateStr(new Date(Date.UTC(+w.period.slice(0,4),+w.period.slice(5,7)-1,+w.period.slice(8,10)+6)))}</td>
+        <td style="padding:8px;font-weight:700">${w.repName}</td>
+        <td style="padding:8px">${w.monthly}</td><td style="padding:8px">${w.yearly}</td>
+        <td style="padding:8px;color:var(--gb)">${money(w.revenue)}</td>
+        <td style="padding:8px;color:#10b981">${money(w.commission)}</td>
+        <td style="padding:8px">${money(w.bonus)}</td>
+        <td style="padding:8px">${money(w.adjust)}</td>
+        <td style="padding:8px;font-weight:900;color:${w.owed>0.005?'#f97316':'#22c55e'}">${money(w.owed)}</td>
+        <td style="padding:8px">${w.status==='paid'?`<span style="color:#22c55e;font-weight:800">PAID ${money(w.paid)}</span>${w.paidAt?`<div style="font-size:10px;color:var(--dmr)">${w.paidAt}</div>`:''}`:'<span style="color:#eab308;font-weight:800">UNPAID</span>'}${w.locked?'<div style="font-size:10px;color:var(--dmr)">locked</div>':''}</td>
+        <td style="padding:8px;white-space:nowrap">
+          <button onclick="markWeekPaid('${w.period}','${w.repName}')" style="padding:5px 9px;border-radius:6px;background:var(--green);color:#04140f;font-weight:800;border:0;cursor:pointer;font-size:11px">Mark paid</button>
+          <button onclick="addWeekBonus('${w.period}','${w.repName}','bonus')" style="padding:5px 9px;border-radius:6px;background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.15);cursor:pointer;font-size:11px">Add bonus</button>
+          <button onclick="addWeekBonus('${w.period}','${w.repName}','adjustment')" style="padding:5px 9px;border-radius:6px;background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.15);cursor:pointer;font-size:11px">Add adjustment</button>
+        </td></tr>`).join('')}</tbody>
+    </table>
+  </div>`;
+}
+
 // ── Main render (YouTube tab removed) ──
 function render(){
-  const allTabs=[['dashboard','📊','Dashboard'],['sales_tracker','📈','Sales Tracker'],['setter_tracker','📋','Setter Tracker'],['setter','📞','Setter'],['closer','💰','Closer'],['enrollments','🎓','Enrollments'],['settings','⚙️','Settings']];
+  const allTabs=[['dashboard','📊','Dashboard'],['sales_tracker','📈','Sales Tracker'],['setter_tracker','📋','Setter Tracker'],['setter','📞','Setter'],['closer','💰','Closer'],['enrollments','🎓','Enrollments'],['payouts','💸','Payouts'],['settings','⚙️','Settings']];
   const allowed=ROLE_TABS[userRole]||[];
   const tabs=allTabs.filter(([v])=>allowed.includes(v));
   if(!allowed.includes(S.view)&&tabs.length)S.view=tabs[0][0];
@@ -1539,7 +1679,7 @@ function render(){
   const dq=[['q1','Q1'],['q2','Q2'],['q3','Q3'],['q4','Q4']];
   const dx=[['ytd','YTD'],['all_time','All Time']];
   let c='';
-  switch(S.view){case'dashboard':c=renderDash();break;case'sales_tracker':c=renderSalesTracker();break;case'setter_tracker':c=renderSetterTracker()+renderEodList();break;case'setter':c=renderSetter();break;case'closer':c=renderCloser();break;case'enrollments':c=renderEnroll();break;case'settings':c=renderSettings();break;default:c=renderDash()}
+  switch(S.view){case'dashboard':c=renderDash();break;case'sales_tracker':c=renderSalesTracker();break;case'setter_tracker':c=renderSetterTracker()+renderEodList();break;case'setter':c=renderSetter();break;case'closer':c=renderCloser();break;case'enrollments':c=renderEnroll();break;case'settings':c=renderSettings();break;case'payouts':c=renderPayouts();break;default:c=renderDash()}
   $('app').innerHTML=`<div class="hdr"><div><div class="brand-sub">COMMAND CENTER</div><div class="brand"><span>AI Agency</span> Command Center</div></div><div class="dr">${dr.map(([k,l])=>`<button class="${S.dateRange===k?'a':''}" onclick="S.dateRange='${k}';render()">${l}</button>`).join('')}<div class="sep"></div>${dq.map(([k,l])=>`<button class="${S.dateRange===k?'a':''}" onclick="S.dateRange='${k}';render()">${l}</button>`).join('')}<div class="sep"></div>${dx.map(([k,l])=>`<button class="${S.dateRange===k?'a':''}" onclick="S.dateRange='${k}';render()">${l}</button>`).join('')}<div class="sep"></div><input type="date" id="dr-start" class="${S.dateRange==='custom'?'a':''}" value="${S.customStart}" onchange="S.customStart=this.value;S.dateRange='custom';render()"><span style="color:var(--dmr);font-size:11px">→</span><input type="date" id="dr-end" class="${S.dateRange==='custom'?'a':''}" value="${S.customEnd}" onchange="S.customEnd=this.value;S.dateRange='custom';render()"></div></div><div class="nav">${tabs.map(([v,i,l])=>`<button class="${S.view===v?'a':''}" onclick="S.view='${v}';render()"><span style="font-size:16px">${i}</span>${l}</button>`).join('')}</div><div class="cnt">${c}</div>`;
   setTimeout(watchDealClosed,0);
 }
@@ -1558,6 +1698,7 @@ async function reload(){
     S.call_reports=(d.call_reports||[]).map(nd);
     S.enrollments=(d.enrollments||[]).map(ne);
     S.signups=(d.signups||[]).map(nd);
+    S.comm_team=d.comm_team||[];S.comm_locks=d.comm_locks||[];S.comm_status=d.comm_status||[];S.comm_adjust=d.comm_adjust||[];S.comm_config=d.comm_config||[];
     // Commission config lives in the Apps Script's own saveConfig/loadConfig.
     S.revenueByPlan=(cfg&&cfg.revenueByPlan)||S.revenueByPlan||{};
     S.commissionByPlan=(cfg&&cfg.commissionByPlan)||S.commissionByPlan||{};
