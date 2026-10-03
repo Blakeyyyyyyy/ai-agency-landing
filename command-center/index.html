@@ -1548,9 +1548,10 @@ function commRules(){
 }
 function payoutRows(){
   const W={};
+  const payees=new Set((S.comm_team||[]).filter(t=>String(t.active).toUpperCase()!=='FALSE').map(t=>t.repName));
   const get=(rep,period)=>{const k=rep+'|'+period;if(!W[k])W[k]={repName:rep,period,monthly:0,yearly:0,revenue:0,commission:0,bonus:0,adjust:0,paid:0,paidAt:'',status:'unpaid',locked:false,snapshot:null,pending:[]};return W[k];};
   (S.signups||[]).forEach(r=>{
-    if(!r.date||!r.repName)return;
+    if(!r.date||!payees.has(r.repName))return;
     const w=get(r.repName,mondayOf(r.date));
     if(/monthly/i.test(r.product||''))w.monthly++;else w.yearly++;
     w.revenue+=Number(r.revenue)||0;
@@ -1558,18 +1559,18 @@ function payoutRows(){
     w.commission+=Number(c)||0;
   });
   (S.comm_adjust||[]).forEach(a=>{
-    if(!a.period||!a.repName)return;
+    if(!a.period||!payees.has(a.repName))return;
     const w=get(a.repName,a.period);const amt=Number(a.amount)||0;
     if(/bonus/i.test(a.kind||'')){w.bonus+=amt;if(/^PENDING/i.test(a.reason||''))w.pending.push(a);}
     else w.adjust+=amt;
   });
   (S.comm_status||[]).forEach(s=>{
-    if(!s.period||!s.repName)return;
+    if(!s.period||!payees.has(s.repName))return;
     const w=get(s.repName,s.period);
     if(s.status==='paid'){w.status='paid';w.paid+=Number(s.amount)||0;w.paidAt=s.paidAt||w.paidAt;}
   });
   (S.comm_locks||[]).forEach(l=>{
-    if(!l.period||!l.repName)return;
+    if(!l.period||!payees.has(l.repName))return;
     const w=get(l.repName,l.period);w.locked=true;
     try{w.snapshot=JSON.parse(l.snapshotJSON||'[]');}catch(e){w.snapshot=[];}
   });
