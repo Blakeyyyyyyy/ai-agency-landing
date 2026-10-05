@@ -678,7 +678,7 @@ if(VSL_URL){
   function openM(e){ if(e) e.preventDefault(); if(window.abLog) window.abLog('modal_open'); w.classList.add('on'); document.body.style.overflow='hidden';
     setTimeout(function(){ document.getElementById('mname').focus(); },80); }
   function closeM(){ w.classList.remove('on'); document.body.style.overflow=''; }
-  var links=document.querySelectorAll('a[href="/register/?src=paid"]');
+  var links=document.querySelectorAll('a[href^="/register/"]');
   for(var i=0;i<links.length;i++){ links[i].addEventListener('click', openM); }
   document.getElementById('mx').addEventListener('click', closeM);
   w.addEventListener('click', function(e){ if(e.target===w) closeM(); });
