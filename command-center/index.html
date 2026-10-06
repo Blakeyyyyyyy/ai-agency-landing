@@ -1769,12 +1769,20 @@ function render(){
 }
 
 // ── Load data from Sheets ──
-async function reload(){
+const CC_CACHE_KEY='aiagency_cc_snapshot_v1';
+const CC_READ_URL='https://blake-discord-relay.vercel.app/api/cc-read';
+function loadCcCache(){try{return JSON.parse(localStorage.getItem(CC_CACHE_KEY)||'null');}catch(e){return null;}}
+function saveCcCache(d,cfg){try{localStorage.setItem(CC_CACHE_KEY,JSON.stringify({at:Date.now(),d,cfg}));}catch(e){}}
+async function readCcData(){
   try{
-    const [d,cfg]=await Promise.all([
-      apiRead(),
-      fetch(API+'?action=loadConfig').then(r=>r.json()).catch(()=>null)
-    ]);
+    const r=await fetch(CC_READ_URL,{signal:AbortSignal.timeout(10000)});
+    if(!r.ok)throw new Error('cc-read '+r.status);
+    return await r.json();
+  }catch(e){
+    return apiRead();
+  }
+}
+function applyCcData(d,cfg){
     const nd=r=>{if(r.date)r.date=normDate(r.date);return r;};
     const ne=r=>{['date','dateJoined','p1Due','p2Due','p3Due'].forEach(k=>{if(r[k])r[k]=normDate(r[k])});return r;};
     S.closer_reports=(d.closer_reports||[]).map(nd);
@@ -1814,12 +1822,27 @@ async function reload(){
       }
     }
     
+}
+async function reload(){
+  try{
+    if(!dataReady){
+      const c=loadCcCache();
+      if(c&&c.d){applyCcData(c.d,c.cfg);dataReady=true;if(userRole)render();}
+    }
+    const [d,liveCfg]=await Promise.all([
+      readCcData(),
+      fetch(API+'?action=loadConfig',{signal:AbortSignal.timeout(8000)}).then(r=>r.json()).catch(()=>null)
+    ]);
+    const cfg=liveCfg||(loadCcCache()||{}).cfg||null;
+    applyCcData(d,cfg);
+    saveCcCache(d,cfg);
     dataReady=true;
     if(userRole){
       render();
     }
   }catch(e){
     console.error('Load error',e);
+    if(dataReady){toast('Live refresh failed, showing saved data');return;}
     const ls=$('loginScreen');if(ls)ls.style.display='none';
     $('app').innerHTML='<div class="loading" style="color:#f43f5e">Failed to load data after 3 tries - this is usually a transient Apps Script hiccup, not a real problem.<br><button class="btn" style="margin-top:14px;max-width:160px" onclick="reload()">Retry</button></div>';
   }
