@@ -1601,10 +1601,11 @@ function renderLeadSource(){
   if(!S.srcStats&&!S.srcLoading){S.srcLoading=true;loadSourceStats();}
   const rows=(S.srcStats&&S.srcStats.rows)||[];
   const names={paid:'Paid (/go, /go-v2)',organic:'Organic (/, /v2)',unknown:'Unknown (no page recorded)'};
-  const tot=rows.reduce((a,x)=>({leads:a.leads+x.leads,closes:a.closes+x.closes}),{leads:0,closes:0});
+  const tot=rows.reduce((a,x)=>({leads:a.leads+x.leads,closes:a.closes+x.closes,revenue:a.revenue+(x.revenue||0)}),{leads:0,closes:0,revenue:0});
   const rate=(c,l)=>l?(Math.round((c/l)*10000)/100)+'%':'0%';
+  const money=(n)=>'$'+(n||0).toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0});
   const cell='padding:8px';
-  const body=rows.map(x=>`<tr style="border-top:1px solid rgba(255,255,255,.06)"><td style="${cell};font-weight:800">${names[x.source]||x.source}</td><td style="${cell}">${x.leads.toLocaleString('en-US')}</td><td style="${cell}">${x.closes.toLocaleString('en-US')}</td><td style="${cell};font-weight:800;color:var(--gb)">${rate(x.closes,x.leads)}</td></tr>`).join('');
+  const body=rows.map(x=>`<tr style="border-top:1px solid rgba(255,255,255,.06)"><td style="${cell};font-weight:800">${names[x.source]||x.source}</td><td style="${cell}">${x.leads.toLocaleString('en-US')}</td><td style="${cell}">${x.closes.toLocaleString('en-US')}</td><td style="${cell};font-weight:800;color:var(--gb)">${rate(x.closes,x.leads)}</td><td style="${cell};font-weight:800">${money(x.revenue)}</td></tr>`).join('');
   return`
   <div class="sec" style="margin-bottom:16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
     <span style="font-size:12px;font-weight:700;color:var(--dim)">Leads created (AEST):</span>
@@ -1617,9 +1618,9 @@ function renderLeadSource(){
   <div class="sec">
     <div style="font-size:14px;font-weight:800;margin-bottom:10px">Paid vs Organic</div>
     <table style="width:100%;border-collapse:collapse;font-size:13px">
-      <thead><tr style="text-align:left;color:var(--dmr)"><th style="padding:6px">Source</th><th style="padding:6px">Leads</th><th style="padding:6px">Closes</th><th style="padding:6px">Close rate</th></tr></thead>
-      <tbody>${body||'<tr><td colspan="4" style="padding:16px;color:var(--dmr)">No data</td></tr>'}
-      ${rows.length?`<tr style="border-top:2px solid rgba(255,255,255,.15)"><td style="${cell};font-weight:900">Total</td><td style="${cell}">${tot.leads.toLocaleString('en-US')}</td><td style="${cell}">${tot.closes.toLocaleString('en-US')}</td><td style="${cell};font-weight:900">${rate(tot.closes,tot.leads)}</td></tr>`:''}
+      <thead><tr style="text-align:left;color:var(--dmr)"><th style="padding:6px">Source</th><th style="padding:6px">Leads</th><th style="padding:6px">Closes</th><th style="padding:6px">Close rate</th><th style="padding:6px">Revenue</th></tr></thead>
+      <tbody>${body||'<tr><td colspan="5" style="padding:16px;color:var(--dmr)">No data</td></tr>'}
+      ${rows.length?`<tr style="border-top:2px solid rgba(255,255,255,.15)"><td style="${cell};font-weight:900">Total</td><td style="${cell}">${tot.leads.toLocaleString('en-US')}</td><td style="${cell}">${tot.closes.toLocaleString('en-US')}</td><td style="${cell};font-weight:900">${rate(tot.closes,tot.leads)}</td><td style="${cell};font-weight:900;color:var(--gb)">${money(tot.revenue)}</td></tr>`:''}
       </tbody>
     </table>
     <div style="font-size:11px;color:var(--dmr);margin-top:8px">Cohort view: leads created in the range, and how many of those have a Won opportunity. Source comes from the Lead Source field on each Close lead.</div>
