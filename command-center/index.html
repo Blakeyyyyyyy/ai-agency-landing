@@ -1598,6 +1598,14 @@ async function loadSourceStats(){
   render();
 }
 function renderLeadSource(){
+  if(!S.srcFrom&&!S.srcTo){
+    // Default to the trailing 7 days on first open - matches the dashboard's "don't
+    // make them wait on an all-time Close pull" behavior. Only set once: once the
+    // user picks their own range (even clearing it blank), this block never re-fires
+    // because srcFrom/srcTo already got written by Apply.
+    const t=new Date();const from=new Date(t);from.setDate(from.getDate()-6);
+    S.srcFrom=localDateStr(from);S.srcTo=localDateStr(t);
+  }
   if(!S.srcStats&&!S.srcLoading){S.srcLoading=true;loadSourceStats();}
   const rows=(S.srcStats&&S.srcStats.rows)||[];
   const names={paid:'Paid (/go, /go-v2)',organic:'Organic (/, /v2)',unknown:'Unknown (no page recorded)'};
