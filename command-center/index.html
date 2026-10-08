@@ -1588,8 +1588,27 @@ function renderAbTest(){
 // not its own picker. Unlike the Dashboard's numbers (instant, from already-loaded
 // sheet data), this needs a live Close pull (~40s, cohort data isn't in the sheet) -
 // so results are cached per range key (S.srcStatsCache) and only (re)fetched when
-// this tab is actually open and that exact range hasn't been loaded yet. Switching
-// Today/This Week/etc still costs ~40s the first time each range is viewed.
+// this tab is actually open and that exact range hasn't been loaded yet.
+//
+// Snapshot: same instant-paint-then-refresh pattern as the Dashboard's cc-read
+// cache (CC_CACHE_KEY), but lazy - only hydrated/written when this tab is
+// actually opened, never at page load, so it can't slow the Dashboard down.
+// A range seen in a past session paints instantly from localStorage, then gets
+// one silent background refetch per page load (not on every render) so stale
+// numbers quietly correct themselves instead of going stale forever.
+const SRC_CACHE_KEY='aiagency_srcstats_snapshot_v1';
+const SRC_CACHE_MAX_KEYS=40;
+function loadSrcCache(){try{return JSON.parse(localStorage.getItem(SRC_CACHE_KEY)||'null')||{};}catch(e){return{};}}
+function saveSrcCache(cache){
+  try{
+    const keys=Object.keys(cache);
+    if(keys.length>SRC_CACHE_MAX_KEYS){
+      // Drop oldest entries (insertion order) rather than let this grow forever.
+      keys.slice(0,keys.length-SRC_CACHE_MAX_KEYS).forEach(k=>delete cache[k]);
+    }
+    localStorage.setItem(SRC_CACHE_KEY,JSON.stringify(cache));
+  }catch(e){}
+}
 async function loadSourceStats(key,s,e){
   const p=new URLSearchParams();
   if(s)p.set('from',s);
@@ -1603,15 +1622,23 @@ async function loadSourceStats(key,s,e){
   }
   S.srcStatsCache=S.srcStatsCache||{};
   S.srcStatsCache[key]=result;
+  if(result.ok!==false)saveSrcCache(S.srcStatsCache);
   S.srcLoadingKey=null;
   render();
 }
 function renderLeadSource(){
   const b=db();
   const key=b.s+'_'+b.e;
-  S.srcStatsCache=S.srcStatsCache||{};
+  if(!S.srcStatsCache){S.srcStatsCache=loadSrcCache();S.srcRefreshedKeys=new Set();}
   const cached=S.srcStatsCache[key];
-  if(!cached&&S.srcLoadingKey!==key){S.srcLoadingKey=key;loadSourceStats(key,b.s,b.e);}
+  S.srcRefreshedKeys=S.srcRefreshedKeys||new Set();
+  const freshLoad=!cached&&S.srcLoadingKey!==key;
+  const backgroundRefresh=cached&&!S.srcRefreshedKeys.has(key)&&S.srcLoadingKey!==key;
+  if(freshLoad||backgroundRefresh){
+    S.srcRefreshedKeys.add(key);
+    S.srcLoadingKey=key;
+    loadSourceStats(key,b.s,b.e);
+  }
   const rows=(cached&&cached.rows)||[];
   const byKey={};rows.forEach(x=>byKey[x.source]=x);
   const loading=S.srcLoadingKey===key;
@@ -1633,7 +1660,7 @@ function renderLeadSource(){
   return`
   <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:16px">
     <div style="font-size:14px;font-weight:700;color:rgba(255,255,255,.6)">Showing: <span style="color:var(--gl)">${b.l}</span></div>
-    <div style="font-size:11px;color:var(--dmr)">${b.s} → ${b.e}${loading?' · Loading from Close (takes ~40s)…':(errored?' · Could not load: '+(cached.error||''):'')} <span onclick="S.srcStatsCache['${key}']=null;S.srcLoadingKey=null;render()" style="cursor:pointer;color:var(--gl);margin-left:8px" title="Refresh this range">↻ Refresh</span></div>
+    <div style="font-size:11px;color:var(--dmr)">${b.s} → ${b.e}${loading?(cached?' · Updating…':' · Loading from Close (takes ~40s)…'):(errored?' · Could not load: '+(cached.error||''):'')} <span onclick="S.srcStatsCache['${key}']=null;S.srcRefreshedKeys&&S.srcRefreshedKeys.delete('${key}');S.srcLoadingKey=null;render()" style="cursor:pointer;color:var(--gl);margin-left:8px" title="Refresh this range">↻ Refresh</span></div>
   </div>
   <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
     ${box('Paid (/go, /go-v2)','🟠',byKey.paid,true)}
