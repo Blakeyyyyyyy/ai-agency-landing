@@ -1584,55 +1584,63 @@ function renderAbTest(){
 }
 
 // ── Paid vs Organic (leads and closes by Lead Source) ──
-async function loadSourceStats(){
+// Driven by the SAME global date-range buttons as the Dashboard (db()/S.dateRange),
+// not its own picker. Unlike the Dashboard's numbers (instant, from already-loaded
+// sheet data), this needs a live Close pull (~40s, cohort data isn't in the sheet) -
+// so results are cached per range key (S.srcStatsCache) and only (re)fetched when
+// this tab is actually open and that exact range hasn't been loaded yet. Switching
+// Today/This Week/etc still costs ~40s the first time each range is viewed.
+async function loadSourceStats(key,s,e){
   const p=new URLSearchParams();
-  if(S.srcFrom)p.set('from',S.srcFrom);
-  if(S.srcTo)p.set('to',S.srcTo);
+  if(s)p.set('from',s);
+  if(e)p.set('to',e);
+  let result;
   try{
     const r=await fetch('https://blake-discord-relay.vercel.app/api/source-stats?'+p.toString());
-    S.srcStats=await r.json();
-  }catch(e){
-    S.srcStats={ok:false,rows:[],error:String(e)};
+    result=await r.json();
+  }catch(err){
+    result={ok:false,rows:[],error:String(err)};
   }
-  S.srcLoading=false;
+  S.srcStatsCache=S.srcStatsCache||{};
+  S.srcStatsCache[key]=result;
+  S.srcLoadingKey=null;
   render();
 }
 function renderLeadSource(){
-  if(!S.srcFrom&&!S.srcTo){
-    // Default to the trailing 7 days on first open - matches the dashboard's "don't
-    // make them wait on an all-time Close pull" behavior. Only set once: once the
-    // user picks their own range (even clearing it blank), this block never re-fires
-    // because srcFrom/srcTo already got written by Apply.
-    const t=new Date();const from=new Date(t);from.setDate(from.getDate()-6);
-    S.srcFrom=localDateStr(from);S.srcTo=localDateStr(t);
-  }
-  if(!S.srcStats&&!S.srcLoading){S.srcLoading=true;loadSourceStats();}
-  const rows=(S.srcStats&&S.srcStats.rows)||[];
-  const names={paid:'Paid (/go, /go-v2)',organic:'Organic (/, /v2)',unknown:'Unknown (no page recorded)'};
-  const tot=rows.reduce((a,x)=>({leads:a.leads+x.leads,closes:a.closes+x.closes,revenue:a.revenue+(x.revenue||0)}),{leads:0,closes:0,revenue:0});
-  const rate=(c,l)=>l?(Math.round((c/l)*10000)/100)+'%':'0%';
+  const b=db();
+  const key=b.s+'_'+b.e;
+  S.srcStatsCache=S.srcStatsCache||{};
+  const cached=S.srcStatsCache[key];
+  if(!cached&&S.srcLoadingKey!==key){S.srcLoadingKey=key;loadSourceStats(key,b.s,b.e);}
+  const rows=(cached&&cached.rows)||[];
+  const byKey={};rows.forEach(x=>byKey[x.source]=x);
+  const loading=S.srcLoadingKey===key;
+  const errored=cached&&cached.ok===false;
   const money=(n)=>'$'+(n||0).toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0});
-  const cell='padding:8px';
-  const body=rows.map(x=>`<tr style="border-top:1px solid rgba(255,255,255,.06)"><td style="${cell};font-weight:800">${names[x.source]||x.source}</td><td style="${cell}">${x.leads.toLocaleString('en-US')}</td><td style="${cell}">${x.closes.toLocaleString('en-US')}</td><td style="${cell};font-weight:800;color:var(--gb)">${rate(x.closes,x.leads)}</td><td style="${cell};font-weight:800">${money(x.revenue)}</td></tr>`).join('');
+  const rate=(c,l)=>l?(Math.round((c/l)*10000)/100)+'%':'0%';
+  const box=(label,emoji,x,hl)=>{
+    const d=x||{leads:0,closes:0,revenue:0,closeRate:0};
+    return`<div class="sec">
+      <div style="font-size:14px;font-weight:800;margin-bottom:14px">${emoji} ${label}</div>
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px">
+        <div class="hero-c${hl?' hl':''}"><div class="lbl">LEADS</div><div class="val" style="color:#38bdf8;font-size:24px">${d.leads.toLocaleString('en-US')}</div></div>
+        <div class="hero-c${hl?' hl':''}"><div class="lbl">CLOSES</div><div class="val" style="color:#eab308;font-size:24px">${d.closes.toLocaleString('en-US')}</div></div>
+        <div class="hero-c${hl?' hl':''}"><div class="lbl">CLOSE RATE</div><div class="val" style="color:#a855f7;font-size:24px">${rate(d.closes,d.leads)}</div></div>
+        <div class="hero-c${hl?' hl':''}"><div class="lbl">REVENUE</div><div class="val" style="color:var(--gb);font-size:24px">${money(d.revenue)}</div></div>
+      </div>
+    </div>`;
+  };
   return`
-  <div class="sec" style="margin-bottom:16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-    <span style="font-size:12px;font-weight:700;color:var(--dim)">Leads created (AEST):</span>
-    <input id="srcFrom" type="date" value="${S.srcFrom||''}" style="background:#0d1117;color:#fff;border:1px solid rgba(255,255,255,.15);border-radius:6px;padding:6px">
-    <span style="color:var(--dmr)">to</span>
-    <input id="srcTo" type="date" value="${S.srcTo||''}" style="background:#0d1117;color:#fff;border:1px solid rgba(255,255,255,.15);border-radius:6px;padding:6px">
-    <button onclick="S.srcFrom=document.getElementById('srcFrom').value;S.srcTo=document.getElementById('srcTo').value;S.srcStats=null;S.srcLoading=true;loadSourceStats()" style="padding:6px 12px;border-radius:6px;background:var(--green);color:#04140f;font-weight:800;border:0;cursor:pointer">Apply</button>
-    <span style="font-size:11px;color:var(--dmr)">${S.srcLoading?'Loading from Close (takes ~40s)…':((S.srcStats&&S.srcStats.ok===false)?'Could not load: '+(S.srcStats.error||''):'')}</span>
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:16px">
+    <div style="font-size:14px;font-weight:700;color:rgba(255,255,255,.6)">Showing: <span style="color:var(--gl)">${b.l}</span></div>
+    <div style="font-size:11px;color:var(--dmr)">${b.s} → ${b.e}${loading?' · Loading from Close (takes ~40s)…':(errored?' · Could not load: '+(cached.error||''):'')} <span onclick="S.srcStatsCache['${key}']=null;S.srcLoadingKey=null;render()" style="cursor:pointer;color:var(--gl);margin-left:8px" title="Refresh this range">↻ Refresh</span></div>
   </div>
-  <div class="sec">
-    <div style="font-size:14px;font-weight:800;margin-bottom:10px">Paid vs Organic</div>
-    <table style="width:100%;border-collapse:collapse;font-size:13px">
-      <thead><tr style="text-align:left;color:var(--dmr)"><th style="padding:6px">Source</th><th style="padding:6px">Leads</th><th style="padding:6px">Closes</th><th style="padding:6px">Close rate</th><th style="padding:6px">Revenue</th></tr></thead>
-      <tbody>${body||'<tr><td colspan="5" style="padding:16px;color:var(--dmr)">No data</td></tr>'}
-      ${rows.length?`<tr style="border-top:2px solid rgba(255,255,255,.15)"><td style="${cell};font-weight:900">Total</td><td style="${cell}">${tot.leads.toLocaleString('en-US')}</td><td style="${cell}">${tot.closes.toLocaleString('en-US')}</td><td style="${cell};font-weight:900">${rate(tot.closes,tot.leads)}</td><td style="${cell};font-weight:900;color:var(--gb)">${money(tot.revenue)}</td></tr>`:''}
-      </tbody>
-    </table>
-    <div style="font-size:11px;color:var(--dmr);margin-top:8px">Cohort view: leads created in the range, and how many of those have a Won opportunity. Source comes from the Lead Source field on each Close lead.</div>
-  </div>`;
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+    ${box('Paid (/go, /go-v2)','🟠',byKey.paid,true)}
+    ${box('Organic (/, /v2)','🟢',byKey.organic)}
+    ${box('Unknown (no page recorded)','⚪',byKey.unknown)}
+  </div>
+  <div style="font-size:11px;color:var(--dmr);margin-top:12px">Cohort view: leads created in the range, and how many of those have a Won opportunity. Source comes from the Lead Source field on each Close lead.</div>`;
 }
 // ── Payouts (leadership) ──
 function commRules(){
