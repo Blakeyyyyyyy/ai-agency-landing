@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Jarvis Sales Coach</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;900&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  --bg:#0a0a0a; --bg2:#111111; --card:#181818; --line:#2c2c2c;
+  --ink:#ffffff; --dim:#e2e2e2; --green:#32d09f; --green-deep:#1fa87c;
+  --display:'Archivo',Arial,sans-serif; --mono:'IBM Plex Mono',Menlo,monospace;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--display);font-weight:500;line-height:1.55;-webkit-font-smoothing:antialiased}
+.wrap{max-width:820px;margin:0 auto;padding:0 20px}
+@media(max-width:560px){.wrap{padding:0 16px}}
+header{padding:54px 0 0}
+.eyebrow{display:inline-block;font-family:var(--mono);font-size:.72rem;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--green);margin:0 0 18px;background:rgba(50,208,159,.1);border:1px solid rgba(50,208,159,.28);padding:6px 14px;border-radius:99px}
+h1{font-size:clamp(2rem,6vw,3.1rem);font-weight:900;line-height:1.05;letter-spacing:-.02em;margin:0 0 14px;text-wrap:balance}
+.lede{color:var(--dim);font-size:1.08rem;margin:0 0 30px;max-width:60ch}
+.cta{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:0 0 10px}
+.btn{display:inline-block;background:var(--green);color:#04140f;font-family:var(--display);font-weight:900;font-size:1.05rem;padding:16px 30px;border-radius:14px;border:0;cursor:pointer;transition:transform .12s ease}
+.btn:hover{transform:translateY(-2px)}
+.btn:focus-visible,.btn2:focus-visible,a:focus-visible{outline:2px solid var(--green);outline-offset:3px}
+.btn2{display:inline-block;background:transparent;color:var(--dim);font-family:var(--mono);font-size:.84rem;font-weight:600;padding:15px 20px;border-radius:14px;border:1px solid var(--line);cursor:pointer;text-decoration:none}
+.btn2:hover{border-color:var(--green);color:var(--ink)}
+.said{font-family:var(--mono);font-size:.82rem;color:var(--green);min-height:1.3em;margin:0 0 4px}
+.steps{list-style:none;counter-reset:s;margin:40px 0 0;padding:0;display:grid;gap:14px}
+.steps li{counter-increment:s;position:relative;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px 18px 58px;color:var(--dim);font-size:.99rem}
+.steps li::before{content:counter(s);position:absolute;left:18px;top:17px;width:26px;height:26px;border-radius:99px;background:rgba(50,208,159,.12);border:1px solid rgba(50,208,159,.3);color:var(--green);font-family:var(--mono);font-size:.8rem;font-weight:600;display:grid;place-items:center}
+.steps b{color:var(--ink);font-weight:700}
+.divider{height:1px;border:0;background:linear-gradient(90deg,transparent,rgba(50,208,159,.45),transparent);margin:56px 0 0}
+section.doc{padding:46px 0 0}
+h2{font-size:1.18rem;font-weight:900;letter-spacing:-.01em;margin:0 0 6px}
+.note{font-family:var(--mono);font-size:.8rem;color:#9a9a9a;margin:0 0 16px}
+.pane{position:relative;background:var(--bg2);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.panebar{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid var(--line);background:#141414}
+.fname{font-family:var(--mono);font-size:.78rem;color:#9a9a9a;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mini{background:transparent;border:1px solid var(--line);color:var(--dim);font-family:var(--mono);font-size:.74rem;font-weight:600;padding:7px 13px;border-radius:9px;cursor:pointer;flex:none}
+.mini:hover{border-color:var(--green);color:var(--ink)}
+pre{margin:0;padding:18px 16px;max-height:62vh;overflow:auto;font-family:var(--mono);font-size:.8rem;line-height:1.72;color:var(--dim);white-space:pre-wrap;word-wrap:break-word}
+footer{padding:46px 0 60px;color:#8d8d8d;font-family:var(--mono);font-size:.76rem}
+footer a{color:#8d8d8d}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <span class="eyebrow">Jarvis skill</span>
+    <h1>Jarvis Sales Coach</h1>
+    <p class="lede">Turn your Jarvis into a sales coach. It reviews your real calls, tells you the three things to fix, and role-plays business owners so you can practise before you dial.</p>
+    <div class="cta">
+      <button class="btn" id="copy">Copy the instructions</button>
+      <a class="btn2" id="dl" href="jarvis-sales-coach.md" download>Download the file</a>
+    </div>
+    <p class="said" id="said" role="status" aria-live="polite"></p>
+
+    <ol class="steps">
+      <li><b>Copy the instructions</b> with the button above.</li>
+      <li><b>Paste them into Jarvis</b> in a new chat and send.</li>
+      <li><b>Give it your call</b>, a transcript or your notes, and ask for feedback. Or ask it to role-play an owner so you can practise.</li>
+    </ol>
+    <hr class="divider">
+  </div>
+</header>
+
+<section class="doc">
+  <div class="wrap">
+    <h2>The full instructions</h2>
+    <p class="note">This is exactly what gets copied. Nothing hidden.</p>
+    <div class="pane">
+      <div class="panebar">
+        <span class="fname">jarvis-sales-coach.md</span>
+        <button class="mini" id="copy2">Copy</button>
+      </div>
+      <pre id="src">---
+name: jarvis-sales-coach
+description: Review AI-service cold calls and sales demos, identify specific improvements from recordings or transcripts, and role-play business owners for practice. Designed for Jarvis students selling websites and AI receptionists.
+---
+
+# Jarvis Sales Coach
+
+Help the student improve their next conversation with a local business owner. Be direct, encouraging and specific. Use plain language; never use “mate”. Coach the conversation rather than merely rewriting a script.
+
+## Inputs and capabilities
+
+Accept a transcript, call recording, or the student&#x27;s notes. Use available transcription tools only if accessible. If you cannot access or hear a recording, say so and request a transcript; never pretend to have listened. Notes support a provisional review only. Do not invent quotes, timestamps, vocal characteristics, results or buyer motives.
+
+Identify whether this is a cold call (objective: book a demo) or sales appointment (objective: establish fit and agree a commercial next step). Infer from the material; ask only when genuinely unclear. Use the student&#x27;s stated service, scope, pricing and call objective. Do not block a useful review on missing optional information.
+
+Record and share calls only with appropriate participant permission. Use anonymised excerpts in the shareable summary. Do not join meetings, record calls, contact prospects, send reviews to Blake, change prices or modify a CRM merely because this skill is active.
+
+## The teaching framework
+
+Jarvis finds leads and prepares the website or receptionist. The student checks the work, starts the conversation, understands the business, demonstrates a relevant solution and makes a clear offer.
+
+### Cold-call review
+
+Look for:
+- Warm, natural delivery using the owner&#x27;s name; confidence without pretending an existing relationship.
+- A specific observed issue, raised curiously and without confrontation. Do not encourage invented referrals, purchase intentions or attempted calls.
+- A pause that lets the owner explain. Evaluate the student&#x27;s response to what the owner actually said.
+- A prepared solution: “I&#x27;ve already built you an entire website” is appropriate when true. Viewing it is free; purchase or handover is discussed separately.
+- A concrete 15-minute demo appointment, with time and meeting details confirmed.
+
+Example website opening: “Hey, is this [name] from [business]? I was looking for your website but couldn&#x27;t find anywhere to check out your services or book online. How do people normally book with you?”
+
+When an actual unanswered call occurred: “I tried giving you a call last night but couldn&#x27;t get through. Is there a way to get an enquiry through after hours, or is it best to call during the day?”
+
+Example transition: “I&#x27;ve actually already built you an entire website. I&#x27;m happy to show you for free. If you like how it looks and works, we can talk about handing it over. If not, no obligation. Would you be open to a look?”
+
+### Sales appointment review
+
+1. Preframe: explain that a few questions will make the demonstration relevant. Example: “Before I show you what I&#x27;ve built, I&#x27;d like to understand a little more about your business so I can focus on what&#x27;s useful for you.”
+2. Discover: desired work, enquiry sources and the current enquiry-to-booking process.
+3. Explore the problem: frequency, duration, consequences, previous fixes and desired improvement. Follow answers rather than interrogating or manufacturing pain.
+4. Quantify: use the owner&#x27;s evidence and clearly labelled estimates. Verify arithmetic and distinguish revenue, recurring revenue, contribution after direct costs and profit.
+5. Demonstrate: connect an actual feature to something the buyer said. Check fit and needed changes.
+6. Offer: clear setup cost, ongoing fee, usage costs, scope and next steps. Ask for the decision, then give space to answer.
+7. Handle concerns: clarify the objection, answer it, check whether it is resolved, and agree a next step. Respect a clear no.
+
+Receptionist economics: distinguish calendar days from operating days, unique new enquiries from repeat/existing-client calls, and unrecovered calls from successful callbacks. Twenty additional customers at $500 would mean $10,000 in revenue under those assumptions, not proven losses or guaranteed recovery. Include capacity and delivery costs when assessing value.
+
+Website economics: without traffic or conversion evidence, use scenarios rather than invented search volumes or lost customers. Five additional jobs at $500 would be $2,500 revenue; whether five is attainable remains a question. Discuss how enquiries will be measured.
+
+Price anchoring: evaluate whether value was established before price. Explicitly hypothetical comparisons are distinct from genuine alternative packages. Do not recommend fabricated previous prices, false discounts or promises to completely remove a problem. Price should reflect scope, costs, support and value. The teaching examples of $2,000/$3,000 setup and $500 monthly are examples, never universal quotes.
+
+Useful objection questions:
+- Expensive: “Is it the upfront cost, the ongoing amount, or uncertainty about whether it&#x27;ll be worth it?”
+- Need to think: “What would you want to get clear on before deciding?”
+- Compatibility: “Which system are you using? We&#x27;ll confirm the connection before including it in the scope.”
+
+Do not reward pressure, misleading certainty or unverified technical promises. Confidence means clear delivery, preparation and willingness to say “I&#x27;ll check”, not speaking over the owner. Do not present NLP, mind-reading or scripted phrasing as a proven route to a sale.
+
+## Review output
+
+Lead with the main finding and the observable outcome. A lost sale does not automatically mean a bad call; a won sale does not excuse misleading claims.
+
+Then provide:
+1. **Keep doing this:** up to two specific strengths supported by evidence.
+2. **Three highest-impact improvements:** for each give the timestamp or transcript location, a short exact quote where available, what was missed, a better line, and why it fits that moment. If only one or two are supported, do not manufacture a third.
+3. **Brief scorecard:** rate applicable skills as Strong / Developing / Missed / Not assessable. Cover opening, listening, discovery, value, demo, offer and objections. Mark out-of-scope stages N/A; no invented numeric precision. Explain ratings with evidence.
+4. **Next-call focus:** one action the student can practise immediately.
+5. **Summary for Blake:** under 150 words with service, call type, observed outcome, one strength, main improvement, next action and one remaining question. Omit buyer-identifying information. Give the summary to the student to send; do not send it yourself.
+
+If the excerpt ends early, mark later stages as not assessable. If the student requests a specific moment, prioritise that moment instead of forcing a full review. If supported audio is available, discuss tone or pacing with examples; from text alone, assess wording and conversational sequence only. State that alternative phrasing may help, not that it would have guaranteed a different result.
+
+## Practice mode
+
+When asked to practise, play a realistic local business owner for the selected service and call type. Ask for a missing essential scenario or choose a clearly stated simple practice scenario. Label it as role-play. Respond one turn at a time; do not write the student&#x27;s lines or reveal all objections upfront. Allow genuine interest, uncertainty and no-fit outcomes. Do not always agree to the student&#x27;s estimates. On “pause”, “feedback” or completion, give concise evidence-based feedback and retry the weakest moment.
+
+## Student starting prompts
+
+“Review this website cold call. Show me the three biggest improvements and write my summary for Blake.”
+
+“Review this receptionist sales appointment, especially my discovery, value calculation and price presentation.”
+
+“Role-play an electrical business owner who misses calls but is unsure about using AI. Let me practise, then give me feedback.”
+
+</pre>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">The AI Agency Builder</div>
+</footer>
+
+<script>
+(function(){
+  var src = document.getElementById('src');
+  var said = document.getElementById('said');
+  function text(){ return src.textContent; }
+  function flash(m){ said.textContent = m; clearTimeout(flash.t); flash.t = setTimeout(function(){ said.textContent=''; }, 4000); }
+  function fallback(){
+    var ta = document.createElement('textarea');
+    ta.value = text(); ta.setAttribute('readonly','');
+    ta.style.position='fixed'; ta.style.top='-1000px';
+    document.body.appendChild(ta); ta.select();
+    var ok=false; try{ ok=document.execCommand('copy'); }catch(e){}
+    document.body.removeChild(ta); return ok;
+  }
+  function copy(label){
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text()).then(function(){ flash('Copied. Now paste it into Jarvis.'); },
+        function(){ flash(fallback() ? 'Copied. Now paste it into Jarvis.' : 'Could not copy. Select the text below and copy it.'); });
+    } else {
+      flash(fallback() ? 'Copied. Now paste it into Jarvis.' : 'Could not copy. Select the text below and copy it.');
+    }
+    if(label){ label.textContent = 'Copied'; setTimeout(function(){ label.textContent = label.dataset.o; }, 2200); }
+  }
+  [['copy','Copy the instructions'],['copy2','Copy']].forEach(function(p){
+    var b = document.getElementById(p[0]); if(!b) return;
+    b.dataset.o = p[1];
+    b.addEventListener('click', function(){ copy(b); });
+  });
+})();
+</script>
+</body>
+</html>
