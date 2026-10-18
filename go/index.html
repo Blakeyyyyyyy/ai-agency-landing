@@ -225,9 +225,9 @@ footer{border-top:1px solid var(--line);padding:34px 0;text-align:center;font-fa
 .mlabel .req{color:#ff4d4d;margin-left:2px}
 .mrow{display:grid;grid-template-columns:118px 1fr;gap:10px}
 .mchk{display:flex;gap:9px;align-items:flex-start;background:#0d0d0d;border:2px solid #333;border-radius:10px;padding:9px 11px;margin-bottom:7px;cursor:pointer}
-.mchk input{appearance:none;-webkit-appearance:none;flex:0 0 18px;height:18px;margin-top:1px;border:2px solid #555;border-radius:5px;background:#141414;cursor:pointer;position:relative}
+.mchk input{appearance:none;-webkit-appearance:none;box-sizing:border-box;flex:0 0 18px;width:18px;height:18px;margin:1px 0 0;padding:0;border:2px solid #555;border-radius:5px;background:#141414;cursor:pointer;position:relative}
 .mchk input:checked{background:var(--green);border-color:var(--green)}
-.mchk input:checked::after{content:'';position:absolute;left:6px;top:2px;width:6px;height:11px;border:solid #0a0a0a;border-width:0 3px 3px 0;transform:rotate(45deg)}
+.mchk input:checked::after{content:'';position:absolute;left:50%;top:50%;box-sizing:border-box;width:6px;height:10px;border:solid #0a0a0a;border-width:0 2.5px 2.5px 0;transform:translate(-50%,-62%) rotate(45deg)}
 .mchk span{color:#b8b8b8;font-size:.72rem;line-height:1.35;font-weight:600}
 #msend{width:100%;background:var(--green);color:#04140f;border:0;border-radius:12px;font-family:var(--display);font-weight:900;font-size:1.12rem;text-transform:uppercase;padding:19px;cursor:pointer;margin-top:6px}
 #msend:disabled{opacity:.55;cursor:default}
