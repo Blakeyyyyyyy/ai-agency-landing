@@ -5,6 +5,8 @@
 <script>
 (function(){
   var TEST='paid', A_PATH='/go', B_PATH='/go-v2/', KEY='ab_'+TEST;
+  // A/B TEST ENDED 24 Oct 2026 - A (this page) won, everyone stays here. Old split kept below, commented out.
+  /*
   function cookie(n){var m=document.cookie.match(new RegExp('(?:^|; )'+n+'=([^;]*)'));return m?m[1]:null;}
   var q=new URLSearchParams(location.search), forced=(q.get('variant')||'').toUpperCase(), v=null;
   if(forced==='A'||forced==='B') v=forced;
@@ -13,8 +15,12 @@
   if(!v) v=Math.random()<0.5?'A':'B';
   document.cookie=KEY+'='+v+'; path=/; max-age='+(30*86400)+'; SameSite=Lax';
   try{ localStorage.setItem(KEY,v); }catch(e){}
+  */
+  var v='A';
+  document.cookie=KEY+'=A; path=/; max-age='+(30*86400)+'; SameSite=Lax';
+  try{ localStorage.setItem(KEY,'A'); }catch(e){}
   window.AB={test:TEST,variant:v};
-  if(v==='B'){ window.AB_REDIRECT=true; location.replace(B_PATH+location.search+location.hash); }
+  // if(v==='B'){ window.AB_REDIRECT=true; location.replace(B_PATH+location.search+location.hash); }
 })();
 </script>
 
