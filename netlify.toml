@@ -33,3 +33,13 @@
   to = "/go"
   status = 302
   force = true
+[[redirects]]
+  from = "/v2/*"
+  to = "/"
+  status = 302
+  force = true
+[[redirects]]
+  from = "/go-v2/*"
+  to = "/go"
+  status = 302
+  force = true
