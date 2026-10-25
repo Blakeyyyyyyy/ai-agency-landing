@@ -1449,7 +1449,7 @@ function renderSetterTracker(){
   </div>
 
   <div class="sec" style="padding:0;overflow:hidden;margin-bottom:16px">
-    <div class="sec-h"><span>\ud83d\udcde RAW NUMBERS</span><span style="font-size:10px;color:var(--dmr);font-weight:600">${S.closeActual?'Calls from Close (pickup 5s+, conversation 60s+) \u00b7 sales from the signups sheet':'Loading Close data...'}</span></div>
+    <div class="sec-h"><span>\ud83d\udcde RAW NUMBERS</span><span style="font-size:10px;color:var(--dmr);font-weight:600;margin-left:12px">${S.closeActual?'Calls from Close (pickup 5s+, conversation 60s+) \u00b7 sales from the signups sheet':'Loading Close data...'}</span></div>
     <div class="g g4" style="padding:14px 14px 0">
       ${kpi('Total Dials',tTD.toLocaleString(),'#38bdf8',1)}
       ${kpi('Unique Leads',tUD.toLocaleString(),'#16a34a',1)}
