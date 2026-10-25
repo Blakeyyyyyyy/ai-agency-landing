@@ -1339,23 +1339,35 @@ function trackedSetters(){
     S.setter_reports.some(r=>r.setterName===n&&inR(r.date))||S.call_reports.some(r=>r.setterName===n&&inR(r.date))));
   return [...S.setters,...former];
 }
+// Setter Tracker data (rebuilt 25 Oct 2026 for Blake's model - no booked calls). Dials, unique leads,
+// pickups, conversations and talk time come from Close (relay /api/close-actual, Pacific days); closes,
+// revenue and commission come from the real signups sheet. A setter/day with no Close row falls back to
+// their EOD self-report so old days still show something.
+async function loadCloseActual(){
+  try{const r=await fetch('https://blake-discord-relay.vercel.app/api/close-actual');const d=await r.json();S.closeActual=d.ok?d.rows:[];}
+  catch(e){S.closeActual=[];}
+  S.caLoading=false;render();
+}
 function setterTrackerData(){
   const sm=(a,f)=>a.reduce((s,r)=>s+(Number(r[f])||0),0);
+  const CA=S.closeActual||[];
   return trackedSetters().map(name=>{
+    const ca=CA.filter(r=>r.setter===name&&inR(r.date));
     const sr=S.setter_reports.filter(r=>inR(r.date)&&r.setterName===name);
-    const ca=S.call_reports.filter(r=>inR(r.date)&&r.setterName===name);
-    const ud=sm(sr,'uniqueLeadsDialed'),td=sm(sr,'totalDials'),pu=sm(sr,'pickUps'),co=sm(sr,'conversationsOnPhone'),pb=sm(sr,'pitchedBookings'),bk=sm(sr,'bookedAppointments'),sb=sm(sr,'selfBooked'),cs=sm(sr,'callsShowed');
-    const calls=ca.length,closes=ca.filter(r=>r.dealClosed==='Yes').length;
-    const cash=ca.filter(r=>r.dealClosed==='Yes').reduce((s,r)=>s+(Number(r.cashCollected_deal)||0),0);
-    const cv=ca.filter(r=>r.dealClosed==='Yes').reduce((s,r)=>s+(Number(r.contractValue)||0),0);
-    const d2pu=td>0?pu/td:0,pu2co=pu>0?co/pu:0,co2pb=co>0?pb/co:0,pitchedSetR=pb>0?bk/pb:0;
-    const bk2cl=bk>0?closes/bk:0,setR=td>0?bk/td:0,uSetR=ud>0?bk/ud:0;
-    const uCloseR=ud>0?closes/ud:0,uCashR=ud>0?cash/ud:0;
-    const contactR=ud>0?co/ud:0,bookR=co>0?bk/co:0;
-    const closeR=calls>0?closes/calls:0,aov=closes>0?cash/closes:0,avgCv=closes>0?cv/closes:0;
-    const cashPerLive=calls>0?cash/calls:0,revPerLive=calls>0?cv/calls:0;
-    const showR=bk>0?cs/bk:0;
-    return{name,ud,td,pu,co,pb,bk,sb,cs,calls,closes,cash,cv,d2pu,pu2co,co2pb,pitchedSetR,bk2cl,setR,uSetR,uCloseR,uCashR,contactR,bookR,closeR,aov,avgCv,cashPerLive,revPerLive,showR,days:sr.length};
+    const caDays=new Set(ca.map(r=>r.date));
+    const eod=sr.filter(r=>!caDays.has(String(r.date).slice(0,10)));
+    const td=sm(ca,'dials')+sm(eod,'totalDials');
+    const ud=ca.reduce((s,r)=>s+(r.unique==null?0:r.unique),0)+sm(eod,'uniqueLeadsDialed');
+    const pu=sm(ca,'pickups')+sm(eod,'pickUps');
+    const co=sm(ca,'convos');
+    const hrs=sm(ca,'mins')/60;
+    const sg=(S.signups||[]).filter(r=>inR(r.date)&&r.repName===name);
+    const closes=sg.length;
+    const yearly=sg.filter(r=>/yearly/i.test(String(r.product))).length,monthly=closes-yearly;
+    const rev=sg.reduce((s,r)=>s+(Number(r.revenue)||0),0),comm=sg.reduce((s,r)=>s+(Number(r.commission)||0),0);
+    const d2pu=td>0?pu/td:0,pu2co=pu>0?co/pu:0,closeR=co>0?closes/co:0,d2cl=td>0?closes/td:0,u2cl=ud>0?closes/ud:0;
+    const revPerConvo=co>0?rev/co:0,revPerDial=td>0?rev/td:0;
+    return{name,td,ud,pu,co,hrs,closes,monthly,yearly,rev,comm,d2pu,pu2co,closeR,d2cl,u2cl,revPerConvo,revPerDial,days:caDays.size+eod.length};
   });
 }
 function renderSetterTracker(){
@@ -1365,27 +1377,22 @@ function renderSetterTracker(){
   const sel=S.selectedSetters||trackedSetters();
   const data=allData.filter(d=>sel.includes(d.name));
   const sm=(a,f)=>a.reduce((s,r)=>s+(Number(r[f])||0),0);
+  if(!S.closeActual&&!S.caLoading){S.caLoading=true;loadCloseActual();}
   // Filtered totals
-  const tUD=sm(data,'ud'),tTD=sm(data,'td'),tPU=sm(data,'pu'),tCO=sm(data,'co'),tPB=sm(data,'pb'),tBK=sm(data,'bk'),tSB=sm(data,'sb'),tCS=sm(data,'cs');
-  const tCalls=sm(data,'calls'),tCloses=sm(data,'closes'),tCash=sm(data,'cash'),tCV=sm(data,'cv');
-  const tD2PU=tTD>0?tPU/tTD:0,tPU2CO=tPU>0?tCO/tPU:0,tCO2PB=tCO>0?tPB/tCO:0,tPitchedSetR=tPB>0?tBK/tPB:0;
-  const tBK2CL=tBK>0?tCloses/tBK:0,tSetR=tTD>0?tBK/tTD:0,tUSetR=tUD>0?tBK/tUD:0;
-  const tUCloseR=tUD>0?tCloses/tUD:0,tUCashR=tUD>0?tCash/tUD:0;
-  const tContactR=tUD>0?tCO/tUD:0,tBookR=tCO>0?tBK/tCO:0;
-  const tCloseR=tCalls>0?tCloses/tCalls:0,tAOV=tCloses>0?tCash/tCloses:0,tAvgCv=tCloses>0?tCV/tCloses:0;
-  const tCashPerLive=tCalls>0?tCash/tCalls:0,tRevPerLive=tCalls>0?tCV/tCalls:0;
-  const tShowR=tBK>0?tCS/tBK:0;
+  const tTD=sm(data,'td'),tUD=sm(data,'ud'),tPU=sm(data,'pu'),tCO=sm(data,'co'),tHrs=sm(data,'hrs');
+  const tCloses=sm(data,'closes'),tMon=sm(data,'monthly'),tYr=sm(data,'yearly'),tRev=sm(data,'rev'),tComm=sm(data,'comm');
+  const tD2PU=tTD>0?tPU/tTD:0,tPU2CO=tPU>0?tCO/tPU:0,tCloseR=tCO>0?tCloses/tCO:0,tD2CL=tTD>0?tCloses/tTD:0,tU2CL=tUD>0?tCloses/tUD:0;
+  const tRevConvo=tCO>0?tRev/tCO:0,tRevDial=tTD>0?tRev/tTD:0;
 
   const ST_LB_COLS={
-    count:[{k:'ud',l:'Unique Dials'},{k:'td',l:'Total Dials'},{k:'pu',l:'Pick Ups'},{k:'co',l:'Conversations'},{k:'pb',l:'Pitched'},{k:'bk',l:'Booked'},{k:'sb',l:'Self-Booked'},{k:'cs',l:'Calls Showed'},{k:'calls',l:'Calls Taken'},{k:'closes',l:'Closes'}],
-    money:[{k:'cash',l:'Cash Collected ($)'},{k:'cv',l:'Contract Value ($)'},{k:'aov',l:'AOV ($)'},{k:'avgCv',l:'Avg Contract ($)'},{k:'cashPerLive',l:'Cash/Live Call ($)'},{k:'revPerLive',l:'Rev/Live Call ($)'},{k:'uCashR',l:'Unique\u2192Cash ($)'}],
-    pcts:[{k:'d2pu',l:'Dials\u2192PU (%)'},{k:'pu2co',l:'PU\u2192Convo (%)'},{k:'co2pb',l:'Convo\u2192Pitch (%)'},{k:'pitchedSetR',l:'Pitch\u2192Book (%)'},{k:'bk2cl',l:'Book\u2192Close (%)'},{k:'showR',l:'Show Rate (%)'},{k:'setR',l:'Set Rate (%)'},{k:'uSetR',l:'Unique Set Rate (%)'},{k:'uCloseR',l:'Unique\u2192Close (%)'},{k:'closeR',l:'Close Rate (%)'}]
+    count:[{k:'closes',l:'Closes'},{k:'yearly',l:'Yearly'},{k:'monthly',l:'Monthly'},{k:'td',l:'Total Dials'},{k:'ud',l:'Unique Leads'},{k:'pu',l:'Pick Ups'},{k:'co',l:'Conversations'},{k:'hrs',l:'Talk Time (hrs)'}],
+    money:[{k:'rev',l:'Revenue ($)'},{k:'comm',l:'Commission ($)'},{k:'revPerConvo',l:'Revenue / Convo ($)'},{k:'revPerDial',l:'Revenue / Dial ($)'}],
+    pcts:[{k:'closeR',l:'Close Rate (per convo) (%)'},{k:'d2pu',l:'Dials\u2192PU (%)'},{k:'pu2co',l:'PU\u2192Convo (%)'},{k:'d2cl',l:'Dials\u2192Close (%)'},{k:'u2cl',l:'Unique\u2192Close (%)'}]
   };
   const stLbFormat=(k,v)=>{
-    const money=['cash','cv','aov','avgCv','cashPerLive','revPerLive','uCashR'];
-    const pcts=['d2pu','pu2co','co2pb','pitchedSetR','bk2cl','showR','setR','uSetR','uCloseR','contactR','bookR','closeR'];
-    if(money.includes(k))return fmt(v);
-    if(pcts.includes(k))return pct(v);
+    if(['rev','comm','revPerConvo','revPerDial'].includes(k))return fmt(v);
+    if(['closeR','d2pu','pu2co','d2cl','u2cl'].includes(k))return pct(v);
+    if(k==='hrs')return (v||0).toFixed(1);
     return(v||0).toLocaleString();
   };
   const stLbRank=(d,k)=>{
@@ -1395,7 +1402,7 @@ function renderSetterTracker(){
     return ranks;
   };
   // Leaderboard uses allData (all setters)
-  const sc1=S.stLbCol1||'bk',sc2=S.stLbCol2||'cash',sc3=S.stLbCol3||'closeR';
+  const sc1=S.stLbCol1||'closes',sc2=S.stLbCol2||'rev',sc3=S.stLbCol3||'closeR';
   const sw1=S.stLbW1||33,sw2=S.stLbW2||33,sw3=S.stLbW3||34;
   const sr1=stLbRank(allData,sc1),sr2=stLbRank(allData,sc2),sr3=stLbRank(allData,sc3);
   const swt=sw1+sw2+sw3||100;
@@ -1435,56 +1442,41 @@ function renderSetterTracker(){
   ${setterToggles}
   ${sel.length===0?noSel:`
   <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px">
-    <div class="hero-c"><div class="lbl">TOTAL BOOKED</div><div class="val" style="color:var(--gb)">${tBK}</div></div>
     <div class="hero-c hl"><div class="lbl">TOTAL CLOSES</div><div class="val" style="color:var(--gb)">${tCloses}</div></div>
-    <div class="hero-c"><div class="lbl">CASH COLLECTED</div><div class="val" style="color:var(--gb)">${fmt(tCash)}</div></div>
-    <div class="hero-c"><div class="lbl">TEAM CLOSE RATE</div><div class="val" style="color:${tCloseR>=.2?'var(--gb)':'#fff'}">${pct(tCloseR)}</div></div>
+    <div class="hero-c"><div class="lbl">REVENUE</div><div class="val" style="color:var(--gb)">${fmt(tRev)}</div></div>
+    <div class="hero-c"><div class="lbl">COMMISSION</div><div class="val" style="color:var(--gb)">${fmt(tComm)}</div></div>
+    <div class="hero-c"><div class="lbl">CLOSE RATE (PER CONVO)</div><div class="val" style="color:${tCloseR>=.2?'var(--gb)':'#fff'}">${pct(tCloseR)}</div></div>
   </div>
 
   <div class="sec" style="padding:0;overflow:hidden;margin-bottom:16px">
-    <div class="sec-h"><span>\ud83d\udcde RAW NUMBERS</span></div>
-    <div class="g g5" style="padding:14px 14px 0">
+    <div class="sec-h"><span>\ud83d\udcde RAW NUMBERS</span><span style="font-size:10px;color:var(--dmr);font-weight:600">${S.closeActual?'Calls from Close (pickup 5s+, conversation 60s+) \u00b7 sales from the signups sheet':'Loading Close data...'}</span></div>
+    <div class="g g4" style="padding:14px 14px 0">
       ${kpi('Total Dials',tTD.toLocaleString(),'#38bdf8',1)}
       ${kpi('Unique Leads',tUD.toLocaleString(),'#16a34a',1)}
       ${kpi('Pick Ups',tPU.toLocaleString(),'#06b6d4',1)}
       ${kpi('Conversations',tCO.toLocaleString(),'#22c55e',1)}
-      ${kpi('Pitched',tPB.toLocaleString(),'#a855f7',1)}
     </div>
-    <div class="g g5" style="padding:10px 14px 14px">
-      ${kpi('Booked',tBK.toLocaleString(),'#22c55e',1)}
-      ${kpi('Self-Booked',tSB.toLocaleString(),'#eab308',1)}
-      ${kpi('Calls Showed',tCS.toLocaleString(),'#06b6d4',1)}
-      ${kpi('Calls Taken',tCalls.toLocaleString(),'#38bdf8',1)}
+    <div class="g g4" style="padding:10px 14px 14px">
+      ${kpi('Talk Time',tHrs.toFixed(1)+' hrs','#a855f7',1)}
+      ${kpi('Monthly Sales',tMon.toLocaleString(),'#eab308',1)}
+      ${kpi('Yearly Sales',tYr.toLocaleString(),'#f97316',1)}
       ${kpi('Closes',tCloses.toLocaleString(),'#22c55e',1)}
     </div>
   </div>
 
   <div class="sec" style="padding:0;overflow:hidden;margin-bottom:16px">
     <div class="sec-h"><span>\ud83d\udcca CONVERSION RATES</span></div>
-    <div class="g g5" style="padding:14px 14px 0">
+    <div class="g g4" style="padding:14px 14px 0">
       ${kpi('Dials\u2192Pick Up',pct(tD2PU),'#06b6d4',1)}
       ${kpi('Pick Up\u2192Convo',pct(tPU2CO),'#22c55e',1)}
-      ${kpi('Convo\u2192Pitch',pct(tCO2PB),'#a855f7',1)}
-      ${kpi('Pitch\u2192Book',pct(tPitchedSetR),tPitchedSetR>=.5?'#22c55e':'#eab308',1)}
-      ${kpi('Book\u2192Close',pct(tBK2CL),'#22c55e',1)}
-      ${kpi('Show Rate',pct(tShowR),tShowR>=.7?'#22c55e':'#eab308',1)}
+      ${kpi('Convo\u2192Close',pct(tCloseR),tCloseR>=.2?'#22c55e':'#eab308',1)}
+      ${kpi('Dials\u2192Close',pct(tD2CL),'#16a34a',1)}
     </div>
-    <div class="g g5" style="padding:10px 14px 14px">
-      ${kpi('Dials\u2192Book (Set Rate)',pct(tSetR),tSetR>=.02?'#22c55e':'#eab308',1)}
-      ${kpi('Unique\u2192Book (Set Rate)',pct(tUSetR),'#16a34a',1)}
-      ${kpi('Unique\u2192Close',pct(tUCloseR),'#15803d',1)}
-      ${kpi('Unique\u2192Cash',tUD>0?fmt(tUCashR):'$0','#10b981',1)}
-    </div>
-  </div>
-
-  <div class="sec" style="padding:0;overflow:hidden">
-    <div class="sec-h"><span>\ud83d\udcb0 REVENUE ATTRIBUTION</span></div>
-    <div class="g g4" style="padding:14px">
-      ${kpi('Close Rate',pct(tCloseR),tCloseR>=.2?'#22c55e':'#eab308',1)}
-      ${kpi('AOV (Cash/Close)',fmt(tAOV),'#f97316',1)}
-      ${kpi('Cash / Live Call',fmt(tCashPerLive),'#22c55e',1)}
-      ${kpi('Rev / Live Call',fmt(tRevPerLive),'#10b981',1)}
-      ${kpi('Avg Contract',fmt(tAvgCv),'#eab308',1)}
+    <div class="g g4" style="padding:10px 14px 14px">
+      ${kpi('Unique\u2192Close',pct(tU2CL),'#15803d',1)}
+      ${kpi('Revenue / Convo',fmt(tRevConvo),'#10b981',1)}
+      ${kpi('Revenue / Dial',fmt(tRevDial),'#10b981',1)}
+      ${kpi('Avg Sale',tCloses>0?fmt(tRev/tCloses):'$0','#eab308',1)}
     </div>
   </div>
   `}
