@@ -190,6 +190,16 @@ const N=id=>Number(V(id))||0;
 const fmt=n=>{if(n==null||isNaN(n))return'$0';return'$'+Number(n).toLocaleString('en-US',{minimumFractionDigits:n%1!==0?2:0,maximumFractionDigits:2})};
 const pct=n=>(isNaN(n)||!isFinite(n)?'0%':(n*100).toFixed(1)+'%');
 const td=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+// Shift day (26 Oct 2026): sales days run 4am to 4am America/Los_Angeles for every viewer, matching
+// shiftDay() in the relay that dates each sale. IANA zone, so the cutoff stays 4am LA across DST.
+const SHIFT_TZ='America/Los_Angeles',SHIFT_START_HOUR=4,SHIFT_GOAL=10000;
+function sd(at){const p=Object.fromEntries(new Intl.DateTimeFormat('en-CA',{timeZone:SHIFT_TZ,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',hourCycle:'h23'}).formatToParts(at||new Date()).map(x=>[x.type,x.value]));const day=`${p.year}-${p.month}-${p.day}`;if(Number(p.hour)>=SHIFT_START_HOUR)return day;const d=new Date(day+'T12:00:00Z');d.setUTCDate(d.getUTCDate()-1);return d.toISOString().slice(0,10);}
+function sdDate(){const[y,m,d]=sd().split('-').map(Number);return new Date(y,m-1,d,12);}
+function shiftBarInner(){const day=sd();const rows=(S.signups||[]).filter(r=>r.date===day);const tot=rows.reduce((a,r)=>a+(Number(r.revenue)||0),0);const pct=Math.min(100,tot/SHIFT_GOAL*100);const lbl=new Date(day+'T12:00:00Z').toLocaleDateString('en-US',{timeZone:'UTC',weekday:'short',day:'numeric',month:'short'});
+return`<div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:10px"><div style="font-size:20px;font-weight:900;letter-spacing:-.3px">Shift total: <span style="color:var(--gl)">$${Math.round(tot).toLocaleString('en-US')}</span> / $${SHIFT_GOAL.toLocaleString('en-US')}</div><div style="font-size:12px;color:var(--dim)">${rows.length} sales · ${lbl} shift · resets 4am LA</div></div><div style="height:14px;background:rgba(255,255,255,.07);border-radius:99px;overflow:hidden"><div style="height:100%;width:${pct}%;background:linear-gradient(90deg,var(--gd),var(--gl));border-radius:99px;transition:width .6s"></div></div>`;}
+function shiftBar(){return`<div class="sec" id="shiftbar" style="margin:0 0 16px">${shiftBarInner()}</div>`;}
+// Keep the bar live without re-rendering the page (so open forms are never wiped): refresh sales every 2 min.
+setInterval(async()=>{try{const r=await fetch(CC_READ_URL,{signal:AbortSignal.timeout(10000)});if(!r.ok)return;const d=await r.json();if(!Array.isArray(d.signups))return;S.signups=d.signups.map(x=>{if(x.date)x.date=normDate(x.date);return x;});const el=document.getElementById('shiftbar');if(el)el.innerHTML=shiftBarInner();}catch(e){}},120000);
 const mn=m=>['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][m];
 // Normalize any date value to YYYY-MM-DD in CST (UTC-6)
 function normDate(v){
@@ -415,7 +425,7 @@ function discordEnrollment(d){
 // ── Date range ──
 function localDateStr(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
 function db(){
-  const now=new Date(),y=now.getFullYear(),m=now.getMonth(),t=td();
+  const now=sdDate(),y=now.getFullYear(),m=now.getMonth(),t=sd();
   const ye=new Date(now);ye.setDate(now.getDate()-1);const ys=localDateStr(ye);
   const sw=new Date(now);sw.setDate(now.getDate()-now.getDay());
   const p=n=>String(n).padStart(2,'0');
@@ -904,8 +914,8 @@ function signupMetrics(rows){
 }
 function renderLiveSignups(){
   const allRows=S.signups||[];
-  const now=new Date();
-  const t=td();
+  const now=sdDate();
+  const t=sd();
   const sw=new Date(now);sw.setDate(now.getDate()-now.getDay());
   const weekStart=localDateStr(sw);
   const monthStart=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-01';
@@ -1800,7 +1810,7 @@ function render(){
   const dx=[['ytd','YTD'],['all_time','All Time']];
   let c='';
   switch(S.view){case'dashboard':c=renderDash();break;case'sales_tracker':c=renderSalesTracker();break;case'setter_tracker':c=renderSetterTracker()+renderEodList();break;case'setter':c=renderSetter();break;case'closer':c=renderCloser();break;case'enrollments':c=renderEnroll();break;case'settings':c=renderSettings();break;case'payouts':c=renderPayouts();break;case'ab_test':c=renderAbTest();break;case'lead_source':c=renderLeadSource();break;default:c=renderDash()}
-  $('app').innerHTML=`<div class="hdr"><div><div class="brand-sub">COMMAND CENTER</div><div class="brand"><span>AI Agency</span> Command Center</div></div><div class="dr">${dr.map(([k,l])=>`<button class="${S.dateRange===k?'a':''}" onclick="S.dateRange='${k}';render()">${l}</button>`).join('')}<div class="sep"></div>${dq.map(([k,l])=>`<button class="${S.dateRange===k?'a':''}" onclick="S.dateRange='${k}';render()">${l}</button>`).join('')}<div class="sep"></div>${dx.map(([k,l])=>`<button class="${S.dateRange===k?'a':''}" onclick="S.dateRange='${k}';render()">${l}</button>`).join('')}<div class="sep"></div><input type="date" id="dr-start" class="${S.dateRange==='custom'?'a':''}" value="${S.customStart}" onchange="S.customStart=this.value;S.dateRange='custom';render()"><span style="color:var(--dmr);font-size:11px">→</span><input type="date" id="dr-end" class="${S.dateRange==='custom'?'a':''}" value="${S.customEnd}" onchange="S.customEnd=this.value;S.dateRange='custom';render()"></div></div><div class="nav">${tabs.map(([v,i,l])=>`<button class="${S.view===v?'a':''}" onclick="S.view='${v}';render()"><span style="font-size:16px">${i}</span>${l}</button>`).join('')}</div><div class="cnt">${c}</div>`;
+  $('app').innerHTML=`<div class="hdr"><div><div class="brand-sub">COMMAND CENTER</div><div class="brand"><span>AI Agency</span> Command Center</div></div><div class="dr">${dr.map(([k,l])=>`<button class="${S.dateRange===k?'a':''}" onclick="S.dateRange='${k}';render()">${l}</button>`).join('')}<div class="sep"></div>${dq.map(([k,l])=>`<button class="${S.dateRange===k?'a':''}" onclick="S.dateRange='${k}';render()">${l}</button>`).join('')}<div class="sep"></div>${dx.map(([k,l])=>`<button class="${S.dateRange===k?'a':''}" onclick="S.dateRange='${k}';render()">${l}</button>`).join('')}<div class="sep"></div><input type="date" id="dr-start" class="${S.dateRange==='custom'?'a':''}" value="${S.customStart}" onchange="S.customStart=this.value;S.dateRange='custom';render()"><span style="color:var(--dmr);font-size:11px">→</span><input type="date" id="dr-end" class="${S.dateRange==='custom'?'a':''}" value="${S.customEnd}" onchange="S.customEnd=this.value;S.dateRange='custom';render()"></div></div><div class="nav">${tabs.map(([v,i,l])=>`<button class="${S.view===v?'a':''}" onclick="S.view='${v}';render()"><span style="font-size:16px">${i}</span>${l}</button>`).join('')}</div><div class="cnt">${shiftBar()}${c}</div>`;
   setTimeout(watchDealClosed,0);
 }
 
