@@ -367,7 +367,7 @@ footer{border-top:1px solid var(--line);padding:34px 0;text-align:center;font-fa
   </div>
 </div></section>
 
-<!-- VIDEO TESTIMONIALS (Rohen, 28 Oct 2026). Mobile: swipe carousel with dots. 768-1023px: 2x2. 1024px+: 4 in a row.
+<!-- VIDEO TESTIMONIALS (Rohen, 28 Oct 2026). Under 1024px: 2x2 grid (Rohen dropped the mobile carousel). 1024px+: 4 in a row.
      Each Wistia player is created only when its card nears the viewport (player.js is already loaded once by the
      hero VSL). Our own round play button sits on the Wistia swatch; the control bar stays hidden until play, and
      starting one video pauses the others. -->
@@ -390,14 +390,8 @@ footer{border-top:1px solid var(--line);padding:34px 0;text-align:center;font-fa
 
 .vt-dots{display:none}
 @media(max-width:1023px){.vt-track{grid-template-columns:repeat(2,minmax(0,1fr));max-width:620px;margin-left:auto;margin-right:auto}}
-@media(max-width:767px){
-  .vt-track{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:14px;max-width:none;padding:0 10% 6px;margin-left:-18px;margin-right:-18px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
-  .vt-track::-webkit-scrollbar{display:none}
-  .vt-card{flex:0 0 80%;scroll-snap-align:center}
-  .vt-dots{display:flex;justify-content:center;gap:8px;margin-top:14px}
-  .vt-dots button{width:8px;height:8px;border-radius:99px;border:0;padding:0;background:rgba(255,255,255,.25);transition:width .2s,background .2s;cursor:pointer}
-  .vt-dots button.on{width:22px;background:var(--green)}
-}
+@media(max-width:767px){.vt-track{gap:10px}.vt-card{padding:7px;border-radius:16px}.vt-frame{border-radius:11px}.vt-play{width:46px;height:46px}.vt-dur{top:7px;right:7px;font-size:.66rem}}
+
 </style>
 <section id="video-testimonials"><div class="wrap">
   <div class="vt-head">
@@ -431,12 +425,11 @@ footer{border-top:1px solid var(--line);padding:34px 0;text-align:center;font-fa
         </div>
       </div>
   </div>
-  <div class="vt-dots" aria-hidden="true"></div>
 </div></section>
 <script>
 (function(){
   var sec=document.getElementById('video-testimonials'); if(!sec) return;
-  var track=sec.querySelector('.vt-track'), cards=[].slice.call(sec.querySelectorAll('.vt-card')), dots=sec.querySelector('.vt-dots');
+  var cards=[].slice.call(sec.querySelectorAll('.vt-card'));
   function player(c){
     var p=c.querySelector('wistia-player'); if(p) return p;
     var id=c.getAttribute('data-media');
@@ -463,12 +456,6 @@ footer{border-top:1px solid var(--line);padding:34px 0;text-align:center;font-fa
       if(customElements.get('wistia-player')) customElements.whenDefined('wistia-player').then(function(){ setTimeout(go,50); }); else go();
     });
   });
-  cards.forEach(function(c,i){ var b=document.createElement('button'); b.type='button'; if(!i) b.className='on'; b.addEventListener('click',function(){ track.scrollTo({left:c.offsetLeft-(track.clientWidth-c.clientWidth)/2,behavior:'smooth'}); }); dots.appendChild(b); });
-  track.addEventListener('scroll',function(){
-    var mid=track.scrollLeft+track.clientWidth/2, best=0, bd=1e9;
-    cards.forEach(function(c,i){ var d=Math.abs(c.offsetLeft+c.clientWidth/2-mid); if(d<bd){ bd=d; best=i; } });
-    [].forEach.call(dots.children,function(b,i){ b.className=i===best?'on':''; });
-  },{passive:true});
 })();
 </script>
 
