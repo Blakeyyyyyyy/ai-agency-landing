@@ -367,14 +367,14 @@ footer{border-top:1px solid var(--line);padding:34px 0;text-align:center;font-fa
   </div>
 </div></section>
 
-<!-- VIDEO TESTIMONIALS (Rohen, 28 Oct 2026). Under 1024px: 2x2 grid (Rohen dropped the mobile carousel). 1024px+: 4 in a row.
+<!-- VIDEO TESTIMONIALS (Rohen, 28 Oct 2026). Under 1024px: 2x2 grid (Rohen dropped the mobile carousel). 2x2 at every width (Sarhan, 28 Oct).
      Each Wistia player is created only when its card nears the viewport (player.js is already loaded once by the
      hero VSL). Our own round play button sits on the Wistia swatch; the control bar stays hidden until play, and
      starting one video pauses the others. -->
 <style>
 #video-testimonials .vt-head{text-align:center}
 #video-testimonials .vt-sub{max-width:560px;margin:0 auto}
-.vt-track{margin-top:30px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px}
+.vt-track{margin-top:30px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;max-width:620px;margin-left:auto;margin-right:auto}
 .vt-card{background:var(--card);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:12px;transition:box-shadow .25s,border-color .25s}
 .vt-card:hover,.vt-card.playing{border-color:rgba(50,208,159,.45);box-shadow:0 0 0 1px rgba(50,208,159,.15),0 10px 40px rgba(50,208,159,.16)}
 .vt-frame{position:relative;aspect-ratio:3/4;border-radius:14px;overflow:hidden;background:#000 center/contain no-repeat;display:flex;align-items:center;justify-content:center}
