@@ -320,10 +320,18 @@ footer{border-top:1px solid var(--line);padding:34px 0;text-align:center;font-fa
   </div>
 
   <div class="eyebrow" style="margin-top:44px">What you get, for free</div>
-  <div class="stats">
-    <div class="stat"><b>1</b><span><strong>Your very own Super Agent (like <em>Jarvis</em>)</strong>Your AI business partner, built by you</span></div>
-    <div class="stat"><b>3</b><span>ready-to-sell AI services</span></div>
-    <div class="stat"><b>$5,500</b><span>full AI agency course, free</span></div>
+  <!-- v2-style number cards (Sarhan, 28 Oct): the 3 boxes from the old /v2 page -->
+  <style>
+  .numrow{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;max-width:720px;margin:28px auto 0}
+  .numrow .n{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px 12px;text-align:center}
+  .numrow .n b{display:block;font-size:2.4rem;font-weight:900;color:var(--green);line-height:1.1}
+  .numrow .n span{display:block;margin-top:8px;font-size:1rem;font-weight:700;color:#fff;line-height:1.35}
+  @media(max-width:560px){.numrow{gap:8px}.numrow .n{padding:16px 6px;border-radius:14px}.numrow .n b{font-size:1.7rem}.numrow .n span{font-size:.82rem}}
+  </style>
+  <div class="numrow">
+    <div class="n"><b>1</b><span>Your own Jarvis AI</span></div>
+    <div class="n"><b>3</b><span>Ready-to-sell AI services</span></div>
+    <div class="n"><b>$5,500</b><span>Course included</span></div>
   </div>
 
 </div></header>
