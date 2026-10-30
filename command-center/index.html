@@ -480,11 +480,13 @@ function ff(l,id,type,val,opts){
   return`<div class="fl"><label>${l}</label><input id="${id}" type="${type==='number'?'text':type||'text'}" ${type==='number'?'inputmode="decimal"':''} value="${val??''}"></div>`;
 }
 // Base44 Monthly/Yearly count -> live Total/Revenue preview on the Setter EOD form.
-// $225/mo, $250/yr matches Base44's actual partner payout (clients/blake/CLAUDE.md §2).
+// From 30 Oct 2026 the plans are Builder Monthly ($250) / Builder Yearly ($350) / Starter Yearly ($275); the EOD
+// form only has monthly + yearly counts, so the preview uses Builder pricing. Real revenue comes from the signups rows.
 function updateB44Auto(){
   const m=N('sf-b4m'),y=N('sf-b4y');
+  const R=S.revenueByPlan||{};
   const t=$('sf-tot');if(t)t.value=m+y;
-  const r=$('sf-rev');if(r)r.value='$'+(m*225+y*250);
+  const r=$('sf-rev');if(r)r.value='$'+(m*(R['Builder Monthly']||250)+y*(R['Builder Yearly']||350));
 }
 // "Didn't Work Today" zeroes and locks the day's numbers instead of leaving
 // them blank - WS's own rule: blank means unfiled, 0 means filed and worked
