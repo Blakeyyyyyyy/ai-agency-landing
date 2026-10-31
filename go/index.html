@@ -401,14 +401,14 @@ footer{border-top:1px solid var(--line);padding:34px 0;text-align:center;font-fa
      Mobile: 2 per row, the odd one out centred (portrait) or full width (landscape). Wistia players load lazily;
      player.js is already loaded once by the hero VSL. -->
 <style>
-.vt-wrapper{margin-top:30px;display:grid;gap:18px;max-width:900px;margin-left:auto;margin-right:auto}
-.vt-group{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
-.vt-card{background:var(--card,#141414);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:10px;transition:box-shadow .25s,border-color .25s}
-.vt-card:hover,.vt-card.playing{border-color:rgba(50,208,159,.45);box-shadow:0 0 0 1px rgba(50,208,159,.15),0 10px 40px rgba(50,208,159,.16)}
-.vt-frame{position:relative;border-radius:13px;overflow:hidden;background:#000 center/cover no-repeat}
+.vt-wrapper{margin-top:30px;display:grid;gap:16px;max-width:780px;margin-left:auto;margin-right:auto}
+.vt-group{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.vt-card{border-radius:16px;transition:box-shadow .25s}
+.vt-card:hover,.vt-card.playing{box-shadow:0 0 0 2px rgba(50,208,159,.55),0 10px 36px rgba(50,208,159,.14)}
+.vt-frame{position:relative;border-radius:16px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.08);overflow:hidden;background:#000 center/cover no-repeat}
 .vt-card.port .vt-frame{aspect-ratio:9/16}
 .vt-card.land .vt-frame{aspect-ratio:16/9}
-.vt-group.land{grid-template-columns:repeat(2,minmax(0,1fr));max-width:720px;width:100%;margin:0 auto}
+.vt-group.land{grid-template-columns:repeat(2,minmax(0,1fr))}
 .vt-frame wistia-player{width:100%;display:block}
 .vt-play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:56px;height:56px;border-radius:50%;border:0;cursor:pointer;background:var(--green,#32d09f);display:flex;align-items:center;justify-content:center;padding-left:3px;box-shadow:0 8px 24px rgba(0,0,0,.45),0 0 0 6px rgba(50,208,159,.18);transition:transform .2s;z-index:2}
 .vt-play:hover{transform:translate(-50%,-50%) scale(1.07)}
@@ -416,11 +416,10 @@ footer{border-top:1px solid var(--line);padding:34px 0;text-align:center;font-fa
 .vt-card.playing .vt-play,.vt-card.playing .vt-dur{display:none}
 @media(max-width:767px){
   .vt-wrapper,.vt-group{gap:10px}
-  .vt-group{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .vt-card{padding:6px;border-radius:16px}.vt-frame{border-radius:11px}
+  .vt-group.land{grid-template-columns:repeat(2,minmax(0,1fr))}.vt-group.port{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .vt-card,.vt-frame{border-radius:12px}
   .vt-play{width:46px;height:46px}.vt-dur{top:7px;right:7px;font-size:.66rem}
   .vt-group.land>.vt-card:last-child:nth-child(odd){grid-column:1/-1}
-  .vt-group.port>.vt-card:last-child:nth-child(odd){grid-column:1/-1;justify-self:center;width:calc(50% - 5px)}
 }
 </style>
 <section id="vt-section"><div class="wrap">
