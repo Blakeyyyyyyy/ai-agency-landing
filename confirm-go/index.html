@@ -164,25 +164,39 @@ footer a{color:var(--muted);text-decoration:underline;margin:0 4px}
 <section style="padding-top:12px">
   <div class="wrap">
     <style>
-.vt-wrapper{margin-top:30px;display:grid;gap:16px;max-width:780px;margin-left:auto;margin-right:auto}
-.vt-group{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
-.vt-card{border-radius:16px;transition:box-shadow .25s}
-.vt-card:hover,.vt-card.playing{box-shadow:0 0 0 2px rgba(50,208,159,.55),0 10px 36px rgba(50,208,159,.14)}
-.vt-frame{position:relative;border-radius:16px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.08);overflow:hidden;background:#000 center/cover no-repeat}
+/* Video testimonials: staggered 3-column masonry (desktop), bento (mobile) */
+.vt-wrapper{position:relative;margin:34px auto 0;max-width:880px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;align-items:start;padding-bottom:56px}
+.vt-wrapper::before{content:"";position:absolute;inset:8% 6% 14%;background:radial-gradient(60% 55% at 50% 45%,rgba(50,208,159,.20),transparent 70%);filter:blur(40px);z-index:0;pointer-events:none}
+.vt-col{position:relative;z-index:1;display:flex;flex-direction:column;gap:20px}
+.vt-col2{margin-top:56px}
+.vt-card{position:relative;border-radius:18px;padding:1px;background:linear-gradient(160deg,rgba(255,255,255,.22),rgba(255,255,255,.04) 40%,rgba(50,208,159,.35));box-shadow:0 18px 40px rgba(0,0,0,.45);transition:transform .3s cubic-bezier(.2,.8,.2,1),box-shadow .3s}
+.vt-card:hover{transform:translateY(-5px);box-shadow:0 24px 50px rgba(0,0,0,.5),0 0 0 1px rgba(50,208,159,.5),0 0 40px rgba(50,208,159,.25)}
+.vt-card.playing{background:linear-gradient(160deg,#32d09f,rgba(50,208,159,.35));box-shadow:0 0 0 1px rgba(50,208,159,.6),0 0 50px rgba(50,208,159,.3);transform:none}
+.vt-frame{position:relative;border-radius:17px;overflow:hidden;background:#000 center/cover no-repeat}
+.vt-frame::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.25),transparent 30%,transparent 65%,rgba(0,0,0,.35));pointer-events:none;transition:opacity .3s}
+.vt-card.playing .vt-frame::after{opacity:0}
 .vt-card.port .vt-frame{aspect-ratio:9/16}
 .vt-card.land .vt-frame{aspect-ratio:16/9}
-.vt-group.land{grid-template-columns:repeat(2,minmax(0,1fr))}
-.vt-frame wistia-player{width:100%;display:block}
-.vt-play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:56px;height:56px;border-radius:50%;border:0;cursor:pointer;background:var(--green,#32d09f);display:flex;align-items:center;justify-content:center;padding-left:3px;box-shadow:0 8px 24px rgba(0,0,0,.45),0 0 0 6px rgba(50,208,159,.18);transition:transform .2s;z-index:2}
-.vt-play:hover{transform:translate(-50%,-50%) scale(1.07)}
-.vt-dur{position:absolute;top:10px;right:10px;z-index:2;background:rgba(0,0,0,.65);color:#fff;font-size:.72rem;font-weight:800;padding:3px 8px;border-radius:99px;letter-spacing:.04em}
+.vt-frame wistia-player{width:100%;display:block;position:relative;z-index:1}
+.vt-play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:58px;height:58px;border-radius:50%;border:0;cursor:pointer;background:var(--green,#32d09f);display:flex;align-items:center;justify-content:center;padding-left:3px;box-shadow:0 8px 24px rgba(0,0,0,.45);z-index:3;transition:transform .25s}
+.vt-play::before{content:"";position:absolute;inset:-8px;border-radius:50%;border:2px solid rgba(50,208,159,.55);animation:vtPulse 2.2s ease-out infinite}
+@keyframes vtPulse{0%{transform:scale(.85);opacity:.9}100%{transform:scale(1.45);opacity:0}}
+.vt-card:hover .vt-play{transform:translate(-50%,-50%) scale(1.08)}
+.vt-card.land .vt-play{width:48px;height:48px}
+.vt-dur{position:absolute;top:10px;right:10px;z-index:3;background:rgba(0,0,0,.6);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);color:#fff;font-size:.72rem;font-weight:800;padding:3px 9px;border-radius:99px;letter-spacing:.04em;border:1px solid rgba(255,255,255,.12)}
 .vt-card.playing .vt-play,.vt-card.playing .vt-dur{display:none}
+@media (prefers-reduced-motion:reduce){.vt-play::before{animation:none}.vt-card{transition:none}}
 @media(max-width:767px){
-  .vt-wrapper,.vt-group{gap:10px}
-  .vt-group.land{grid-template-columns:repeat(2,minmax(0,1fr))}.vt-group.port{grid-template-columns:repeat(3,minmax(0,1fr))}
-  .vt-card,.vt-frame{border-radius:12px}
-  .vt-play{width:46px;height:46px}.vt-dur{top:7px;right:7px;font-size:.66rem}
-  .vt-group.land>.vt-card:last-child:nth-child(odd){grid-column:1/-1}
+  .vt-wrapper{grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;padding-bottom:0;margin-top:26px}
+  .vt-col{display:contents}
+  .vt-card.p1,.vt-card.p2,.vt-card.p3{grid-column:span 2}
+  .vt-card.l1{grid-column:1/-1}
+  .vt-card.l2,.vt-card.l3{grid-column:span 3}
+  .vt-card.p1{order:1}.vt-card.p2{order:2}.vt-card.p3{order:3}.vt-card.l1{order:4}.vt-card.l2{order:5}.vt-card.l3{order:6}
+  .vt-card{border-radius:13px}.vt-frame{border-radius:12px}
+  .vt-play{width:42px;height:42px}.vt-card.land .vt-play{width:42px;height:42px}.vt-card.l1 .vt-play{width:54px;height:54px}
+  .vt-dur{top:6px;right:6px;font-size:.62rem;padding:2px 7px}
+  .vt-card:hover{transform:none}
 }
 </style>
     <div class="center">
@@ -190,10 +204,7 @@ footer a{color:var(--muted);text-decoration:underline;margin:0 4px}
       <h2>Hear it <span class="g">from them.</span></h2>
       <p class="lede">Real people who started with nothing extra, just the course and their own Jarvis.</p>
     </div>
-    <div id="video-testimonials" class="vt-wrapper">
-      <div class="vt-group port"><div class="vt-card port" data-media="jhp5nmgpr5" data-aspect="0.5625"><div class="vt-frame" style="background-image:url('https://fast.wistia.com/embed/medias/jhp5nmgpr5/swatch')"><span class="vt-dur">1:35</span><button class="vt-play" type="button" aria-label="Play testimonial"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="#fff"/></svg></button></div></div><div class="vt-card port" data-media="5ozgesvxk9" data-aspect="0.5625"><div class="vt-frame" style="background-image:url('https://fast.wistia.com/embed/medias/5ozgesvxk9/swatch')"><span class="vt-dur">3:02</span><button class="vt-play" type="button" aria-label="Play testimonial"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="#fff"/></svg></button></div></div><div class="vt-card port" data-media="nzqmjisr2u" data-aspect="0.5625"><div class="vt-frame" style="background-image:url('https://fast.wistia.com/embed/medias/nzqmjisr2u/swatch')"><span class="vt-dur">0:49</span><button class="vt-play" type="button" aria-label="Play testimonial"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="#fff"/></svg></button></div></div></div>
-      <div class="vt-group land"><div class="vt-card land" data-media="294q5z528b" data-aspect="1.7777777777777777"><div class="vt-frame" style="background-image:url('https://fast.wistia.com/embed/medias/294q5z528b/swatch')"><span class="vt-dur">1:55</span><button class="vt-play" type="button" aria-label="Play testimonial"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="#fff"/></svg></button></div></div><div class="vt-card land" data-media="grg0r2src2" data-aspect="1.7777777777777777"><div class="vt-frame" style="background-image:url('https://fast.wistia.com/embed/medias/grg0r2src2/swatch')"><span class="vt-dur">0:34</span><button class="vt-play" type="button" aria-label="Play testimonial"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="#fff"/></svg></button></div></div><div class="vt-card land" data-media="zxdmzn1j5o" data-aspect="1.7777777777777777"><div class="vt-frame" style="background-image:url('https://fast.wistia.com/embed/medias/zxdmzn1j5o/swatch')"><span class="vt-dur">0:42</span><button class="vt-play" type="button" aria-label="Play testimonial"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="#fff"/></svg></button></div></div><div class="vt-card land" data-media="8tlq1evctg" data-aspect="1.7777777777777777"><div class="vt-frame" style="background-image:url('https://fast.wistia.com/embed/medias/8tlq1evctg/swatch')"><span class="vt-dur">0:39</span><button class="vt-play" type="button" aria-label="Play testimonial"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="#fff"/></svg></button></div></div></div>
-    </div>
+    <div id="video-testimonials" class="vt-wrapper"><div class="vt-col vt-col1"><div class="vt-card port p1" data-media="jhp5nmgpr5" data-aspect="0.5625"><div class="vt-frame" style="background-image:url('https://fast.wistia.com/embed/medias/jhp5nmgpr5/swatch')"><span class="vt-dur">1:35</span><button class="vt-play" type="button" aria-label="Play testimonial"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="#fff"/></svg></button></div></div><div class="vt-card land l1" data-media="grg0r2src2" data-aspect="1.7777777777777777"><div class="vt-frame" style="background-image:url('https://fast.wistia.com/embed/medias/grg0r2src2/swatch')"><span class="vt-dur">0:34</span><button class="vt-play" type="button" aria-label="Play testimonial"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="#fff"/></svg></button></div></div></div><div class="vt-col vt-col2"><div class="vt-card port p2" data-media="5ozgesvxk9" data-aspect="0.5625"><div class="vt-frame" style="background-image:url('https://fast.wistia.com/embed/medias/5ozgesvxk9/swatch')"><span class="vt-dur">3:02</span><button class="vt-play" type="button" aria-label="Play testimonial"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="#fff"/></svg></button></div></div><div class="vt-card land l2" data-media="zxdmzn1j5o" data-aspect="1.7777777777777777"><div class="vt-frame" style="background-image:url('https://fast.wistia.com/embed/medias/zxdmzn1j5o/swatch')"><span class="vt-dur">0:42</span><button class="vt-play" type="button" aria-label="Play testimonial"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="#fff"/></svg></button></div></div></div><div class="vt-col vt-col3"><div class="vt-card port p3" data-media="nzqmjisr2u" data-aspect="0.5625"><div class="vt-frame" style="background-image:url('https://fast.wistia.com/embed/medias/nzqmjisr2u/swatch')"><span class="vt-dur">0:49</span><button class="vt-play" type="button" aria-label="Play testimonial"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="#fff"/></svg></button></div></div><div class="vt-card land l3" data-media="8tlq1evctg" data-aspect="1.7777777777777777"><div class="vt-frame" style="background-image:url('https://fast.wistia.com/embed/medias/8tlq1evctg/swatch')"><span class="vt-dur">0:39</span><button class="vt-play" type="button" aria-label="Play testimonial"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="#fff"/></svg></button></div></div></div></div>
   </div>
 </section>
 <script>
