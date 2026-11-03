@@ -569,7 +569,7 @@ function renderSetter(){
     <div class="g g2">${ff('# Total Dials','sf-di','number',ed?.totalDials||0)}${ff('# Unique Leads Dialed','sf-ul','number',ed?.uniqueLeadsDialed||0)}</div>
     ${ff('# Pick Ups','sf-pu','number',ed?.pickUps||0)}
     <div class="g g2"><div class="fl"><label># Base 44 Monthly Sales</label><input id="sf-b4m" type="text" inputmode="decimal" value="${ed?.base44MonthlySales||0}" oninput="updateB44Auto()"></div><div class="fl"><label># Base 44 Yearly Sales</label><input id="sf-b4y" type="text" inputmode="decimal" value="${ed?.base44YearlySales||0}" oninput="updateB44Auto()"></div></div>
-    <div class="g g2"><div class="fl"><label>Total LT Sales (Auto)</label><input id="sf-tot" type="text" value="${(Number(ed?.base44MonthlySales)||0)+(Number(ed?.base44YearlySales)||0)}" disabled style="opacity:.55"></div><div class="fl"><label>LT Revenue (Auto)</label><input id="sf-rev" type="text" value="$${(Number(ed?.base44MonthlySales)||0)*225+(Number(ed?.base44YearlySales)||0)*250}" disabled style="opacity:.55"></div></div>
+    <div class="g g2"><div class="fl"><label>Total LT Sales (Auto)</label><input id="sf-tot" type="text" value="${(Number(ed?.base44MonthlySales)||0)+(Number(ed?.base44YearlySales)||0)}" disabled style="opacity:.55"></div><div class="fl"><label>LT Revenue (Auto)</label><input id="sf-rev" type="text" value="$${(Number(ed?.base44MonthlySales)||0)*((S.revenueByPlan||{})['Builder Monthly']||250)+(Number(ed?.base44YearlySales)||0)*((S.revenueByPlan||{})['Builder Yearly']||350)}" disabled style="opacity:.55"></div></div>
     ${ff('1 Win For The Day','sf-w','text',ed?.winForTheDay||'')}
     ${ff('1 Improvement','sf-i','text',ed?.improvementForNextDay||'')}
     <button class="btn" style="background:${ed?'#eab308':'var(--green)'}" onclick="submitSetter()">${ed?'💾 Update Report':'Submit Setter Report'}</button>
@@ -619,7 +619,7 @@ async function submitSetter(){
   }
   toast('Saving...');
   const b4m=N('sf-b4m'),b4y=N('sf-b4y');
-  const data={date:V('sf-d'),setterName:V('sf-nm'),didntWorkToday:$('sf-nowork')?.checked?'Yes':'No',totalDials:N('sf-di'),uniqueLeadsDialed:N('sf-ul'),pickUps:N('sf-pu'),base44MonthlySales:b4m,base44YearlySales:b4y,totalLTSalesAuto:b4m+b4y,ltRevenueAuto:b4m*225+b4y*250,winForTheDay:V('sf-w'),improvementForNextDay:V('sf-i')};
+  const data={date:V('sf-d'),setterName:V('sf-nm'),didntWorkToday:$('sf-nowork')?.checked?'Yes':'No',totalDials:N('sf-di'),uniqueLeadsDialed:N('sf-ul'),pickUps:N('sf-pu'),base44MonthlySales:b4m,base44YearlySales:b4y,totalLTSalesAuto:b4m+b4y,ltRevenueAuto:b4m*((S.revenueByPlan||{})['Builder Monthly']||250)+b4y*((S.revenueByPlan||{})['Builder Yearly']||350),winForTheDay:V('sf-w'),improvementForNextDay:V('sf-i')};
   try{
     if(S.editingSetterRow){
       const r=await apiUpdate('setter_reports',S.editingSetterRow,data);
