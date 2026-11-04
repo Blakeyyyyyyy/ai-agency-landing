@@ -996,10 +996,17 @@ async function retry(store, opts = {}) {
   return { processed };
 }
 
+// tasks/J-351/source/runtime-settings.mjs
+async function telegramSettings() {
+  if (process.env.BALI_TELEGRAM_BOT_TOKEN && process.env.BALI_TELEGRAM_CHAT_ID) return { BALI_TELEGRAM_BOT_TOKEN: process.env.BALI_TELEGRAM_BOT_TOKEN, BALI_TELEGRAM_CHAT_ID: process.env.BALI_TELEGRAM_CHAT_ID };
+  const saved = await getStore({ name: "bali-notifier-private", consistency: "strong" }).get("telegram", { type: "json" });
+  return saved ? { BALI_TELEGRAM_BOT_TOKEN: saved.botToken, BALI_TELEGRAM_CHAT_ID: saved.chatId } : {};
+}
+
 // tasks/J-351/source/retry-entry.mjs
 async function retry_entry_default() {
   try {
-    await retry(getStore({ name: "bali-applications", consistency: "strong" }));
+    await retry(getStore({ name: "bali-applications", consistency: "strong" }), { env: await telegramSettings() });
   } catch {
     console.error("BALI_NOTIFICATION_RETRY_UNAVAILABLE");
   }

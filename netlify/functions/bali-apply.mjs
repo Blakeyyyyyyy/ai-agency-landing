@@ -1049,10 +1049,22 @@ async function apply(request, { store, env = process.env, fetcher = fetch, now =
   }
 }
 
+// tasks/J-351/source/runtime-settings.mjs
+async function telegramSettings() {
+  if (process.env.BALI_TELEGRAM_BOT_TOKEN && process.env.BALI_TELEGRAM_CHAT_ID) return { BALI_TELEGRAM_BOT_TOKEN: process.env.BALI_TELEGRAM_BOT_TOKEN, BALI_TELEGRAM_CHAT_ID: process.env.BALI_TELEGRAM_CHAT_ID };
+  const saved = await getStore({ name: "bali-notifier-private", consistency: "strong" }).get("telegram", { type: "json" });
+  return saved ? { BALI_TELEGRAM_BOT_TOKEN: saved.botToken, BALI_TELEGRAM_CHAT_ID: saved.chatId } : {};
+}
+
 // tasks/J-351/source/apply-entry.mjs
 async function apply_entry_default(request) {
   try {
-    return await apply(request, { store: getStore({ name: "bali-applications", consistency: "strong" }) });
+    let env = {};
+    try {
+      env = await telegramSettings();
+    } catch {
+    }
+    return await apply(request, { store: getStore({ name: "bali-applications", consistency: "strong" }), env });
   } catch {
     return new Response(JSON.stringify({ error: "Could not save your application. Please try again." }), { status: 503, headers: { "Content-Type": "application/json", "Cache-Control": "no-store" } });
   }
