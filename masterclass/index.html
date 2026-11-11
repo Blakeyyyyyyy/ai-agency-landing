@@ -289,6 +289,8 @@ footer{border-top:1px solid var(--line);padding:34px 0;text-align:center;font-fa
 .toplogo{display:flex;justify-content:center;padding:26px 0 0}
 .toplogo .logo{color:var(--ink);text-decoration:none}
 .hero{text-align:left}
+.topbadge{text-align:center;margin-top:18px}
+.topbadge .eyebrow{white-space:nowrap;margin-bottom:0}
 .hero-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:48px;align-items:center;margin-top:30px}
 .hero h1{margin:16px 0 0;max-width:none}
 .hero-photo img{width:100%;aspect-ratio:4/5;object-fit:cover;object-position:50% 40%;border-radius:18px;border:1px solid var(--line)}
@@ -311,6 +313,9 @@ footer{border-top:1px solid var(--line);padding:34px 0;text-align:center;font-fa
 
 #register .whenline{text-align:center}
 @media(max-width:860px){.hero-grid{grid-template-columns:1fr;gap:0}.hero-photo{display:none}.hero .btn.big{display:block;text-align:center}}
+@media(max-width:560px){.topbadge .eyebrow{font-size:.56rem;letter-spacing:.05em;padding:6px 9px}}
+@media(max-width:560px){.hero > .wrap,section > .wrap{padding-left:18px!important;padding-right:18px!important}}
+@media(max-width:380px){.topbadge .eyebrow{font-size:.54rem;letter-spacing:.03em;padding:6px 8px}}
 @media(max-width:420px){.hero .cd-box{min-width:0;flex:1}.hostcard img{width:64px;height:64px;flex-basis:64px}}
 </style>
 <!-- Cortana pixel -->
@@ -347,9 +352,9 @@ footer{border-top:1px solid var(--line);padding:34px 0;text-align:center;font-fa
 
 <header class="hero" id="top"><div class="wrap">
   <div class="toplogo"><span class="logo"><span class="chip">AI</span> AGENCY</span></div>
+  <div class="topbadge"><div class="eyebrow">Free live masterclass · Friday 13 November · 10am AEST</div></div>
   <div class="hero-grid">
     <div>
-      <div class="eyebrow">Free live masterclass · Friday 13 November · 10am AEST</div>
       <h1>How To Make <em>$100k</em> Before 2027 Selling AI, With Jarvis</h1>
       <div class="hostcard">
         <img src="/vsl-img/blake-founder.jpg" alt="Blake">
