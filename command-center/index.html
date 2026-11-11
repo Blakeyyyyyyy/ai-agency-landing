@@ -1877,7 +1877,7 @@ function renderHT(){
 
 // ── Setter discrepancy check (Sarhan, 11 Nov 2026) ──
 // Verified Base44 sales (signed affiliate-portal webhooks, attributed by each setter's Shared ID link) vs
-// setter-claimed sales (signups), per setter, via /api/affiliate-discrepancy. Leadership only.
+// setter-claimed sales (signups), per setter, via /api/affiliate-discrepancy. All logins (Sarhan, 11 Nov).
 const DISC_URL='https://blake-discord-relay.vercel.app/api/affiliate-discrepancy';
 let DISC={rows:[],at:null,loading:false,err:'',meta:{}};
 async function loadDisc(force){
@@ -1887,10 +1887,9 @@ async function loadDisc(force){
   catch(e){DISC.err=String(e);}
   DISC.at=Date.now();DISC.loading=false;if(S.view==='dashboard')render();
 }
-setInterval(()=>{if(S.view==='dashboard'&&userRole==='leadership')loadDisc(true)},120000);
+setInterval(()=>{if(S.view==='dashboard')loadDisc(true)},120000);
 function renderDisc(){
-  if(userRole!=='leadership')return'';
-  loadDisc(false);
+  loadDisc(false); // visible to every login, setters included (Sarhan, 11 Nov)
   const esc=x=>String(x??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
   const rows=DISC.rows.filter(r=>inR(r.day));
   const by={};rows.forEach(r=>{const a=by[r.rep]=by[r.rep]||{rep:r.rep,claimed:0,net:0,reversed:0,disc:0,plan:0,partial:false,settling:false,comm:0};a.claimed+=r.claimed;a.net+=r.net;a.reversed+=r.reversed;a.disc+=r.discrepancy;a.comm+=r.commission;if(r.planMismatch)a.plan++;if(r.status==='partial')a.partial=true;if(r.status==='settling')a.settling=true;});
