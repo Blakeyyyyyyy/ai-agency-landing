@@ -1808,6 +1808,7 @@ function renderPayouts(){
 // selected range; revenue uses its won date. Monthly target bar is always this calendar month.
 const HT_URL='https://blake-discord-relay.vercel.app/api/ht-stats';
 const HT_TARGET=500000;
+const HT_RATES={Saad:0.10}; // closer commission per high-ticket close (Sarhan, 11 Nov); payroll lines come from /api/ht-commission
 let HT={rows:[],stages:[],at:null,loading:false,err:''};
 async function loadHT(force){
   if(HT.loading)return; if(!force&&HT.at&&Date.now()-HT.at<55000)return;
@@ -1864,8 +1865,8 @@ function renderHT(){
   </div>
   <div class="sec">
     <div style="font-size:14px;font-weight:800;margin-bottom:12px">Closer leaderboard (HT wins in range)</div>
-    <table style="width:100%;border-collapse:collapse"><thead><tr style="text-align:left;font-size:10px;color:var(--dmr)"><th style="padding:6px">Closer</th><th style="padding:6px">Closes</th><th style="padding:6px">Revenue</th></tr></thead>
-    <tbody>${Object.keys(owners).length?Object.entries(owners).sort((a,c)=>c[1].v-a[1].v).map(([o,x])=>`<tr style="border-top:1px solid rgba(255,255,255,.06)"><td style="padding:8px;font-weight:700">${esc(o)}</td><td style="padding:8px">${x.n}</td><td style="padding:8px;color:var(--gb)">${fmt(x.v)}</td></tr>`).join(''):'<tr><td colspan="3" style="padding:16px;text-align:center;color:var(--dmr)">No high-ticket closes in this range yet</td></tr>'}</tbody></table>
+    <table style="width:100%;border-collapse:collapse"><thead><tr style="text-align:left;font-size:10px;color:var(--dmr)"><th style="padding:6px">Closer</th><th style="padding:6px">Closes</th><th style="padding:6px">Revenue</th><th style="padding:6px">Commission</th></tr></thead>
+    <tbody>${Object.keys(owners).length?Object.entries(owners).sort((a,c)=>c[1].v-a[1].v).map(([o,x])=>`<tr style="border-top:1px solid rgba(255,255,255,.06)"><td style="padding:8px;font-weight:700">${esc(o)}</td><td style="padding:8px">${x.n}</td><td style="padding:8px;color:var(--gb)">${fmt(x.v)}</td><td style="padding:8px;color:#10b981">${HT_RATES[o]!=null?fmt(x.v*HT_RATES[o])+' <span style="color:var(--dmr);font-size:11px">('+Math.round(HT_RATES[o]*100)+'%)</span>':'-'}</td></tr>`).join(''):'<tr><td colspan="4" style="padding:16px;text-align:center;color:var(--dmr)">No high-ticket closes in this range yet</td></tr>'}</tbody></table>
   </div>
   <div class="sec">
     <div style="font-size:14px;font-weight:800;margin-bottom:12px">All High Ticket opportunities (latest activity first)</div>
