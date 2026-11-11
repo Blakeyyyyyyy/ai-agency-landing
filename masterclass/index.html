@@ -24,14 +24,14 @@
 </script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Free Masterclass: Start Your AI Agency With Your Own Jarvis</title>
+<title>Free Masterclass: How To Make $100k Before 2027 Selling AI, With Jarvis</title>
 <meta name="robots" content="noindex,nofollow">
 <meta name="description" content="Build your own Jarvis, the AI that runs an entire agency for you. The full course is free.">
 <meta name="robots" content="noindex">
 <!-- Link preview (Open Graph + Twitter) -->
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://theaiagencybuilder.com/masterclass/">
-<meta property="og:title" content="Free Masterclass: Start Your AI Agency With Your Own Jarvis">
+<meta property="og:title" content="Free Masterclass: How To Make $100k Before 2027 Selling AI, With Jarvis">
 <meta property="og:description" content="Get your own AI Super Agent that finds your leads, builds the services you sell, and helps you close them. Plus the full course, free.">
 <meta property="og:image" content="https://theaiagencybuilder.com/vsl/poster.jpg">
 <meta property="og:image:width" content="1280">
@@ -284,8 +284,9 @@ footer{border-top:1px solid var(--line);padding:34px 0;text-align:center;font-fa
 </div></nav>
 
 <header class="hero" id="top"><div class="wrap">
-  <div class="eyebrow">Free live masterclass · [DAY, DATE] at [TIME + TIMEZONE]</div>
-  <h1>Free Masterclass: How To Start Your <em>AI Agency</em> With Your Own <em>Jarvis AI</em> Doing The Work. <em>Live, And Free.</em></h1>
+  <div class="eyebrow">Free live masterclass · Friday 13 November, 10am AEST</div>
+  <h1>How To Make <em>$100k Before 2027</em> Selling AI, With <em>Jarvis</em></h1>
+  <p style="color:var(--muted);font-weight:700;margin-top:10px">Free live masterclass. Friday 13 November, 10am AEST (Brisbane)<span class="mc-local" data-utc="2026-11-13T00:00:00Z"></span>.</p>
 
   <div id="vsl" style="max-width:860px;margin:30px auto 0;border:1px solid var(--line);border-radius:18px;overflow:hidden;background:#000">
     <!-- VIDALYTICS paused 22 Oct (player down), swapped to Wistia. To revert: delete the Wistia block below and uncomment this.
@@ -507,7 +508,7 @@ footer{border-top:1px solid var(--line);padding:34px 0;text-align:center;font-fa
 <section class="register" id="register"><div class="wrap">
   <div class="eyebrow">Save your seat</div>
   <h2>Seats are limited.</h2>
-  <p class="lead" style="margin:0 auto 28px;text-align:center">[DAY, DATE] at [TIME + TIMEZONE]. If the button below still works, there are still seats.</p>
+  <p class="lead" style="margin:0 auto 28px;text-align:center">Friday 13 November, 10am AEST<span class="mc-local" data-utc="2026-11-13T00:00:00Z"></span>. If the button below still works, there are still seats.</p>
   <div class="openonly">
     <a class="btn big" href="/register/">Save My Free Seat →</a>
   </div>
@@ -802,6 +803,12 @@ if(VSL_URL){
   }
   box.addEventListener('click', playSound);
 })();
+</script>
+<script>
+/* Show the masterclass time in the visitor's own timezone under the AEST time. */
+(function(){ try{ var els=document.querySelectorAll('.mc-local'); for(var i=0;i<els.length;i++){ var d=new Date(els[i].getAttribute('data-utc'));
+  var s=d.toLocaleString(undefined,{weekday:'long',day:'numeric',month:'long',hour:'numeric',minute:'2-digit',timeZoneName:'short'});
+  els[i].textContent=' (that\'s '+s+' where you are)'; } }catch(e){} })();
 </script>
 </body>
 </html>
