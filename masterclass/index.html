@@ -288,26 +288,38 @@ footer{border-top:1px solid var(--line);padding:34px 0;text-align:center;font-fa
   <h1>How To Make <em>$100k Before 2027</em> Selling AI, With <em>Jarvis</em></h1>
   <p style="color:var(--muted);font-weight:700;margin-top:10px">Free live masterclass. Friday 13 November, 10am AEST (Brisbane)<span class="mc-local" data-utc="2026-11-13T00:00:00Z"></span>.</p>
 
-  <div id="vsl" style="max-width:860px;margin:30px auto 0;border:1px solid var(--line);border-radius:18px;overflow:hidden;background:#000">
-    <!-- VIDALYTICS paused 22 Oct (player down), swapped to Wistia. To revert: delete the Wistia block below and uncomment this.
-    <div id="vidalytics_embed_3R7OCcfzdW7Y5lhP" style="width: 100%; position:relative; padding-top: 56.25%;"></div>
-    <script type="text/javascript">
-    (function (v, i, d, a, l, y, t, c, s) {
-        y='_'+d.toLowerCase();c=d+'L';if(!v[d]){v[d]={};}if(!v[c]){v[c]={};}if(!v[y]){v[y]={};}var vl='Loader',vli=v[y][vl],vsl=v[c][vl + 'Script'],vlf=v[c][vl + 'Loaded'],ve='Embed';
-        if (!vsl){vsl=function(u,cb){
-            if(t){cb();return;}s=i.createElement("script");s.type="text/javascript";s.async=1;s.src=u;
-            if(s.readyState){s.onreadystatechange=function(){if(s.readyState==="loaded"||s.readyState=="complete"){s.onreadystatechange=null;vlf=1;cb();}};}else{s.onload=function(){vlf=1;cb();};}
-            i.getElementsByTagName("head")[0].appendChild(s);
-        };}
-        vsl(l+'loader.min.js',function(){if(!vli){var vlc=v[c][vl];vli=new vlc();}vli.loadScript(l+'player.min.js',function(){var vec=v[d][ve];t=new vec();t.run(a);});});
-    })(window, document, 'Vidalytics', 'vidalytics_embed_3R7OCcfzdW7Y5lhP', 'https://fast.vidalytics.com/embeds/Z0zRExfJ/3R7OCcfzdW7Y5lhP/');
-    </script>
-    -->
-    <script src="https://fast.wistia.com/player.js" async></script>
-    <script src="https://fast.wistia.com/embed/oaxxctdtjw.js" async type="module"></script>
-    <style>wistia-player[media-id='oaxxctdtjw']:not(:defined){background:center / contain no-repeat url('https://fast.wistia.com/embed/medias/oaxxctdtjw/swatch');display:block;filter:blur(5px);padding-top:56.25%;}</style>
-    <wistia-player media-id="oaxxctdtjw" aspect="1.7778" player-color="32d09f"></wistia-player>
+  <script src="https://fast.wistia.com/player.js" async></script><!-- still needed for the testimonial videos further down -->
+  <div id="mc-countdown" style="max-width:760px;margin:30px auto 0;border:1px solid var(--line);border-radius:18px;background:radial-gradient(500px 220px at 50% 120%,rgba(50,208,159,.18),rgba(20,20,20,.7));padding:28px 18px">
+    <div style="font-family:var(--mono,monospace);font-size:.78rem;letter-spacing:.18em;text-transform:uppercase;color:var(--green);font-weight:800;margin-bottom:14px">Masterclass starts in</div>
+    <div class="cd-row" style="display:flex;justify-content:center;gap:12px;flex-wrap:wrap">
+      <div class="cd-box"><span id="cd-d">00</span><small>Days</small></div>
+      <div class="cd-box"><span id="cd-h">00</span><small>Hours</small></div>
+      <div class="cd-box"><span id="cd-m">00</span><small>Minutes</small></div>
+      <div class="cd-box"><span id="cd-s">00</span><small>Seconds</small></div>
+    </div>
+    <div id="cd-live" style="display:none;color:#fff;font-weight:900;font-size:1.3rem;margin-top:6px">We're live now. Save your seat to get the link.</div>
   </div>
+  <style>
+  .cd-box{min-width:92px;background:#0d0d0d;border:1px solid #2a2a2a;border-radius:14px;padding:14px 10px;display:flex;flex-direction:column;align-items:center}
+  .cd-box span{font-family:var(--display);font-weight:900;font-size:2.6rem;line-height:1;color:#fff;font-variant-numeric:tabular-nums}
+  .cd-box small{margin-top:8px;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted,#a3a3a3);font-weight:800}
+  @media(max-width:560px){.cd-box{min-width:68px;padding:12px 6px}.cd-box span{font-size:1.9rem}}
+  </style>
+  <script>
+  /* Countdown to the masterclass: Friday 13 Nov 2026, 10am AEST = 00:00 UTC. */
+  (function(){
+    var T=Date.parse('2026-11-13T00:00:00Z'), ids=['d','h','m','s'];
+    function pad(n){return (n<10?'0':'')+n;}
+    function tick(){
+      var ms=T-Date.now();
+      if(ms<=0){ document.querySelector('#mc-countdown .cd-row').style.display='none'; document.getElementById('cd-live').style.display='block'; return; }
+      var v=[Math.floor(ms/864e5),Math.floor(ms/36e5)%24,Math.floor(ms/6e4)%60,Math.floor(ms/1e3)%60];
+      for(var i=0;i<4;i++) document.getElementById('cd-'+ids[i]).textContent=pad(v[i]);
+      setTimeout(tick,1000);
+    }
+    tick();
+  })();
+  </script>
 
   <div style="margin-top:26px">
     <a class="btn big openonly" href="/register/">Save My Free Seat →</a>
