@@ -713,42 +713,21 @@ if(VSL_URL){
     if(!cost){ err.textContent='Please confirm you understand the $50 a month platform cost.'; return; }
     if(window.abLog) window.abLog('form_submit');
     send.disabled=true; send.textContent='One moment...';
-    fetch(U+'/rest/v1/waitlist',{method:'POST',
-      headers:{'Content-Type':'application/json','apikey':K,'Authorization':'Bearer '+K,'Prefer':'return=minimal'},
-      body:JSON.stringify({name:name,email:email,source:src()})
-    }).then(function(r){
-      if(r.ok||r.status===201||r.status===204||r.status===409){
-        
-        // Close is the system of record: create the lead there immediately.
-        // Supabase write above stays as backup / event log, unchanged.
-        try{
-          var mccEl = document.getElementById('mcc');
-          var mccOpt = mccEl && mccEl.selectedOptions && mccEl.selectedOptions[0];
-          var isoMatch = mccOpt && /([A-Z]{2})\s*\+\d/.exec(mccOpt.textContent);
-          var ccName = isoMatch ? isoMatch[1] : cc;
-          fetch('https://blake-discord-relay.vercel.app/api/create-lead',{method:'POST',headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({name:name,email:email,phone:cc+' '+ph,country:ccName,source:(window.MC_PAID?'paid':'organic'),funnel:'masterclass',source_url:location.href}),keepalive:true}).catch(function(){});
-        }catch(e){}
-        ev(email,name,'phone',cc+' '+ph);
-        ev(email,name,'sms_consent',sms?'yes':'no');
-        ev(email,name,'cost_ack','yes');
-        try{ localStorage.setItem('waitlist.joined','1'); }catch(e){}
-        /* Every claim on the landing = HOT (they watched the VSL, gave their number, ticked the $50). Fire the hot tag for ALL claims, not just waitlist-path applies. */
-         ev(email,name,'landing_apply','1');
-        // Register in WebinarJam + Kit + Discord, then send them on with their personal join link (?wj=).
-        // Never strand the visitor: after 9s, or on any error, they go to the confirm page anyway.
-        var dest = window.MC_PAID ? '/masterclass/confirmed-go/' : '/masterclass/confirmed/', gone=false;
-        function go(wj){ if(gone) return; gone=true; location.href = dest + (wj ? '?wj='+encodeURIComponent(wj) : ''); }
-        setTimeout(function(){ go(''); }, 9000);
-        try{
-          var mo = document.getElementById('mcc').selectedOptions[0];
-          var iso = mo && /([A-Z]{2})\s*\+\d/.exec(mo.textContent);
-          fetch('https://blake-discord-relay.vercel.app/api/webinar-registrant',{method:'POST',headers:{'Content-Type':'text/plain'},
-            body:JSON.stringify({name:name,first_name:first,last_name:last,email:email,cc:cc,phone:pdig,country:iso?iso[1]:'',paid:!!window.MC_PAID,source_url:location.href})})
-          .then(function(r){return r.json();}).then(function(d){ go(d && d.live_room_url); }).catch(function(){ go(''); });
-        }catch(e){ go(''); }
-      } else { send.disabled=false; send.textContent=LBL; err.textContent='Something went wrong. Please try again.'; }
-    }).catch(function(){ send.disabled=false; send.textContent=LBL; err.textContent='Network problem. Please try again.'; });
+    // Masterclass = High Ticket funnel (Sarhan, 11 Nov 2026). One call does it all: WebinarJam, Close lead + High Ticket
+    // opportunity (no Base44 opp / #new-lead card), Kit, #masterclass-registrants, confirmation email. The old
+    // Supabase waitlist + create-lead calls are gone on purpose: they made Base44 pipeline leads and HOT drips.
+    // Register in WebinarJam + Kit + Discord, then send them on with their personal join link (?wj=).
+    // Never strand the visitor: after 15s, or on any error, they go to the confirm page anyway.
+    var dest = window.MC_PAID ? '/masterclass/confirmed-go/' : '/masterclass/confirmed/', gone=false;
+    function go(wj){ if(gone) return; gone=true; location.href = dest + (wj ? '?wj='+encodeURIComponent(wj) : ''); }
+    setTimeout(function(){ go(''); }, 15000);
+    try{
+      var mo = document.getElementById('mcc').selectedOptions[0];
+      var iso = mo && /([A-Z]{2})\s*\+\d/.exec(mo.textContent);
+      fetch('https://blake-discord-relay.vercel.app/api/webinar-registrant',{method:'POST',headers:{'Content-Type':'text/plain'},
+        body:JSON.stringify({name:name,first_name:first,last_name:last,email:email,cc:cc,phone:pdig,country:iso?iso[1]:'',paid:!!window.MC_PAID,source_url:location.href})})
+      .then(function(r){return r.json();}).then(function(d){ go(d && d.live_room_url); }).catch(function(){ go(''); });
+    }catch(e){ go(''); }
   });
 
   // ---- live phone check as they type (guides them before submit; does not touch submit) ----
