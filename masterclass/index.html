@@ -555,25 +555,8 @@ if(VSL_URL){
     <h3 id="mtitle">Save your free masterclass seat</h3>
     <p style="color:#a3a3a3;font-size:.92rem;margin:-6px 0 12px">Friday 13 November, 10am AEST. Your join link comes by email.</p>
     <div id="merr"></div>
-    <!-- WebinarJam registration (Rohen, 11 Nov 2026). Dark + green to match the site. WebinarJam sends the join link
-         and reminders. On success its iframe asks the page to redirect to WebinarJam's thank-you page; we catch that
-         and send people to our own confirm page instead (paid -> /confirmed-go with pixel, organic -> /confirmed),
-         carrying their personal WebinarJam link along as ?wj= so the confirm page can show it. -->
-    <script>
-    window.addEventListener('message', function(e){
-      try{
-        if(!/(^|\.)webinarjam\.com$/.test(new URL(e.origin).hostname)) return;
-        var d=e.data||{}; if(d.func!=='redirect') return;
-        e.stopImmediatePropagation();
-        var to=(window.MC_PAID?'/masterclass/confirmed-go/':'/masterclass/confirmed/')+'?wj='+encodeURIComponent(d.url||'');
-        window.location.href=to;
-      }catch(err){}
-    });
-    </script>
-    <div class="wj-embed-wrapper" data-webinar-hash="llll67um">
-    <script src="https://event.webinarjam.com/register/llll67um/embed-form?formButtonText=Save%20My%20Seat&formAccentColor=%2332d09f&formAccentOpacity=1&formBgColor=%23141414&formBgOpacity=1"></script>
-    </div>
-    <div style="display:none" aria-hidden="true"><!-- old custom form kept hidden so the page script still binds; not used -->
+    <!-- Own form (Rohen, 11 Nov 2026): /api/webinar-registrant registers them in WebinarJam (WJ sends the join link
+         + reminders), tags them in Kit and posts to #masterclass-registrants; create-lead makes the Close lead. -->
     <input class="mf" id="mname" type="text" placeholder="Full name" autocomplete="name">
     <input class="mf" id="memail" type="email" placeholder="Email address" autocomplete="email">
     <div class="mrow">
@@ -685,7 +668,6 @@ if(VSL_URL){
     <button id="msend" type="button">Save my seat &rarr;</button>
     <div id="mnote">&#128274; Your information is 100% secure.</div>
     <div id="mfine">SMS is optional - you will only receive texts if you tick the box above, and it is not required to submit this form. By submitting, you agree to our <a href="/privacy/" target="_blank" style="color:#32d09f">Privacy Policy</a> and <a href="/terms/" target="_blank" style="color:#32d09f">Terms</a>.</div>
-    </div>
   </div>
 </div>
 <script>
@@ -748,7 +730,18 @@ if(VSL_URL){
         try{ localStorage.setItem('waitlist.joined','1'); }catch(e){}
         /* Every claim on the landing = HOT (they watched the VSL, gave their number, ticked the $50). Fire the hot tag for ALL claims, not just waitlist-path applies. */
          ev(email,name,'landing_apply','1');
-        location.href = window.MC_PAID ? '/masterclass/confirmed-go/' : '/masterclass/confirmed/';
+        // Register in WebinarJam + Kit + Discord, then send them on with their personal join link (?wj=).
+        // Never strand the visitor: after 9s, or on any error, they go to the confirm page anyway.
+        var dest = window.MC_PAID ? '/masterclass/confirmed-go/' : '/masterclass/confirmed/', gone=false;
+        function go(wj){ if(gone) return; gone=true; location.href = dest + (wj ? '?wj='+encodeURIComponent(wj) : ''); }
+        setTimeout(function(){ go(''); }, 9000);
+        try{
+          var mo = document.getElementById('mcc').selectedOptions[0];
+          var iso = mo && /([A-Z]{2})\s*\+\d/.exec(mo.textContent);
+          fetch('https://blake-discord-relay.vercel.app/api/webinar-registrant',{method:'POST',headers:{'Content-Type':'text/plain'},
+            body:JSON.stringify({name:name,email:email,cc:cc,phone:pdig,country:iso?iso[1]:'',paid:!!window.MC_PAID,source_url:location.href})})
+          .then(function(r){return r.json();}).then(function(d){ go(d && d.live_room_url); }).catch(function(){ go(''); });
+        }catch(e){ go(''); }
       } else { send.disabled=false; send.textContent=LBL; err.textContent='Something went wrong. Please try again.'; }
     }).catch(function(){ send.disabled=false; send.textContent=LBL; err.textContent='Network problem. Please try again.'; });
   });
