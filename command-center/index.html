@@ -1874,6 +1874,36 @@ function renderHT(){
     <tbody>${list.length?list.map(r=>`<tr style="border-top:1px solid rgba(255,255,255,.06)"><td style="padding:8px">${esc(r.cd)}</td><td style="padding:8px;font-weight:700"><a href="https://app.close.com/lead/${esc(r.lead_id)}/" target="_blank" style="color:#fff;text-decoration:none">${esc(r.name)}</a></td><td style="padding:8px;color:${stageCol[r.stage]||'#fff'}">${esc(r.stage)}</td><td style="padding:8px">${esc(r.owner)}</td><td style="padding:8px">${esc(r.source||'-')}</td><td style="padding:8px;color:${r.prior?'#f97316':'var(--dmr)'};font-size:12px">${r.prior?esc(r.prior):'-'}</td><td style="padding:8px">${fmt(r.value)}</td></tr>`).join(''):'<tr><td colspan="7" style="padding:16px;text-align:center;color:var(--dmr)">No high-ticket opportunities yet</td></tr>'}</tbody></table></div>
   </div>`;
 }
+
+// ── Setter discrepancy check (Sarhan, 11 Nov 2026) ──
+// Verified Base44 sales (signed affiliate-portal webhooks, attributed by each setter's Shared ID link) vs
+// setter-claimed sales (signups), per setter, via /api/affiliate-discrepancy. Leadership only.
+const DISC_URL='https://blake-discord-relay.vercel.app/api/affiliate-discrepancy';
+let DISC={rows:[],at:null,loading:false,err:'',meta:{}};
+async function loadDisc(force){
+  if(DISC.loading)return; if(!force&&DISC.at&&Date.now()-DISC.at<55000)return;
+  DISC.loading=true;
+  try{const d=await(await fetch(DISC_URL,{signal:AbortSignal.timeout(20000)})).json();if(d.ok){DISC.rows=d.rows||[];DISC.meta=d;DISC.err='';}else DISC.err=d.error||'load failed';}
+  catch(e){DISC.err=String(e);}
+  DISC.at=Date.now();DISC.loading=false;if(S.view==='dashboard')render();
+}
+setInterval(()=>{if(S.view==='dashboard'&&userRole==='leadership')loadDisc(true)},120000);
+function renderDisc(){
+  if(userRole!=='leadership')return'';
+  loadDisc(false);
+  const esc=x=>String(x??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const rows=DISC.rows.filter(r=>inR(r.day));
+  const by={};rows.forEach(r=>{const a=by[r.rep]=by[r.rep]||{rep:r.rep,claimed:0,net:0,reversed:0,disc:0,plan:0,partial:false,settling:false,comm:0};a.claimed+=r.claimed;a.net+=r.net;a.reversed+=r.reversed;a.disc+=r.discrepancy;a.comm+=r.commission;if(r.planMismatch)a.plan++;if(r.status==='partial')a.partial=true;if(r.status==='settling')a.settling=true;});
+  const list=Object.values(by).sort((a,c)=>Math.abs(c.disc)-Math.abs(a.disc)||c.claimed-a.claimed);
+  const tot=list.reduce((t,a)=>({c:t.c+a.claimed,v:t.v+a.net}),{c:0,v:0});
+  const col=d=>d>0?'#ef4444':d<0?'#eab308':'#10b981';
+  return`<div class="sec">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px;margin-bottom:6px"><div style="font-size:14px;font-weight:800">Setter discrepancies: verified (Base44 portal) vs claimed</div><div style="font-size:11px;color:var(--dmr)">${DISC.err?'<span style="color:#ef4444">'+esc(DISC.err)+'</span>':DISC.at?'live · '+new Date(DISC.at).toLocaleTimeString():'loading...'} <button onclick="loadDisc(true)" style="margin-left:6px;background:none;border:1px solid var(--bdr);color:var(--dmr);border-radius:6px;padding:2px 8px;cursor:pointer">Refresh</button></div></div>
+    <div style="font-size:11px;color:var(--dmr);margin-bottom:12px">Discrepancy = claimed minus verified. <span style="color:#ef4444">Red</span> = claimed but not credited to their link. <span style="color:#eab308">Yellow</span> = verified but not logged. Portal events land 1.5 to 3h late, so today is still settling. Data starts 10 Nov (partial day, webhook went live mid-shift).${DISC.meta.unattributed?` · ${DISC.meta.unattributed} verified sale(s) had no Shared ID.`:''}</div>
+    <table style="width:100%;border-collapse:collapse"><thead><tr style="text-align:left;font-size:10px;color:var(--dmr)"><th style="padding:6px">Setter</th><th style="padding:6px">Claimed</th><th style="padding:6px">Verified</th><th style="padding:6px">Reversed</th><th style="padding:6px">Discrepancy</th><th style="padding:6px">Plan mismatch days</th><th style="padding:6px">Note</th></tr></thead>
+    <tbody>${list.length?list.map(a=>`<tr style="border-top:1px solid rgba(255,255,255,.06)"><td style="padding:8px;font-weight:700">${esc(a.rep)}</td><td style="padding:8px">${a.claimed}</td><td style="padding:8px">${a.net}</td><td style="padding:8px">${a.reversed||'-'}</td><td style="padding:8px;font-weight:800;color:${col(a.disc)}">${a.disc>0?'+':''}${a.disc}</td><td style="padding:8px">${a.plan||'-'}</td><td style="padding:8px;font-size:11px;color:var(--dmr)">${[a.partial?'incl. partial 10 Nov':'',a.settling?'today settling':''].filter(Boolean).join(', ')}</td></tr>`).join('')+`<tr style="border-top:1px solid rgba(255,255,255,.15)"><td style="padding:8px;font-weight:800">Total</td><td style="padding:8px;font-weight:800">${tot.c}</td><td style="padding:8px;font-weight:800">${tot.v}</td><td></td><td style="padding:8px;font-weight:800;color:${col(tot.c-tot.v)}">${tot.c-tot.v>0?'+':''}${tot.c-tot.v}</td><td></td><td></td></tr>`:'<tr><td colspan="7" style="padding:16px;text-align:center;color:var(--dmr)">No verified or claimed sales in this range yet</td></tr>'}</tbody></table>
+  </div>`;
+}
 // ── Main render (YouTube tab removed) ──
 function render(){
   const allTabs=[['dashboard','📊','Dashboard'],['high_ticket','◆','High Ticket'],['sales_tracker','📈','Sales Tracker'],['setter_tracker','📋','Setter Tracker'],['setter','📞','Setter'],['closer','💰','Closer'],['enrollments','🎓','Enrollments'],['payouts','💸','Payouts'],['ab_test','🧪','A/B Test'],['lead_source','🎯','Paid vs Organic'],['settings','⚙️','Settings']];
@@ -1884,7 +1914,7 @@ function render(){
   const dq=[['q1','Q1'],['q2','Q2'],['q3','Q3'],['q4','Q4']];
   const dx=[['ytd','YTD'],['all_time','All Time']];
   let c='';
-  switch(S.view){case'dashboard':c=renderDash();break;case'high_ticket':c=renderHT();break;case'sales_tracker':c=renderSalesTracker();break;case'setter_tracker':c=renderSetterTracker()+renderEodList();break;case'setter':c=renderSetter();break;case'closer':c=renderCloser();break;case'enrollments':c=renderEnroll();break;case'settings':c=renderSettings();break;case'payouts':c=renderPayouts();break;case'ab_test':c=renderAbTest();break;case'lead_source':c=renderLeadSource();break;default:c=renderDash()}
+  switch(S.view){case'dashboard':c=renderDisc()+renderDash();break;case'high_ticket':c=renderHT();break;case'sales_tracker':c=renderSalesTracker();break;case'setter_tracker':c=renderSetterTracker()+renderEodList();break;case'setter':c=renderSetter();break;case'closer':c=renderCloser();break;case'enrollments':c=renderEnroll();break;case'settings':c=renderSettings();break;case'payouts':c=renderPayouts();break;case'ab_test':c=renderAbTest();break;case'lead_source':c=renderLeadSource();break;default:c=renderDash()}
   $('app').innerHTML=`<div class="hdr"><div><div class="brand-sub">COMMAND CENTER</div><div class="brand"><span>AI Agency</span> Command Center</div></div><div class="dr">${dr.map(([k,l])=>`<button class="${S.dateRange===k?'a':''}" onclick="S.dateRange='${k}';render()">${l}</button>`).join('')}<div class="sep"></div>${dq.map(([k,l])=>`<button class="${S.dateRange===k?'a':''}" onclick="S.dateRange='${k}';render()">${l}</button>`).join('')}<div class="sep"></div>${dx.map(([k,l])=>`<button class="${S.dateRange===k?'a':''}" onclick="S.dateRange='${k}';render()">${l}</button>`).join('')}<div class="sep"></div><input type="date" id="dr-start" class="${S.dateRange==='custom'?'a':''}" value="${S.customStart}" onchange="S.customStart=this.value;S.dateRange='custom';render()"><span style="color:var(--dmr);font-size:11px">→</span><input type="date" id="dr-end" class="${S.dateRange==='custom'?'a':''}" value="${S.customEnd}" onchange="S.customEnd=this.value;S.dateRange='custom';render()"></div></div><div class="nav">${tabs.map(([v,i,l])=>`<button class="${S.view===v?'a':''}" onclick="S.view='${v}';render()"><span style="font-size:16px">${i}</span>${l}</button>`).join('')}</div><div class="cnt">${shiftBar()}${c}</div>`;
   setTimeout(watchDealClosed,0);
 }
