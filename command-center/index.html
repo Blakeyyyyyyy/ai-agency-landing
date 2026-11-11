@@ -137,7 +137,7 @@ const API = 'https://script.google.com/macros/s/AKfycby6C4tcqW0JagNAef1X_yxI7AvY
 
 // ── Passwords & Roles ──
 const PASSWORDS={"forge9670":"setter","vault4808":"closer","course6198":"leadership"};
-const ROLE_TABS={setter:['dashboard','setter_tracker','setter'],closer:['dashboard','high_ticket','setter_tracker','setter','sales_tracker','closer','enrollments'],leadership:['dashboard','high_ticket','setter_tracker','setter','sales_tracker','closer','enrollments','payouts','ab_test','lead_source','settings']};
+const ROLE_TABS={setter:['dashboard','discrepancy','setter_tracker','setter'],closer:['dashboard','high_ticket','discrepancy','setter_tracker','setter','sales_tracker','closer','enrollments'],leadership:['dashboard','high_ticket','discrepancy','setter_tracker','setter','sales_tracker','closer','enrollments','payouts','ab_test','lead_source','settings']};
 let userRole=sessionStorage.getItem('aiagency_role')||null;
 function doLogin(){
   const pw=document.getElementById('loginPw').value.trim();
@@ -1885,9 +1885,9 @@ async function loadDisc(force){
   DISC.loading=true;
   try{const d=await(await fetch(DISC_URL,{signal:AbortSignal.timeout(20000)})).json();if(d.ok){DISC.rows=d.rows||[];DISC.meta=d;DISC.err='';}else DISC.err=d.error||'load failed';}
   catch(e){DISC.err=String(e);}
-  DISC.at=Date.now();DISC.loading=false;if(S.view==='dashboard')render();
+  DISC.at=Date.now();DISC.loading=false;if(S.view==='discrepancy')render();
 }
-setInterval(()=>{if(S.view==='dashboard')loadDisc(true)},120000);
+setInterval(()=>{if(S.view==='discrepancy')loadDisc(true)},120000);
 function renderDisc(){
   loadDisc(false); // visible to every login, setters included (Sarhan, 11 Nov)
   const esc=x=>String(x??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -1897,7 +1897,7 @@ function renderDisc(){
   const list=Object.values(by).sort((a,c)=>Math.abs(c.disc)-Math.abs(a.disc)||c.claimed-a.claimed);
   const tot=list.reduce((t,a)=>({c:t.c+a.claimed,v:t.v+a.net}),{c:0,v:0});
   const col=d=>d>0?'#ef4444':d<0?'#eab308':'#10b981';
-  return`<div class="sec">
+  return`<div style="font-size:14px;font-weight:700;color:rgba(255,255,255,.6);margin-bottom:16px">Discrepancy Leaderboard · Showing: <span style="color:var(--gl)">${db().l}</span></div><div class="sec">
     <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px;margin-bottom:6px"><div style="font-size:14px;font-weight:800">Setter discrepancies: verified (Base44 portal) vs claimed</div><div style="font-size:11px;color:var(--dmr)">${DISC.err?'<span style="color:#ef4444">'+esc(DISC.err)+'</span>':DISC.at?'live · '+new Date(DISC.at).toLocaleTimeString():'loading...'} <button onclick="loadDisc(true)" style="margin-left:6px;background:none;border:1px solid var(--bdr);color:var(--dmr);border-radius:6px;padding:2px 8px;cursor:pointer">Refresh</button></div></div>
     <div style="font-size:11px;color:var(--dmr);margin-bottom:12px">Discrepancy = claimed minus verified. <span style="color:#ef4444">Red</span> = claimed but not credited to their link. <span style="color:#eab308">Yellow</span> = verified but not logged. Portal events land 1.5 to 3h late, so today is still settling. Data starts 10 Nov (partial day, webhook went live mid-shift).</div>
     <table style="width:100%;border-collapse:collapse"><thead><tr style="text-align:left;font-size:10px;color:var(--dmr)"><th style="padding:6px">Setter</th><th style="padding:6px">Claimed</th><th style="padding:6px">Verified</th><th style="padding:6px">Reversed</th><th style="padding:6px">Discrepancy</th><th style="padding:6px">Plan mismatch days</th><th style="padding:6px">Note</th></tr></thead>
@@ -1906,7 +1906,7 @@ function renderDisc(){
 }
 // ── Main render (YouTube tab removed) ──
 function render(){
-  const allTabs=[['dashboard','📊','Dashboard'],['high_ticket','◆','High Ticket'],['sales_tracker','📈','Sales Tracker'],['setter_tracker','📋','Setter Tracker'],['setter','📞','Setter'],['closer','💰','Closer'],['enrollments','🎓','Enrollments'],['payouts','💸','Payouts'],['ab_test','🧪','A/B Test'],['lead_source','🎯','Paid vs Organic'],['settings','⚙️','Settings']];
+  const allTabs=[['dashboard','📊','Dashboard'],['high_ticket','◆','High Ticket'],['discrepancy','≠','Discrepancy Leaderboard'],['sales_tracker','📈','Sales Tracker'],['setter_tracker','📋','Setter Tracker'],['setter','📞','Setter'],['closer','💰','Closer'],['enrollments','🎓','Enrollments'],['payouts','💸','Payouts'],['ab_test','🧪','A/B Test'],['lead_source','🎯','Paid vs Organic'],['settings','⚙️','Settings']];
   const allowed=ROLE_TABS[userRole]||[];
   const tabs=allTabs.filter(([v])=>allowed.includes(v));
   if(!allowed.includes(S.view)&&tabs.length)S.view=tabs[0][0];
@@ -1914,7 +1914,7 @@ function render(){
   const dq=[['q1','Q1'],['q2','Q2'],['q3','Q3'],['q4','Q4']];
   const dx=[['ytd','YTD'],['all_time','All Time']];
   let c='';
-  switch(S.view){case'dashboard':c=renderDisc()+renderDash();break;case'high_ticket':c=renderHT();break;case'sales_tracker':c=renderSalesTracker();break;case'setter_tracker':c=renderSetterTracker()+renderEodList();break;case'setter':c=renderSetter();break;case'closer':c=renderCloser();break;case'enrollments':c=renderEnroll();break;case'settings':c=renderSettings();break;case'payouts':c=renderPayouts();break;case'ab_test':c=renderAbTest();break;case'lead_source':c=renderLeadSource();break;default:c=renderDash()}
+  switch(S.view){case'dashboard':c=renderDash();break;case'discrepancy':c=renderDisc();break;case'high_ticket':c=renderHT();break;case'sales_tracker':c=renderSalesTracker();break;case'setter_tracker':c=renderSetterTracker()+renderEodList();break;case'setter':c=renderSetter();break;case'closer':c=renderCloser();break;case'enrollments':c=renderEnroll();break;case'settings':c=renderSettings();break;case'payouts':c=renderPayouts();break;case'ab_test':c=renderAbTest();break;case'lead_source':c=renderLeadSource();break;default:c=renderDash()}
   $('app').innerHTML=`<div class="hdr"><div><div class="brand-sub">COMMAND CENTER</div><div class="brand"><span>AI Agency</span> Command Center</div></div><div class="dr">${dr.map(([k,l])=>`<button class="${S.dateRange===k?'a':''}" onclick="S.dateRange='${k}';render()">${l}</button>`).join('')}<div class="sep"></div>${dq.map(([k,l])=>`<button class="${S.dateRange===k?'a':''}" onclick="S.dateRange='${k}';render()">${l}</button>`).join('')}<div class="sep"></div>${dx.map(([k,l])=>`<button class="${S.dateRange===k?'a':''}" onclick="S.dateRange='${k}';render()">${l}</button>`).join('')}<div class="sep"></div><input type="date" id="dr-start" class="${S.dateRange==='custom'?'a':''}" value="${S.customStart}" onchange="S.customStart=this.value;S.dateRange='custom';render()"><span style="color:var(--dmr);font-size:11px">→</span><input type="date" id="dr-end" class="${S.dateRange==='custom'?'a':''}" value="${S.customEnd}" onchange="S.customEnd=this.value;S.dateRange='custom';render()"></div></div><div class="nav">${tabs.map(([v,i,l])=>`<button class="${S.view===v?'a':''}" onclick="S.view='${v}';render()"><span style="font-size:16px">${i}</span>${l}</button>`).join('')}</div><div class="cnt">${shiftBar()}${c}</div>`;
   setTimeout(watchDealClosed,0);
 }
