@@ -102,7 +102,13 @@ footer a{color:var(--muted);text-decoration:underline;margin:0 4px}
     </div>
     <div class="ty-step">
       <div class="ty-head"><div class="ty-n">2</div><h3>Watch for your join link</h3></div>
-      <p>We'll send your link and a reminder by <b>email and text</b> before it starts. Check your spam folder if you don't see it.</p>
+      <p>Your join link and reminders come by <b>email</b> (and text if you added your number) before it starts. Check your spam folder if you don't see it.</p>
+      <p id="wjbox" style="display:none"><a id="wjlink" href="#" target="_blank" rel="noopener" style="display:inline-block;background:var(--green);color:#04140f;font-weight:900;border-radius:100px;padding:14px 22px;text-decoration:none">Open my webinar page &rarr;</a></p>
+      <script>
+      /* Personal WebinarJam page passed from the registration form (?wj=). Only shown if it really is a WebinarJam link. */
+      (function(){ try{ var u=new URLSearchParams(location.search).get('wj'); if(!u) return; var h=new URL(u).hostname;
+        if(!/(^|\.)webinarjam\.com$/.test(h)) return; document.getElementById('wjlink').href=u; document.getElementById('wjbox').style.display='block'; }catch(e){} })();
+      </script>
     </div>
     <div class="ty-step">
       <div class="ty-head"><div class="ty-n">3</div><h3>Show up live</h3></div>

@@ -541,7 +541,27 @@ if(VSL_URL){
   <div id="mcard">
     <button id="mx" type="button" aria-label="Close">&times;</button>
     <h3 id="mtitle">Save your free masterclass seat</h3>
+    <p style="color:#a3a3a3;font-size:.92rem;margin:-6px 0 12px">Friday 13 November, 10am AEST. Your join link comes by email.</p>
     <div id="merr"></div>
+    <!-- WebinarJam registration (Rohen, 11 Nov 2026). Dark + green to match the site. WebinarJam sends the join link
+         and reminders. On success its iframe asks the page to redirect to WebinarJam's thank-you page; we catch that
+         and send people to our own confirm page instead (paid -> /confirmed-go with pixel, organic -> /confirmed),
+         carrying their personal WebinarJam link along as ?wj= so the confirm page can show it. -->
+    <script>
+    window.addEventListener('message', function(e){
+      try{
+        if(!/(^|\.)webinarjam\.com$/.test(new URL(e.origin).hostname)) return;
+        var d=e.data||{}; if(d.func!=='redirect') return;
+        e.stopImmediatePropagation();
+        var to=(window.MC_PAID?'/masterclass/confirmed-go/':'/masterclass/confirmed/')+'?wj='+encodeURIComponent(d.url||'');
+        window.location.href=to;
+      }catch(err){}
+    });
+    </script>
+    <div class="wj-embed-wrapper" data-webinar-hash="llll67um">
+    <script src="https://event.webinarjam.com/register/llll67um/embed-form?formButtonText=Save%20My%20Seat&formAccentColor=%2332d09f&formAccentOpacity=1&formBgColor=%23141414&formBgOpacity=1"></script>
+    </div>
+    <div style="display:none" aria-hidden="true"><!-- old custom form kept hidden so the page script still binds; not used -->
     <input class="mf" id="mname" type="text" placeholder="Full name" autocomplete="name">
     <input class="mf" id="memail" type="email" placeholder="Email address" autocomplete="email">
     <div class="mrow">
@@ -653,6 +673,7 @@ if(VSL_URL){
     <button id="msend" type="button">Save my seat &rarr;</button>
     <div id="mnote">&#128274; Your information is 100% secure.</div>
     <div id="mfine">SMS is optional - you will only receive texts if you tick the box above, and it is not required to submit this form. By submitting, you agree to our <a href="/privacy/" target="_blank" style="color:#32d09f">Privacy Policy</a> and <a href="/terms/" target="_blank" style="color:#32d09f">Terms</a>.</div>
+    </div>
   </div>
 </div>
 <script>
