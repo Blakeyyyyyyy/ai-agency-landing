@@ -245,7 +245,7 @@ footer{border-top:1px solid var(--line);padding:34px 0;text-align:center;font-fa
 <script async src="https://app.usecortana.ai/api/hub/v1/cmvg29b6a0003na02hp89az20"></script>
 <script>
 /* Masterclass (Rohen, 11 Nov 2026): paid visitors = ?src=paid, fbclid or utm_source fb/ig/meta. Remembered for the session
-   so the form sends them to the paid confirm page (pixel) and everyone else to the organic one (no pixel). */
+   so the form sends them to /masterclass/confirmed-go/ (paid, pixel) and everyone else to /masterclass/confirmed/ (organic, no pixel). */
 (function(){
   try{
     var q=new URLSearchParams(location.search), u=(q.get('utm_source')||'').toLowerCase();
@@ -715,7 +715,7 @@ if(VSL_URL){
         try{ localStorage.setItem('waitlist.joined','1'); }catch(e){}
         /* Every claim on the landing = HOT (they watched the VSL, gave their number, ticked the $50). Fire the hot tag for ALL claims, not just waitlist-path applies. */
          ev(email,name,'landing_apply','1');
-        location.href = window.MC_PAID ? '/masterclass/confirmed/' : '/masterclass/confirmed-organic/';
+        location.href = window.MC_PAID ? '/masterclass/confirmed-go/' : '/masterclass/confirmed/';
       } else { send.disabled=false; send.textContent=LBL; err.textContent='Something went wrong. Please try again.'; }
     }).catch(function(){ send.disabled=false; send.textContent=LBL; err.textContent='Network problem. Please try again.'; });
   });
