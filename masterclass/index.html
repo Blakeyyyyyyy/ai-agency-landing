@@ -308,7 +308,7 @@ footer{border-top:1px solid var(--line);padding:34px 0;text-align:center;font-fa
 .learn .step li{font-size:1rem;padding:9px 0 9px 28px}
 .learn .step li b{color:var(--ink)}
 .center{text-align:center}
-#register #mcard{margin-top:26px;text-align:left}
+
 #register .whenline{text-align:center}
 @media(max-width:860px){.hero-grid{grid-template-columns:1fr;gap:0}.hero-photo{display:none}.hero .btn.big{display:block;text-align:center}}
 @media(max-width:420px){.hero .cd-box{min-width:0;flex:1}.hostcard img{width:64px;height:64px;flex-basis:64px}}
@@ -366,7 +366,7 @@ footer{border-top:1px solid var(--line);padding:34px 0;text-align:center;font-fa
         <div id="cd-live" style="display:none;color:#fff;font-weight:900;font-size:1.2rem;margin-top:6px">We're live now. Save your seat to get the link.</div>
       </div>
       <p class="whenline"><b>Friday 13 November, 10am AEST (Brisbane)</b><span class="mc-local" data-utc="2026-11-13T00:00:00Z"></span></p>
-      <a class="btn big" href="#register">Save My Free Seat &rarr;</a>
+      <a class="btn big openonly" href="/register/">Save My Free Seat &rarr;</a>
       <div class="limited">Seats are limited.</div>
     </div>
     <div class="hero-photo"><img src="/vsl-img/blake-founder.jpg" alt="Blake, founder of AI Agency"></div>
@@ -398,7 +398,7 @@ footer{border-top:1px solid var(--line);padding:34px 0;text-align:center;font-fa
       <li><b>The path from zero to your first paying client</b>, step by step, with Jarvis doing the heavy lifting.</li>
     </ul>
   </div>
-  <div class="center" style="margin-top:28px"><a class="btn big" href="#register">Save My Free Seat &rarr;</a></div>
+  <div class="center" style="margin-top:28px"><a class="btn big openonly" href="/register/">Save My Free Seat &rarr;</a></div>
 </div></section>
 
 <section><div class="wrap">
@@ -448,7 +448,16 @@ footer{border-top:1px solid var(--line);padding:34px 0;text-align:center;font-fa
   <div class="eyebrow">Free live masterclass</div>
   <h2>Save Your Free Seat</h2>
   <p class="whenline"><b>Friday 13 November, 10am AEST (Brisbane)</b><span class="mc-local" data-utc="2026-11-13T00:00:00Z"></span></p>
+  <div style="margin-top:26px"><a class="btn big openonly" href="/register/">Save My Free Seat &rarr;</a></div>
+  <div class="limited" style="justify-content:center">Seats are limited.</div>
+</div></section>
+
+<footer><div class="wrap">&copy; THE AI AGENCY BUILDER &nbsp;·&nbsp; <a href="/privacy/" style="color:var(--green)">Privacy Policy</a> &nbsp;·&nbsp; <a href="/terms/" style="color:var(--green)">Terms</a></div></footer>
+<div id="mwrap" role="dialog" aria-modal="true" aria-labelledby="mtitle">
   <div id="mcard">
+    <button id="mx" type="button" aria-label="Close">&times;</button>
+    <h3 id="mtitle">Save your free masterclass seat</h3>
+    <p style="color:#a3a3a3;font-size:.92rem;margin:-6px 0 12px">Friday 13 November, 10am AEST. Your join link comes by email.</p>
     <div id="merr"></div>
     <div class="mrow2"><input class="mf" id="mfirst" type="text" placeholder="First name" autocomplete="given-name"><input class="mf" id="mlast" type="text" placeholder="Last name" autocomplete="family-name"></div>
     <input type="hidden" id="mname">
@@ -563,16 +572,22 @@ footer{border-top:1px solid var(--line);padding:34px 0;text-align:center;font-fa
     <div id="mnote">&#128274; Your information is 100% secure.</div>
     <div id="mfine">SMS is optional - you will only receive texts if you tick the box above, and it is not required to submit this form. By submitting, you agree to our <a href="/privacy/" target="_blank" style="color:#32d09f">Privacy Policy</a> and <a href="/terms/" target="_blank" style="color:#32d09f">Terms</a>.</div>
   </div>
-</div></section>
-
-<footer><div class="wrap">&copy; THE AI AGENCY BUILDER &nbsp;·&nbsp; <a href="/privacy/" style="color:var(--green)">Privacy Policy</a> &nbsp;·&nbsp; <a href="/terms/" style="color:var(--green)">Terms</a></div></footer>
+</div>
 <script>
 (function(){
   var U="https://klyiqncsgxcrbdgonaaj.supabase.co", K="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtseWlxbmNzZ3hjcmJkZ29uYWFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0MjkxMTQsImV4cCI6MjA5MTAwNTExNH0.WuM-vY6LBoNF2XiQJG2YX5CDOa-AWVGlhobfeuBOLl8";
+  var w=document.getElementById('mwrap');
   var err=document.getElementById('merr'), send=document.getElementById('msend');
   var LBL='Save My Free Seat →';
   function src(){ return window.MC_PAID ? 'masterclass-paid' : 'masterclass-organic'; }
-  // Inline form (no modal): every CTA is a plain #register anchor.
+  function openM(e){ if(e) e.preventDefault(); if(window.abLog) window.abLog('modal_open'); w.classList.add('on'); document.body.style.overflow='hidden';
+    setTimeout(function(){ document.getElementById('mfirst').focus(); },80); }
+  function closeM(){ w.classList.remove('on'); document.body.style.overflow=''; }
+  var links=document.querySelectorAll('a[href="/register/"]');
+  for(var i=0;i<links.length;i++){ links[i].addEventListener('click', openM); }
+  document.getElementById('mx').addEventListener('click', closeM);
+  w.addEventListener('click', function(e){ if(e.target===w) closeM(); });
+  document.addEventListener('keydown', function(e){ if(e.key==='Escape' && w.classList.contains('on')) closeM(); });
   function ev(email,name,q,a){
     try{ fetch(U+'/rest/v1/waitlist_events',{method:'POST',
       headers:{'Content-Type':'application/json','apikey':K,'Authorization':'Bearer '+K,'Prefer':'return=minimal'},
