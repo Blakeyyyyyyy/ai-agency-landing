@@ -228,6 +228,8 @@ footer{border-top:1px solid var(--line);padding:34px 0;text-align:center;font-fa
 .toplogo{display:flex;justify-content:center;padding:26px 0 0}
 .toplogo .logo{color:var(--ink);text-decoration:none}
 .hero{text-align:left}
+.topbadge{text-align:center;margin-top:18px}
+.topbadge .eyebrow{white-space:nowrap;margin-bottom:0}
 .hero-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:48px;align-items:center;margin-top:30px}
 .hero h1{margin:16px 0 0;max-width:none}
 .hero-photo img{width:100%;aspect-ratio:4/5;object-fit:cover;object-position:50% 40%;border-radius:18px;border:1px solid var(--line)}
@@ -247,15 +249,13 @@ footer{border-top:1px solid var(--line);padding:34px 0;text-align:center;font-fa
 .learn .step li{font-size:1rem;padding:9px 0 9px 28px}
 .learn .step li b{color:var(--ink)}
 .center{text-align:center}
-.vt-row{display:flex;gap:14px;overflow-x:auto;padding:6px 2px 16px;margin-top:40px;scroll-snap-type:x mandatory;align-items:center}
-.vt-row .vt-col{display:contents}
-.vt-row .vt-card{flex:0 0 auto;scroll-snap-align:start}
-.vt-row .vt-card.port{width:200px}
-.vt-row .vt-card.land{width:380px}
-#register #mcard{margin-top:26px;text-align:left}
+
 #register .whenline{text-align:center}
 @media(max-width:860px){.hero-grid{grid-template-columns:1fr;gap:0}.hero-photo{display:none}.hero .btn.big{display:block;text-align:center}}
-@media(max-width:420px){.hero .cd-box{min-width:0;flex:1}.vt-row .vt-card.port{width:165px}.vt-row .vt-card.land{width:290px}.hostcard img{width:64px;height:64px;flex-basis:64px}}
+@media(max-width:560px){.topbadge .eyebrow{font-size:.56rem;letter-spacing:.05em;padding:6px 9px}}
+@media(max-width:560px){.hero > .wrap,section > .wrap{padding-left:18px!important;padding-right:18px!important}}
+@media(max-width:380px){.topbadge .eyebrow{font-size:.54rem;letter-spacing:.03em;padding:6px 8px}}
+@media(max-width:420px){.hero .cd-box{min-width:0;flex:1}.hostcard img{width:64px;height:64px;flex-basis:64px}}
 </style>
 <style>
 .cf .wrap{padding:0 18px}
@@ -274,7 +274,7 @@ footer{border-top:1px solid var(--line);padding:34px 0;text-align:center;font-fa
 <body class="cf">
 <header class="hero" style="text-align:center"><div class="wrap">
   <div class="toplogo"><a class="logo" href="/masterclass/" style="text-decoration:none"><span class="chip">AI</span> AGENCY</a></div>
-  <div class="eyebrow" style="margin-top:30px">Step 1 complete · Don't close this page</div>
+  <div class="eyebrow" style="margin-top:30px">You're registered · Don't close this page</div>
   <h1>Your Seat Is <em>Saved.</em></h1>
   <p class="whenline" style="margin:0 auto!important"><b>Friday 13 November, 10am AEST (Brisbane)</b><span class="mc-local" data-utc="2026-11-13T00:00:00Z"></span></p>
   <div id="mc-countdown">
@@ -300,21 +300,11 @@ footer{border-top:1px solid var(--line);padding:34px 0;text-align:center;font-fa
     </div>
   </div>
 
-  <div class="step apply">
-    <div class="tag">Step 2</div>
-    <h3>Apply to work with Blake</h3>
-    <p>Want Blake's help building this with you? Apply now and the team will be in touch.</p>
-    <div style="margin-top:16px"><a class="btn big" id="apply" href="#" target="_blank" rel="noopener">Apply To Work With Blake &rarr;</a></div>
-  </div>
 </div></header>
 
 <footer><div class="wrap">&copy; THE AI AGENCY BUILDER &nbsp;·&nbsp; <a href="/privacy/" style="color:var(--green)">Privacy Policy</a> &nbsp;·&nbsp; <a href="/terms/" style="color:var(--green)">Terms</a></div></footer>
 <script>
-/* Step 2 application form. Paste the Typeform link here; until then the button is greyed out and goes nowhere. */
-var TYPEFORM_URL='';
 (function(){
-  var a=document.getElementById('apply');
-  if(TYPEFORM_URL){ a.href=TYPEFORM_URL; } else { a.classList.add('off'); a.innerHTML='Applications Open Soon'; a.removeAttribute('href'); }
   var link='https://theaiagencybuilder.com/masterclass/';
   try{ var u=new URLSearchParams(location.search).get('wj'); if(u && /(^|\.)webinarjam\.com$/.test(new URL(u).hostname)){ link=u; var w=document.getElementById('wjlink'); w.href=u; w.style.display='inline-block'; } }catch(e){}
   var T='Jarvis Masterclass with Blake: How to make $100k before 2027 selling AI', D='Join here: '+link, E=encodeURIComponent;
