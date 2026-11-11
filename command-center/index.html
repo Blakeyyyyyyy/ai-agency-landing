@@ -137,7 +137,7 @@ const API = 'https://script.google.com/macros/s/AKfycby6C4tcqW0JagNAef1X_yxI7AvY
 
 // ── Passwords & Roles ──
 const PASSWORDS={"forge9670":"setter","vault4808":"closer","course6198":"leadership"};
-const ROLE_TABS={setter:['dashboard','setter_tracker','setter'],closer:['dashboard','setter_tracker','setter','sales_tracker','closer','enrollments'],leadership:['dashboard','setter_tracker','setter','sales_tracker','closer','enrollments','payouts','ab_test','lead_source','settings']};
+const ROLE_TABS={setter:['dashboard','setter_tracker','setter'],closer:['dashboard','high_ticket','setter_tracker','setter','sales_tracker','closer','enrollments'],leadership:['dashboard','high_ticket','setter_tracker','setter','sales_tracker','closer','enrollments','payouts','ab_test','lead_source','settings']};
 let userRole=sessionStorage.getItem('aiagency_role')||null;
 function doLogin(){
   const pw=document.getElementById('loginPw').value.trim();
@@ -1801,9 +1801,81 @@ function renderPayouts(){
   </div>`;
 }
 
+
+// ── High Ticket (Sarhan, 11 Nov 2026) ──
+// Live from Close's "High Ticket" pipeline via /api/ht-stats (masterclass registrants -> applied -> call booked ->
+// showed -> Won High Ticket / Downsell Base44 / Lost). Funnel counts use the opportunity's created date inside the
+// selected range; revenue uses its won date. Monthly target bar is always this calendar month.
+const HT_URL='https://blake-discord-relay.vercel.app/api/ht-stats';
+const HT_TARGET=500000;
+let HT={rows:[],stages:[],at:null,loading:false,err:''};
+async function loadHT(force){
+  if(HT.loading)return; if(!force&&HT.at&&Date.now()-HT.at<55000)return;
+  HT.loading=true;
+  try{const r=await fetch(HT_URL,{signal:AbortSignal.timeout(20000)});const d=await r.json();if(d.ok){HT.rows=(d.rows||[]).map(r=>({...r,cd:r.created?sd(new Date(r.created)):'',wd:r.won?sd(new Date(r.won)):''}));HT.stages=d.stages||[];HT.err='';}else HT.err=d.error||'load failed';HT.at=Date.now();}
+  catch(e){HT.err=String(e);HT.at=Date.now();}
+  HT.loading=false; if(S.view==='high_ticket')render();
+}
+setInterval(()=>{if(S.view==='high_ticket')loadHT(true)},60000);
+function renderHT(){
+  loadHT(false);
+  const b=db(), esc=x=>String(x||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const all=HT.rows, inRange=all.filter(r=>inR(r.cd));
+  const order=(HT.stages.length?HT.stages.map(x=>x.label):['Webinar Registered','Applied (Typeform)','Call Booked','Showed - Pitched','Won - High Ticket','Downsell - Base44','Lost / Unqualified']);
+  const cnt={}; order.forEach(l=>cnt[l]=0); inRange.forEach(r=>{cnt[r.stage]=(cnt[r.stage]||0)+1});
+  // "reached" = at or past a stage (won/downsell/lost all passed through the call)
+  const idx=l=>order.indexOf(l), reached=l=>inRange.filter(r=>{const i=idx(r.stage);return r.type!=='active'?(i>=0&&idx(l)<=idx('Showed - Pitched')):i>=idx(l)}).length;
+  const wonRange=all.filter(r=>r.stage==='Won - High Ticket'&&r.wd&&inR(r.wd));
+  const downRange=all.filter(r=>r.stage==='Downsell - Base44'&&r.wd&&inR(r.wd));
+  const rev=wonRange.reduce((t,r)=>t+(r.value||0),0);
+  const ym=sd().slice(0,7);
+  const monthRev=all.filter(r=>r.stage==='Won - High Ticket'&&(r.wd||'').startsWith(ym)).reduce((t,r)=>t+(r.value||0),0);
+  const pct=Math.min(100,monthRev/HT_TARGET*100);
+  const showed=reached('Showed - Pitched'), booked=reached('Call Booked'), regs=inRange.length;
+  const closeRate=showed?wonRange.length/showed:0, showRate=booked?showed/booked:0, bookRate=regs?booked/regs:0;
+  const pipeline=all.filter(r=>r.type==='active'&&idx(r.stage)>=idx('Call Booked')).reduce((t,r)=>t+(r.value||0),0);
+  const paid=inRange.filter(r=>r.source==='Paid').length, org=inRange.filter(r=>r.source!=='Paid').length, prior=inRange.filter(r=>r.prior).length;
+  const pc=x=>(x*100).toFixed(0)+'%';
+  const owners={}; all.filter(r=>r.stage==='Won - High Ticket'&&r.wd&&inR(r.wd)).forEach(r=>{const o=r.owner||'Unassigned';owners[o]=owners[o]||{n:0,v:0};owners[o].n++;owners[o].v+=r.value||0});
+  const stageCol={'Webinar Registered':'#38bdf8','Applied (Typeform)':'#a855f7','Call Booked':'#eab308','Showed - Pitched':'#f97316','Won - High Ticket':'#10b981','Downsell - Base44':'#22d3ee','Lost / Unqualified':'#ef4444'};
+  const list=[...all].sort((a,c)=>(c.updated||'').localeCompare(a.updated||'')).slice(0,150);
+  return`
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:16px">
+    <div style="font-size:14px;font-weight:700;color:rgba(255,255,255,.6)">High Ticket · Showing: <span style="color:var(--gl)">${b.l}</span></div>
+    <div style="font-size:11px;color:var(--dmr)">${HT.loading&&!HT.at?'Loading from Close...':HT.err?'<span style="color:#ef4444">'+esc(HT.err)+'</span>':'Live from Close · updated '+(HT.at?new Date(HT.at).toLocaleTimeString():'')} <button onclick="loadHT(true)" style="margin-left:8px;background:none;border:1px solid var(--bdr);color:var(--dmr);border-radius:6px;padding:2px 8px;cursor:pointer">Refresh</button></div>
+  </div>
+  <div class="sec" style="padding:18px 20px">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px"><div style="font-size:13px;font-weight:800;letter-spacing:.06em">THIS MONTH VS ${fmt(HT_TARGET)} TARGET</div><div style="font-size:22px;font-weight:800;color:var(--gb)">${fmt(monthRev)} <span style="font-size:12px;color:var(--dmr)">(${pct.toFixed(1)}%)</span></div></div>
+    <div style="height:12px;background:rgba(255,255,255,.06);border-radius:99px;margin-top:10px;overflow:hidden"><div style="height:100%;width:${pct}%;background:linear-gradient(90deg,#10b981,#38bdf8)"></div></div>
+  </div>
+  <div class="g g4" style="margin-bottom:16px">
+    <div class="hero-c hl"><div class="lbl">HT REVENUE</div><div class="val" style="color:var(--gb)">${fmt(rev)}</div></div>
+    <div class="hero-c"><div class="lbl">HT CLOSES</div><div class="val" style="color:#10b981">${wonRange.length}</div></div>
+    <div class="hero-c"><div class="lbl">DOWNSELLS (BASE44)</div><div class="val" style="color:#22d3ee">${downRange.length}</div></div>
+    <div class="hero-c"><div class="lbl">OPEN PIPELINE (BOOKED+)</div><div class="val" style="color:#eab308">${fmt(pipeline)}</div></div>
+  </div>
+  <div class="g g4" style="margin-bottom:16px">
+    ${kpi('Registrants',regs,'#38bdf8',1)}${kpi('Register to booked',pc(bookRate),'#eab308',1)}${kpi('Show rate',pc(showRate),'#f97316',1)}${kpi('Close rate (of shows)',pc(closeRate),'#10b981',1)}
+  </div>
+  <div class="sec">
+    <div style="font-size:14px;font-weight:800;margin-bottom:12px">Funnel (created in range)</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(108px,1fr));gap:8px">${order.map(l=>`<div style="background:rgba(255,255,255,.03);border:1px solid var(--bdr);border-radius:10px;padding:12px 10px"><div style="font-size:10px;color:var(--dmr);text-transform:uppercase;letter-spacing:.06em;min-height:26px">${esc(l)}</div><div style="font-size:22px;font-weight:800;color:${stageCol[l]||'#fff'}">${cnt[l]||0}</div></div>`).join('')}</div>
+    <div style="display:flex;gap:18px;flex-wrap:wrap;margin-top:14px;font-size:12px;color:var(--dmr)"><span>Paid: <b style="color:#fff">${paid}</b></span><span>Organic: <b style="color:#fff">${org}</b></span><span>Contacted before in Base44: <b style="color:#f97316">${prior}</b></span></div>
+  </div>
+  <div class="sec">
+    <div style="font-size:14px;font-weight:800;margin-bottom:12px">Closer leaderboard (HT wins in range)</div>
+    <table style="width:100%;border-collapse:collapse"><thead><tr style="text-align:left;font-size:10px;color:var(--dmr)"><th style="padding:6px">Closer</th><th style="padding:6px">Closes</th><th style="padding:6px">Revenue</th></tr></thead>
+    <tbody>${Object.keys(owners).length?Object.entries(owners).sort((a,c)=>c[1].v-a[1].v).map(([o,x])=>`<tr style="border-top:1px solid rgba(255,255,255,.06)"><td style="padding:8px;font-weight:700">${esc(o)}</td><td style="padding:8px">${x.n}</td><td style="padding:8px;color:var(--gb)">${fmt(x.v)}</td></tr>`).join(''):'<tr><td colspan="3" style="padding:16px;text-align:center;color:var(--dmr)">No high-ticket closes in this range yet</td></tr>'}</tbody></table>
+  </div>
+  <div class="sec">
+    <div style="font-size:14px;font-weight:800;margin-bottom:12px">All High Ticket opportunities (latest activity first)</div>
+    <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;min-width:720px"><thead><tr style="text-align:left;font-size:10px;color:var(--dmr)"><th style="padding:6px">Created</th><th style="padding:6px">Name</th><th style="padding:6px">Stage</th><th style="padding:6px">Owner</th><th style="padding:6px">Source</th><th style="padding:6px">Base44 history</th><th style="padding:6px">Value</th></tr></thead>
+    <tbody>${list.length?list.map(r=>`<tr style="border-top:1px solid rgba(255,255,255,.06)"><td style="padding:8px">${esc(r.cd)}</td><td style="padding:8px;font-weight:700"><a href="https://app.close.com/lead/${esc(r.lead_id)}/" target="_blank" style="color:#fff;text-decoration:none">${esc(r.name)}</a></td><td style="padding:8px;color:${stageCol[r.stage]||'#fff'}">${esc(r.stage)}</td><td style="padding:8px">${esc(r.owner)}</td><td style="padding:8px">${esc(r.source||'-')}</td><td style="padding:8px;color:${r.prior?'#f97316':'var(--dmr)'};font-size:12px">${r.prior?esc(r.prior):'-'}</td><td style="padding:8px">${fmt(r.value)}</td></tr>`).join(''):'<tr><td colspan="7" style="padding:16px;text-align:center;color:var(--dmr)">No high-ticket opportunities yet</td></tr>'}</tbody></table></div>
+  </div>`;
+}
 // ── Main render (YouTube tab removed) ──
 function render(){
-  const allTabs=[['dashboard','📊','Dashboard'],['sales_tracker','📈','Sales Tracker'],['setter_tracker','📋','Setter Tracker'],['setter','📞','Setter'],['closer','💰','Closer'],['enrollments','🎓','Enrollments'],['payouts','💸','Payouts'],['ab_test','🧪','A/B Test'],['lead_source','🎯','Paid vs Organic'],['settings','⚙️','Settings']];
+  const allTabs=[['dashboard','📊','Dashboard'],['high_ticket','◆','High Ticket'],['sales_tracker','📈','Sales Tracker'],['setter_tracker','📋','Setter Tracker'],['setter','📞','Setter'],['closer','💰','Closer'],['enrollments','🎓','Enrollments'],['payouts','💸','Payouts'],['ab_test','🧪','A/B Test'],['lead_source','🎯','Paid vs Organic'],['settings','⚙️','Settings']];
   const allowed=ROLE_TABS[userRole]||[];
   const tabs=allTabs.filter(([v])=>allowed.includes(v));
   if(!allowed.includes(S.view)&&tabs.length)S.view=tabs[0][0];
@@ -1811,7 +1883,7 @@ function render(){
   const dq=[['q1','Q1'],['q2','Q2'],['q3','Q3'],['q4','Q4']];
   const dx=[['ytd','YTD'],['all_time','All Time']];
   let c='';
-  switch(S.view){case'dashboard':c=renderDash();break;case'sales_tracker':c=renderSalesTracker();break;case'setter_tracker':c=renderSetterTracker()+renderEodList();break;case'setter':c=renderSetter();break;case'closer':c=renderCloser();break;case'enrollments':c=renderEnroll();break;case'settings':c=renderSettings();break;case'payouts':c=renderPayouts();break;case'ab_test':c=renderAbTest();break;case'lead_source':c=renderLeadSource();break;default:c=renderDash()}
+  switch(S.view){case'dashboard':c=renderDash();break;case'high_ticket':c=renderHT();break;case'sales_tracker':c=renderSalesTracker();break;case'setter_tracker':c=renderSetterTracker()+renderEodList();break;case'setter':c=renderSetter();break;case'closer':c=renderCloser();break;case'enrollments':c=renderEnroll();break;case'settings':c=renderSettings();break;case'payouts':c=renderPayouts();break;case'ab_test':c=renderAbTest();break;case'lead_source':c=renderLeadSource();break;default:c=renderDash()}
   $('app').innerHTML=`<div class="hdr"><div><div class="brand-sub">COMMAND CENTER</div><div class="brand"><span>AI Agency</span> Command Center</div></div><div class="dr">${dr.map(([k,l])=>`<button class="${S.dateRange===k?'a':''}" onclick="S.dateRange='${k}';render()">${l}</button>`).join('')}<div class="sep"></div>${dq.map(([k,l])=>`<button class="${S.dateRange===k?'a':''}" onclick="S.dateRange='${k}';render()">${l}</button>`).join('')}<div class="sep"></div>${dx.map(([k,l])=>`<button class="${S.dateRange===k?'a':''}" onclick="S.dateRange='${k}';render()">${l}</button>`).join('')}<div class="sep"></div><input type="date" id="dr-start" class="${S.dateRange==='custom'?'a':''}" value="${S.customStart}" onchange="S.customStart=this.value;S.dateRange='custom';render()"><span style="color:var(--dmr);font-size:11px">→</span><input type="date" id="dr-end" class="${S.dateRange==='custom'?'a':''}" value="${S.customEnd}" onchange="S.customEnd=this.value;S.dateRange='custom';render()"></div></div><div class="nav">${tabs.map(([v,i,l])=>`<button class="${S.view===v?'a':''}" onclick="S.view='${v}';render()"><span style="font-size:16px">${i}</span>${l}</button>`).join('')}</div><div class="cnt">${shiftBar()}${c}</div>`;
   setTimeout(watchDealClosed,0);
 }
