@@ -43,3 +43,10 @@
   to = "/go"
   status = 302
   force = true
+
+# Masterclass confirm paths renamed (Rohen, 11 Nov 2026): /confirmed = organic, /confirmed-go = paid.
+[[redirects]]
+  from = "/masterclass/confirmed-organic/*"
+  to = "/masterclass/confirmed/"
+  status = 301
+  force = true
