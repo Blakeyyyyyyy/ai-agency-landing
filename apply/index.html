@@ -91,6 +91,16 @@ details p{color:var(--dim);margin-top:8px;font-size:.96rem}
 .ph select{flex:0 0 auto;max-width:150px;background:#0d0d0d;border:0;border-bottom:2px solid #3a3a3a;color:#fff;font-family:var(--display);font-weight:700;font-size:clamp(1rem,3.4vw,1.25rem);padding:10px 4px;outline:none;border-radius:0;cursor:pointer}
 .ph select:focus{border-bottom-color:var(--green)}
 .ph input.t{flex:1;min-width:0}
+.ch.multi button .k{border-radius:3px}
+.other{margin-top:10px;display:none}
+.other.on{display:block}
+.cg{display:grid;grid-template-columns:1fr 1fr;gap:18px 16px}
+.cg .full{grid-column:1/-1}
+.cg label{display:block;font-family:var(--mono);font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:#8a8a8a;margin-bottom:2px}
+.cg input.t{font-size:clamp(1.05rem,3.4vw,1.3rem)}
+.cg .ph select{font-size:clamp(.95rem,3vw,1.1rem)}
+.hint{font-family:var(--mono);font-size:.72rem;color:#8a8a8a;margin-top:10px}
+@media(max-width:560px){.cg{grid-template-columns:1fr}}
 @media(max-width:560px){.qd,.body{margin-left:0}.qt{flex-direction:column;gap:4px}.qt .n{padding-top:0}#cal{height:780px}.stage{align-items:flex-start;padding-top:8vh}}
 </style>
 </head>
@@ -118,81 +128,96 @@ details p{color:var(--dim);margin-top:8px;font-size:.96rem}
 (function(){
   var API = 'https://blake-discord-relay.vercel.app/api/apply';
   var CAL = 'https://calendly.com/d/d2tv-f6t-jdx/jarvis-strategy-call';
+  // Question flow + DQ logic (Sarhan, 12 Nov 2026). Q7 credit only shows for Under $1k / $1k-$3k.
+  // DQ (no Calendly): credit 0-499, OR invest Under $1k with credit N/A, OR will-show-up = No.
+  var LOW_INV = ['Under $1k', '$1k-$3k'];
   var Q = [
-    {k:'first_name', t:"What's your first name?", type:'text', ph:'Type your answer here...', ac:'given-name'},
-    {k:'last_name', t:'And your last name, {first}?', type:'text', ph:'Type your answer here...', ac:'family-name'},
-    {k:'email', t:"What's the best email to reach you on?", type:'email', ph:'name@example.com', ac:'email'},
-    {k:'phone', t:"And your phone number?", d:"Pick your country, then your number. We'll text you before the call.", type:'tel', ph:'412 345 678', ac:'tel-national'},
-    {k:'situation', t:'What best describes you right now?', c:['Complete beginner with AI','Employed, want to build this on the side','Freelancer or agency owner','Business owner']},
-    {k:'income', t:'What are you currently making per month?', c:['Under $2k','$2k-$5k','$5k-$10k','$10k+']},
-    {k:'goal', t:'Where do you want to be per month 90 days from now?', c:['$5k-$10k','$10k-$20k','$20k-$50k','$50k+']},
-    {k:'why_now', t:'Why is now the time for you to start selling AI to businesses? What has stopped you so far?', type:'long', ph:'Type your answer here...'},
-    {k:'hours', t:'How many hours a week can you commit?', c:['Under 5','5-10','10-20','20+']},
-    {k:'invest', t:'This is a 90-day program with direct support. How much can you invest to get your AI business running?', c:['Under $1k','$1k-$3k','$3k-$5k','$5k+']},
-    {k:'ready', t:'If accepted, can you start within 7 days?', c:['Yes','No'], keys:['Y','N']},
+    {k:'time_trying', t:'How long have you been trying to build an AI agency or make money online?', c:['Not started yet','Less than 3 months','3-12 months','1+ year']},
+    {k:'frustrations', t:'What are your top 3 biggest frustrations right now?', d:'Pick up to 3.', m:['Not sure what to sell or who to sell it to','Can\'t find or land clients','Clients won\'t pay what it\'s worth','Don\'t know how to build or deliver the AI services','Too many tools and tutorials, overwhelmed','No consistent income yet','Not enough time to make it work'], max:3, other:true},
+    {k:'income', t:'What is your current monthly income from AI or agency work?', c:['$0','Under $1k','$1k-$5k','$5k+']},
+    {k:'commit', t:'Are you ready to commit to building this?', c:['Yes','No'], keys:['Y','N']},
+    {k:'contact', t:'Where can we reach you?', type:'contact'},
+    {k:'invest', t:'What investment range do you have available? (USD)', c:['Under $1k','$1k-$3k','$3k-$5k','$5k-$10k','$10k+']},
+    {k:'credit', t:'What is your credit score?', c:['0-499','500-600','600-700','700-800+','N/A'], when:function(){ return LOW_INV.indexOf(A.invest) >= 0; }},
     {k:'show_up', t:'Will you show up at your selected time?', c:["Yes, I'll 100% be there","No, I can't make it"]}
   ];
+  function dqReason(){
+    if (A.credit === '0-499') return 'credit';
+    if (A.invest === 'Under $1k' && A.credit === 'N/A') return 'invest';
+    if (/^No/.test(A.show_up || '')) return 'show_up';
+    return '';
+  }
   var CC_OPTS = "<option value=\"+61\">\ud83c\udde6\ud83c\uddfa AU +61</option>\n        <option value=\"+1\">\ud83c\uddfa\ud83c\uddf8 US +1</option>\n        <option value=\"+44\">\ud83c\uddec\ud83c\udde7 UK +44</option>\n        <option value=\"+1\">\ud83c\udde8\ud83c\udde6 CA +1</option>\n        <option value=\"+64\">\ud83c\uddf3\ud83c\uddff NZ +64</option>\n        <option value=\"+353\">\ud83c\uddee\ud83c\uddea IE +353</option>\n        <option value=\"+971\">\ud83c\udde6\ud83c\uddea UAE +971</option>\n        <option value=\"+54\">\ud83c\udde6\ud83c\uddf7 AR +54</option>\n        <option value=\"+43\">\ud83c\udde6\ud83c\uddf9 AT +43</option>\n        <option value=\"+880\">\ud83c\udde7\ud83c\udde9 BD +880</option>\n        <option value=\"+32\">\ud83c\udde7\ud83c\uddea BE +32</option>\n        <option value=\"+359\">\ud83c\udde7\ud83c\uddec BG +359</option>\n        <option value=\"+55\">\ud83c\udde7\ud83c\uddf7 BR +55</option>\n        <option value=\"+973\">\ud83c\udde7\ud83c\udded BH +973</option>\n        <option value=\"+591\">\ud83c\udde7\ud83c\uddf4 BO +591</option>\n        <option value=\"+855\">\ud83c\uddf0\ud83c\udded KH +855</option>\n        <option value=\"+56\">\ud83c\udde8\ud83c\uddf1 CL +56</option>\n        <option value=\"+86\">\ud83c\udde8\ud83c\uddf3 CN +86</option>\n        <option value=\"+57\">\ud83c\udde8\ud83c\uddf4 CO +57</option>\n        <option value=\"+506\">\ud83c\udde8\ud83c\uddf7 CR +506</option>\n        <option value=\"+225\">\ud83c\udde8\ud83c\uddee CI +225</option>\n        <option value=\"+357\">\ud83c\udde8\ud83c\uddfe CY +357</option>\n        <option value=\"+420\">\ud83c\udde8\ud83c\uddff CZ +420</option>\n        <option value=\"+45\">\ud83c\udde9\ud83c\uddf0 DK +45</option>\n        <option value=\"+213\">\ud83c\udde9\ud83c\uddff DZ +213</option>\n        <option value=\"+593\">\ud83c\uddea\ud83c\udde8 EC +593</option>\n        <option value=\"+20\">\ud83c\uddea\ud83c\uddec EG +20</option>\n        <option value=\"+372\">\ud83c\uddea\ud83c\uddea EE +372</option>\n        <option value=\"+358\">\ud83c\uddeb\ud83c\uddee FI +358</option>\n        <option value=\"+33\">\ud83c\uddeb\ud83c\uddf7 FR +33</option>\n        <option value=\"+995\">\ud83c\uddec\ud83c\uddea GE +995</option>\n        <option value=\"+49\">\ud83c\udde9\ud83c\uddea DE +49</option>\n        <option value=\"+233\">\ud83c\uddec\ud83c\udded GH +233</option>\n        <option value=\"+30\">\ud83c\uddec\ud83c\uddf7 GR +30</option>\n        <option value=\"+852\">\ud83c\udded\ud83c\uddf0 HK +852</option>\n        <option value=\"+385\">\ud83c\udded\ud83c\uddf7 HR +385</option>\n        <option value=\"+36\">\ud83c\udded\ud83c\uddfa HU +36</option>\n        <option value=\"+354\">\ud83c\uddee\ud83c\uddf8 IS +354</option>\n        <option value=\"+91\">\ud83c\uddee\ud83c\uddf3 IN +91</option>\n        <option value=\"+62\">\ud83c\uddee\ud83c\udde9 ID +62</option>\n        <option value=\"+964\">\ud83c\uddee\ud83c\uddf6 IQ +964</option>\n        <option value=\"+972\">\ud83c\uddee\ud83c\uddf1 IL +972</option>\n        <option value=\"+39\">\ud83c\uddee\ud83c\uddf9 IT +39</option>\n        <option value=\"+81\">\ud83c\uddef\ud83c\uddf5 JP +81</option>\n        <option value=\"+962\">\ud83c\uddef\ud83c\uddf4 JO +962</option>\n        <option value=\"+7\">\ud83c\uddf0\ud83c\uddff KZ +7</option>\n        <option value=\"+254\">\ud83c\uddf0\ud83c\uddea KE +254</option>\n        <option value=\"+965\">\ud83c\uddf0\ud83c\uddfc KW +965</option>\n        <option value=\"+371\">\ud83c\uddf1\ud83c\uddfb LV +371</option>\n        <option value=\"+961\">\ud83c\uddf1\ud83c\udde7 LB +961</option>\n        <option value=\"+370\">\ud83c\uddf1\ud83c\uddf9 LT +370</option>\n        <option value=\"+352\">\ud83c\uddf1\ud83c\uddfa LU +352</option>\n        <option value=\"+853\">\ud83c\uddf2\ud83c\uddf4 MO +853</option>\n        <option value=\"+60\">\ud83c\uddf2\ud83c\uddfe MY +60</option>\n        <option value=\"+960\">\ud83c\uddf2\ud83c\uddfb MV +960</option>\n        <option value=\"+356\">\ud83c\uddf2\ud83c\uddf9 MT +356</option>\n        <option value=\"+52\">\ud83c\uddf2\ud83c\uddfd MX +52</option>\n        <option value=\"+212\">\ud83c\uddf2\ud83c\udde6 MA +212</option>\n        <option value=\"+95\">\ud83c\uddf2\ud83c\uddf2 MM +95</option>\n        <option value=\"+977\">\ud83c\uddf3\ud83c\uddf5 NP +977</option>\n        <option value=\"+31\">\ud83c\uddf3\ud83c\uddf1 NL +31</option>\n        <option value=\"+234\">\ud83c\uddf3\ud83c\uddec NG +234</option>\n        <option value=\"+47\">\ud83c\uddf3\ud83c\uddf4 NO +47</option>\n        <option value=\"+968\">\ud83c\uddf4\ud83c\uddf2 OM +968</option>\n        <option value=\"+92\">\ud83c\uddf5\ud83c\uddf0 PK +92</option>\n        <option value=\"+507\">\ud83c\uddf5\ud83c\udde6 PA +507</option>\n        <option value=\"+595\">\ud83c\uddf5\ud83c\uddfe PY +595</option>\n        <option value=\"+51\">\ud83c\uddf5\ud83c\uddea PE +51</option>\n        <option value=\"+63\">\ud83c\uddf5\ud83c\udded PH +63</option>\n        <option value=\"+48\">\ud83c\uddf5\ud83c\uddf1 PL +48</option>\n        <option value=\"+351\">\ud83c\uddf5\ud83c\uddf9 PT +351</option>\n        <option value=\"+974\">\ud83c\uddf6\ud83c\udde6 QA +974</option>\n        <option value=\"+40\">\ud83c\uddf7\ud83c\uddf4 RO +40</option>\n        <option value=\"+7\">\ud83c\uddf7\ud83c\uddfa RU +7</option>\n        <option value=\"+250\">\ud83c\uddf7\ud83c\uddfc RW +250</option>\n        <option value=\"+966\">\ud83c\uddf8\ud83c\udde6 SA +966</option>\n        <option value=\"+221\">\ud83c\uddf8\ud83c\uddf3 SN +221</option>\n        <option value=\"+381\">\ud83c\uddf7\ud83c\uddf8 RS +381</option>\n        <option value=\"+65\">\ud83c\uddf8\ud83c\uddec SG +65</option>\n        <option value=\"+421\">\ud83c\uddf8\ud83c\uddf0 SK +421</option>\n        <option value=\"+386\">\ud83c\uddf8\ud83c\uddee SI +386</option>\n        <option value=\"+27\">\ud83c\uddff\ud83c\udde6 ZA +27</option>\n        <option value=\"+82\">\ud83c\uddf0\ud83c\uddf7 KR +82</option>\n        <option value=\"+34\">\ud83c\uddea\ud83c\uddf8 ES +34</option>\n        <option value=\"+94\">\ud83c\uddf1\ud83c\uddf0 LK +94</option>\n        <option value=\"+46\">\ud83c\uddf8\ud83c\uddea SE +46</option>\n        <option value=\"+41\">\ud83c\udde8\ud83c\udded CH +41</option>\n        <option value=\"+886\">\ud83c\uddf9\ud83c\uddfc TW +886</option>\n        <option value=\"+255\">\ud83c\uddf9\ud83c\uddff TZ +255</option>\n        <option value=\"+66\">\ud83c\uddf9\ud83c\udded TH +66</option>\n        <option value=\"+216\">\ud83c\uddf9\ud83c\uddf3 TN +216</option>\n        <option value=\"+90\">\ud83c\uddf9\ud83c\uddf7 TR +90</option>\n        <option value=\"+256\">\ud83c\uddfa\ud83c\uddec UG +256</option>\n        <option value=\"+380\">\ud83c\uddfa\ud83c\udde6 UA +380</option>\n        <option value=\"+598\">\ud83c\uddfa\ud83c\uddfe UY +598</option>\n        <option value=\"+998\">\ud83c\uddfa\ud83c\uddff UZ +998</option>\n        <option value=\"+58\">\ud83c\uddfb\ud83c\uddea VE +58</option>\n        <option value=\"+84\">\ud83c\uddfb\ud83c\uddf3 VN +84</option>\n        <option value=\"+260\">\ud83c\uddff\ud83c\uddf2 ZM +260</option>";
   var PLEN = {'+1':[10,10],'+44':[9,11],'+61':[8,10],'+64':[7,11],'+353':[7,11],'+91':[10,10],'+92':[9,11],'+880':[8,11],'+63':[9,11],'+62':[8,13],'+60':[7,11],'+65':[8,8],'+27':[9,10],'+234':[8,11],'+254':[9,10],'+233':[9,10],'+971':[8,10],'+966':[8,10],'+49':[9,12],'+33':[9,9],'+31':[9,9],'+34':[9,9],'+39':[8,11],'+48':[9,9],'+55':[10,11],'+52':[10,10],'+81':[9,11],'+82':[8,11],'+94':[9,9],'+977':[9,11]};
   var ISO = {US:'+1',CA:'+1',GB:'+44',UK:'+44',AU:'+61',NZ:'+64',IE:'+353',AE:'+971',AR:'+54',AT:'+43',BD:'+880',BE:'+32',BG:'+359',BR:'+55',BH:'+973',BO:'+591',KH:'+855',CL:'+56',CN:'+86',CO:'+57',CR:'+506',CI:'+225',CY:'+357',CZ:'+420',DK:'+45',DZ:'+213',EC:'+593',EG:'+20',EE:'+372',FI:'+358',FR:'+33',GE:'+995',DE:'+49',GH:'+233',GR:'+30',HK:'+852',HR:'+385',HU:'+36',IS:'+354',IN:'+91',ID:'+62',IQ:'+964',IL:'+972',IT:'+39',JP:'+81',JO:'+962',KZ:'+7',KE:'+254',KW:'+965',LV:'+371',LB:'+961',LT:'+370',LU:'+352',MO:'+853',MY:'+60',MV:'+960',MT:'+356',MX:'+52',MA:'+212',MM:'+95',NP:'+977',NL:'+31',NG:'+234',NO:'+47',OM:'+968',PK:'+92',PA:'+507',PY:'+595',PE:'+51',PH:'+63',PL:'+48',PT:'+351',QA:'+974',RO:'+40',RU:'+7',RW:'+250',SA:'+966',SN:'+221',RS:'+381',SG:'+65',SK:'+421',SI:'+386',ZA:'+27',KR:'+82',ES:'+34',LK:'+94',SE:'+46',CH:'+41',TW:'+886',TZ:'+255',TH:'+66',TN:'+216',TR:'+90',UG:'+256',UA:'+380',UY:'+598',UZ:'+998',VE:'+58',VN:'+84',ZM:'+260'};
+
   var A = {}, cur = 0, busy = false, wrap = document.getElementById('qs');
-  // Skip the contact questions we already know: from the link (?first_name=&last_name=&email=&phone=, e.g. WebinarJam
-  // offer button or a Kit email) or from the masterclass registration on this device (localStorage 'jarvis_reg').
+  // Prefill contact details we already know: link params (?first_name=&last_name=&email=&phone=&instagram=)
+  // or the masterclass registration on this device (localStorage 'jarvis_reg').
   var KNOWN = {};
   (function(){
     var p = new URLSearchParams(location.search), reg = null;
-    if (p.get('reset') === '1') { try { localStorage.removeItem('jarvis_reg'); } catch (e) {} return; }
+    if (p.get('reset') === '1') { try { localStorage.removeItem('jarvis_reg'); localStorage.removeItem('jarvis_apply_v1'); } catch (e) {} return; }
     try { reg = JSON.parse(localStorage.getItem('jarvis_reg') || 'null'); } catch (e) {}
     reg = reg || {};
     var nm = (p.get('name') || '').trim().split(/\s+/);
-    var v = {
-      first_name: p.get('first_name') || p.get('firstname') || (nm[0] || '') || reg.first_name,
-      last_name: p.get('last_name') || p.get('lastname') || nm.slice(1).join(' ') || reg.last_name,
-      email: p.get('email') || reg.email,
-      phone: p.get('phone') || reg.phone
-    };
+    var v = { first_name: p.get('first_name') || nm[0] || reg.first_name, last_name: p.get('last_name') || nm.slice(1).join(' ') || reg.last_name,
+      email: p.get('email') || reg.email, phone: p.get('phone') || reg.phone, instagram: p.get('instagram') };
     Object.keys(v).forEach(function(k){ var x = String(v[k] || '').trim().slice(0, 160); if (x) KNOWN[k] = x; });
     if (KNOWN.email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(KNOWN.email)) delete KNOWN.email;
-    // Links may carry an unencoded '+', which arrives as a space: rebuild as +digits (E.164).
-    if (KNOWN.phone) { var pdg = KNOWN.phone.replace(/\D/g, ''); KNOWN.phone = pdg.length >= 8 && pdg.length <= 15 ? '+' + pdg : ''; if (!KNOWN.phone) delete KNOWN.phone; }
+    if (KNOWN.phone) { var d = KNOWN.phone.replace(/\D/g, ''); if (d.length >= 8 && d.length <= 15) KNOWN.phone = '+' + d; else delete KNOWN.phone; }
   })();
-  Object.keys(KNOWN).forEach(function(k){ A[k] = KNOWN[k]; });
-  Q = Q.filter(function(q){ return !KNOWN[q.k]; });
-  if (KNOWN.first_name || KNOWN.email) Q[0].intro = 'Jarvis 2.0 application &middot; applying as <b style="color:#fff">' + String(KNOWN.first_name || KNOWN.email).replace(/[<>&"]/g, '') + '</b> &middot; <a href="?reset=1" style="color:#8a8a8a">not you?</a>';
-  else Q[0].intro = 'Jarvis 2.0 application &middot; takes 2 minutes';
   var esc = function(x){ return String(x).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); };
+  Q[0].intro = KNOWN.first_name ? 'Jarvis 2.0 application &middot; applying as <b style="color:#fff">' + esc(KNOWN.first_name) + '</b> &middot; <a href="?reset=1" style="color:#8a8a8a">not you?</a>' : 'Jarvis 2.0 application &middot; takes 2 minutes';
 
+  function contactHTML(){
+    // split a known +E.164 phone into country code + national number for the picker
+    return '<div class="cg">' +
+      '<div><label>First name</label><input class="t" data-f="first_name" autocomplete="given-name" placeholder="Jane"></div>' +
+      '<div><label>Last name</label><input class="t" data-f="last_name" autocomplete="family-name" placeholder="Smith"></div>' +
+      '<div class="full"><label>Email</label><input class="t" data-f="email" type="email" autocomplete="email" placeholder="name@example.com"></div>' +
+      '<div class="full"><label>Phone</label><div class="ph"><select class="cc" aria-label="Country code">' + CC_OPTS + '</select><input class="t" data-f="phone" type="tel" inputmode="tel" autocomplete="tel-national" placeholder="412 345 678"></div></div>' +
+      '<div class="full"><label>Instagram</label><input class="t" data-f="instagram" autocomplete="off" autocapitalize="off" placeholder="@yourhandle"></div>' +
+      '</div>';
+  }
   Q.forEach(function(q, i){
     var el = document.createElement('div'); el.className = 'q'; el.id = 'q' + i;
     var h = (q.intro ? '<div class="intro">' + q.intro + '</div>' : '') +
-      '<div class="qt"><span class="n">' + (i+1) + '</span><span class="tt"></span></div>' + (q.d ? '<div class="qd">' + q.d + '</div>' : '') + '<div class="body">';
+      '<div class="qt"><span class="n"></span><span class="tt">' + esc(q.t) + '</span></div>' + (q.d ? '<div class="qd">' + q.d + '</div>' : '') + '<div class="body">';
     if (q.c) {
       h += '<div class="ch">' + q.c.map(function(o, j){ var key = q.keys ? q.keys[j] : String.fromCharCode(65 + j); return '<button type="button" data-v="' + esc(o) + '" data-key="' + key + '"><span class="k">' + key + '</span>' + esc(o) + '</button>'; }).join('') + '</div>';
-    } else if (q.type === 'long') {
-      h += '<textarea class="t" rows="1" placeholder="' + q.ph + '"></textarea>';
-    } else if (q.type === 'tel') {
-      h += '<div class="ph"><select class="cc" aria-label="Country code">' + CC_OPTS + '</select><input class="t" type="tel" inputmode="tel" placeholder="' + q.ph + '" autocomplete="tel-national"></div>';
-    } else {
-      h += '<input class="t" type="' + q.type + '" placeholder="' + q.ph + '" autocomplete="' + (q.ac || 'off') + '"' + (q.type === 'tel' ? ' inputmode="tel"' : '') + '>';
+    } else if (q.m) {
+      var opts = q.m.concat(q.other ? ['Other'] : []);
+      h += '<div class="ch multi">' + opts.map(function(o, j){ var key = String.fromCharCode(65 + j); return '<button type="button" data-v="' + esc(o) + '" data-key="' + key + '"><span class="k">' + key + '</span>' + esc(o) + '</button>'; }).join('') + '</div>';
+      if (q.other) h += '<div class="other"><input class="t" data-f="other" placeholder="Tell us your other frustration..."></div>';
+    } else if (q.type === 'contact') {
+      h += contactHTML();
     }
-    h += '<div class="ok"><button type="button" class="okb">' + (i === Q.length - 1 ? 'Submit' : 'OK') + '</button><span>' + (q.type === 'long' ? 'press <b>Enter</b> &middot; <b>Shift + Enter</b> for a new line' : q.c ? '' : 'press <b>Enter &#8629;</b>') + '</span></div><div class="err"></div></div>';
+    h += '<div class="ok"><button type="button" class="okb">OK</button><span>' + (q.c ? '' : 'press <b>Enter &#8629;</b>') + '</span></div><div class="err"></div></div>';
     el.innerHTML = h; wrap.appendChild(el);
     el.querySelector('.okb').addEventListener('click', function(){ next(); });
     if (q.c) el.querySelectorAll('.ch button').forEach(function(b){ b.addEventListener('click', function(){ pick(i, b); }); });
-    var inp = el.querySelector('.t');
-    if (inp && q.type === 'long') inp.addEventListener('input', function(){ inp.style.height = 'auto'; inp.style.height = inp.scrollHeight + 'px'; });
+    if (q.m) el.querySelectorAll('.ch button').forEach(function(b){ b.addEventListener('click', function(){ toggle(i, b); }); });
+    if (q.type === 'contact') {
+      el.querySelectorAll('[data-f]').forEach(function(inp){ var k = inp.getAttribute('data-f'); if (KNOWN[k] && k !== 'phone') inp.value = KNOWN[k]; });
+      if (KNOWN.phone) { var sel = el.querySelector('.cc'), best = '';
+        for (var o = 0; o < sel.options.length; o++) { var v = sel.options[o].value; if (KNOWN.phone.indexOf(v) === 0 && v.length > best.length) { best = v; sel.selectedIndex = o; } }
+        el.querySelector('[data-f="phone"]').value = best ? KNOWN.phone.slice(best.length) : KNOWN.phone; sel.setAttribute('data-picked', '1'); }
+    }
   });
 
-  function title(i){ var first = (A.first_name || '').split(' ')[0]; return esc(Q[i].t.replace('{first}', first || 'there')); }
+  function visible(i){ return !Q[i].when || Q[i].when(); }
+  function nextIdx(i, dir){ do { i += dir; } while (i >= 0 && i < Q.length && !visible(i)); return i; }
   function show(i, dir){
     var prev = document.getElementById('q' + cur); prev.classList.remove('on','back');
     cur = i; var el = document.getElementById('q' + i);
-    el.querySelector('.tt').innerHTML = title(i);
+    var n = 0; for (var j = 0; j <= i; j++) if (visible(j)) n++;
+    el.querySelector('.n').textContent = n;
     el.querySelector('.err').textContent = '';
     el.classList.add('on'); if (dir < 0) el.classList.add('back');
-    var inp = el.querySelector('.t'); if (inp) setTimeout(function(){ inp.focus(); }, 60);
+    var inp = el.querySelector('input.t'); if (inp && !('ontouchstart' in window)) setTimeout(function(){ inp.focus(); }, 60);
     document.getElementById('bar').style.width = (i / Q.length * 100) + '%';
-    document.getElementById('up').disabled = i === 0;
+    document.getElementById('up').disabled = nextIdx(i, -1) < 0;
   }
   function err(m){ document.getElementById('q' + cur).querySelector('.err').textContent = m; }
   function pick(i, b){
@@ -200,41 +225,56 @@ details p{color:var(--dim);margin-top:8px;font-size:.96rem}
     var el = document.getElementById('q' + i);
     el.querySelectorAll('.ch button').forEach(function(x){ x.classList.remove('sel'); });
     b.classList.add('sel'); A[Q[i].k] = b.getAttribute('data-v');
-    busy = true;
-    // DQ: under 1k to invest ends the application here (no calendar). Server re-checks and tags the lead.
-    if (Q[i].k === 'invest' && A.invest === 'Under $1k') { setTimeout(function(){ busy = false; submit(); }, 450); return; }
-    setTimeout(function(){ busy = false; next(); }, 450);
+    if (Q[i].k === 'invest' && LOW_INV.indexOf(A.invest) < 0) delete A.credit; // credit no longer applies
+    busy = true; setTimeout(function(){ busy = false; next(); }, 420);
+  }
+  function toggle(i, b){
+    var q = Q[i], el = document.getElementById('q' + i), on = el.querySelectorAll('.ch button.sel').length;
+    if (!b.classList.contains('sel') && on >= q.max) return err('Pick up to ' + q.max + '. Unselect one to change.');
+    b.classList.toggle('sel'); err('');
+    if (b.getAttribute('data-v') === 'Other') { var o = el.querySelector('.other'); o.classList.toggle('on', b.classList.contains('sel')); if (b.classList.contains('sel')) o.querySelector('input').focus(); }
   }
   function next(){
-    var q = Q[cur], el = document.getElementById('q' + cur), inp = el.querySelector('.t');
-    if (inp) A[q.k] = inp.value.trim();
-    if (q.type === 'tel' && inp) {
-      var cc = el.querySelector('.cc').value, pd = inp.value.replace(/\D/g, '');
+    var q = Q[cur], el = document.getElementById('q' + cur);
+    if (q.c && !A[q.k]) return err('Please pick an option');
+    if (q.m) {
+      var sel = [].map.call(el.querySelectorAll('.ch button.sel'), function(b){ return b.getAttribute('data-v'); });
+      if (!sel.length) return err('Pick at least one');
+      var oth = el.querySelector('[data-f="other"]').value.trim();
+      if (sel.indexOf('Other') >= 0) { if (!oth) return err('Tell us your other frustration'); sel[sel.indexOf('Other')] = 'Other: ' + oth.slice(0, 200); }
+      A.frustrations = sel;
+    }
+    if (q.type === 'contact') {
+      var g = function(f){ return el.querySelector('[data-f="' + f + '"]').value.trim(); };
+      var first = g('first_name'), last = g('last_name'), email = g('email'), ig = g('instagram').replace(/^https?:\/\/(www\.)?instagram\.com\//i, '').replace(/\/.*$/, '');
+      if (!first || !last) return err('Please add your first and last name');
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return err("Hmm, that email doesn't look right");
+      var cc = el.querySelector('.cc').value, pd = g('phone').replace(/\D/g, '');
       if (pd.charAt(0) === '0') pd = pd.slice(1);
       if (cc === '+1' && pd.length === 11 && pd.charAt(0) === '1') pd = pd.slice(1);
       var pr = PLEN[cc] || [7, 15];
-      if (!pd) return err('Please fill this in');
-      if (pd.length < pr[0] || pd.length > pr[1]) return err("That number doesn't look right for the country you picked");
-      A.phone = cc + pd; // E.164, no spaces: the format Calendly parses most reliably
-      return show(cur + 1, 1);
+      if (pd.length < pr[0] || pd.length > pr[1]) return err("That phone number doesn't look right for the country you picked");
+      if (!ig) return err('Please add your Instagram handle');
+      A.first_name = first; A.last_name = last; A.email = email; A.phone = cc + pd; A.instagram = '@' + ig.replace(/^@+/, '').slice(0, 60);
     }
-    var v = A[q.k] || '';
-    if (!v) return err(q.c ? 'Please pick an option' : 'Please fill this in');
-    if (q.type === 'email' && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)) return err("Hmm, that email doesn't look right");
-    if (cur < Q.length - 1) return show(cur + 1, 1);
+    // DQ is decided as soon as it is known: credit 0-499 / Under $1k + N/A at Q7, or "No" at Q8.
+    if ((q.k === 'credit' || q.k === 'show_up') && dqReason()) return submit();
+    var n = nextIdx(cur, 1);
+    if (n < Q.length) return show(n, 1);
     submit();
   }
   function submit(){
     var b = document.getElementById('q' + cur).querySelector('.okb'); b.disabled = true; b.textContent = 'Submitting...';
-    var payload = Object.assign({ website: document.getElementById('website').value }, A);
+    var dq = dqReason();
+    var payload = Object.assign({ website: document.getElementById('website').value, v: 2, dq_reason: dq }, A);
     fetch(API, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) })
       .then(function(r){ return r.json(); })
       .then(function(r){
         if (!r.ok) throw new Error(r.error || 'error');
-        if (r.dq) { save({ stage: 'dq', at: Date.now() }); return showDQ(); }
+        if (dq || r.dq) { save({ stage: 'dq', at: Date.now() }); return showDQ(); }
         save({ stage: 'applied', a: { first_name: A.first_name, last_name: A.last_name, email: A.email, phone: A.phone }, at: Date.now() }); showCal();
       })
-      .catch(function(){ b.disabled = false; b.textContent = 'Submit'; err('Something went wrong. Please try again.'); });
+      .catch(function(){ b.disabled = false; b.textContent = 'OK'; err('Something went wrong. Please try again.'); });
   }
   var REPLAY_URL = '#'; // placeholder: masterclass replay link
   function showDQ(){
@@ -258,16 +298,16 @@ details p{color:var(--dim);margin-top:8px;font-size:.96rem}
     })();
   }
   document.addEventListener('keydown', function(e){
-    if (document.getElementById('calwrap').classList.contains('on')) return;
-    var q = Q[cur], el = document.getElementById('q' + cur);
-    if (e.key === 'Enter' && !(q.type === 'long' && e.shiftKey)) { e.preventDefault(); return next(); }
-    if (q.c && !e.metaKey && !e.ctrlKey && e.key.length === 1) {
-      var b = el.querySelector('.ch button[data-key="' + e.key.toUpperCase() + '"]'); if (b) pick(cur, b);
-    }
+    if (document.getElementById('calwrap').classList.contains('on') || document.getElementById('dq').style.display === 'block') return;
+    var q = Q[cur], el = document.getElementById('q' + cur), tag = (e.target.tagName || '').toLowerCase();
+    if (e.key === 'Enter') { e.preventDefault(); return next(); }
+    if (tag === 'input' || tag === 'select' || e.metaKey || e.ctrlKey || e.key.length !== 1) return;
+    var b = el.querySelector('.ch button[data-key="' + e.key.toUpperCase() + '"]');
+    if (b && q.c) pick(cur, b); else if (b && q.m) toggle(cur, b);
   });
-  document.getElementById('up').addEventListener('click', function(){ if (cur > 0) show(cur - 1, -1); });
+  document.getElementById('up').addEventListener('click', function(){ var p = nextIdx(cur, -1); if (p >= 0) show(p, -1); });
   document.getElementById('down').addEventListener('click', function(){ next(); });
-  // Remember progress on this device: applied -> straight to the calendar, booked -> completion screen.
+  // Remember progress on this device: applied -> straight to the calendar, booked -> /applied, DQ -> DQ screen.
   var LS = 'jarvis_apply_v1';
   function save(o){ try { localStorage.setItem(LS, JSON.stringify(o)); } catch (e) {} }
   function load(){ try { return JSON.parse(localStorage.getItem(LS) || 'null'); } catch (e) { return null; } }
@@ -277,9 +317,9 @@ details p{color:var(--dim);margin-top:8px;font-size:.96rem}
     save({ stage: 'booked', first: first, at: Date.now() });
     location.href = 'https://theaiagencybuilder.com/applied/';
   });
-  // Default the country code from the visitor's location (same as /masterclass), unless they already picked one.
+  // Default the country code from the visitor's location (same as /masterclass), unless known or picked.
   (function(){
-    var sel = document.querySelector('.cc'); if (!sel) return;
+    var sel = document.querySelector('.cc'); if (!sel || sel.getAttribute('data-picked')) return;
     var picked = false; sel.addEventListener('change', function(){ picked = true; });
     try { fetch('https://ipwho.is/').then(function(r){ return r.json(); }).then(function(d){
       if (!d || picked) return;
