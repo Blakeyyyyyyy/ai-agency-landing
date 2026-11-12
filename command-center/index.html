@@ -1822,7 +1822,7 @@ function renderHT(){
   loadHT(false);
   const b=db(), esc=x=>String(x||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
   const all=HT.rows, inRange=all.filter(r=>inR(r.cd));
-  const order=(HT.stages.length?HT.stages.map(x=>x.label):['Webinar Registered','Applied (Typeform)','Call Booked','Showed - Pitched','Won - High Ticket','Downsell - Base44','Lost / Unqualified']);
+  const order=(HT.stages.length?HT.stages.map(x=>x.label):['Webinar Registered','Applied','Call Booked','Showed - Pitched','Won - High Ticket','Downsell - Base44','Lost / Unqualified']);
   const cnt={}; order.forEach(l=>cnt[l]=0); inRange.forEach(r=>{cnt[r.stage]=(cnt[r.stage]||0)+1});
   // "reached" = at or past a stage (won/downsell/lost all passed through the call)
   const idx=l=>order.indexOf(l), reached=l=>inRange.filter(r=>{const i=idx(r.stage);return r.type!=='active'?(i>=0&&idx(l)<=idx('Showed - Pitched')):i>=idx(l)}).length;
@@ -1838,7 +1838,7 @@ function renderHT(){
   const paid=inRange.filter(r=>r.source==='Paid').length, org=inRange.filter(r=>r.source!=='Paid').length, prior=inRange.filter(r=>r.prior).length;
   const pc=x=>(x*100).toFixed(0)+'%';
   const owners={}; all.filter(r=>r.stage==='Won - High Ticket'&&r.wd&&inR(r.wd)).forEach(r=>{const o=r.owner||'Unassigned';owners[o]=owners[o]||{n:0,v:0};owners[o].n++;owners[o].v+=r.value||0});
-  const stageCol={'Webinar Registered':'#38bdf8','Applied (Typeform)':'#a855f7','Call Booked':'#eab308','Showed - Pitched':'#f97316','Won - High Ticket':'#10b981','Downsell - Base44':'#22d3ee','Lost / Unqualified':'#ef4444'};
+  const stageCol={'Webinar Registered':'#38bdf8','Applied':'#a855f7','Call Booked':'#eab308','Showed - Pitched':'#f97316','Won - High Ticket':'#10b981','Downsell - Base44':'#22d3ee','Lost / Unqualified':'#ef4444'};
   const list=[...all].sort((a,c)=>(c.updated||'').localeCompare(a.updated||'')).slice(0,150);
   return`
   <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:16px">
