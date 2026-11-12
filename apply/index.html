@@ -130,7 +130,7 @@ input.t::placeholder,textarea.t::placeholder{color:#b3b3b8}
 .nav button{background:#0e7c5a;color:#fff}
 #calwrap h2,#dq h2{color:#262627;font-weight:500}
 #calwrap h2{font-size:clamp(1.1rem,3vw,1.4rem)}#calwrap p{margin:4px 0 10px;font-size:.92rem}
-#cal{height:auto !important;min-height:520px;overflow:visible}#calwrap h2 em{color:#0e7c5a}
+#cal{min-height:520px;overflow:visible}#cal iframe{min-height:520px}#calwrap h2 em{color:#0e7c5a}
 #calwrap p,#dq p{color:#5e5e63}
 #dq a#replay{background:#0e7c5a !important;color:#fff !important;font-weight:600 !important;text-transform:none !important;border-radius:6px !important}
 #cal{border:1px solid #eee}
@@ -332,7 +332,7 @@ input.t::placeholder,textarea.t::placeholder{color:#b3b3b8}
     document.getElementById('stage').style.alignItems = 'flex-start';
     (function init(){
       if (!window.Calendly) return setTimeout(init, 200);
-      Calendly.initInlineWidget({ url: CAL + '?hide_gdpr_banner=1&hide_event_type_details=1&hide_landing_page_details=1&background_color=ffffff&primary_color=0e7c5a', parentElement: document.getElementById('cal'), resize: true,
+      Calendly.initInlineWidget({ url: CAL + '?hide_gdpr_banner=1&hide_event_type_details=1&hide_landing_page_details=1&background_color=ffffff&primary_color=0e7c5a', parentElement: document.getElementById('cal'),
         prefill: { name: A.first_name + ' ' + A.last_name, email: A.email, customAnswers: { a1: '+' + String(A.phone || '').replace(/\D/g, '') } } });
     })();
   }
@@ -352,7 +352,12 @@ input.t::placeholder,textarea.t::placeholder{color:#b3b3b8}
   function load(){ try { return JSON.parse(localStorage.getItem(LS) || 'null'); } catch (e) { return null; } }
   window.addEventListener('message', function(e){
     if (e.data && e.data.event === 'calendly.date_and_time_selected') { slotPicked = true; setTimeout(toFormBottom, 400); setTimeout(toFormBottom, 1200); return; }
-    if (e.data && e.data.event === 'calendly.page_height' && slotPicked) { setTimeout(toFormBottom, 150); return; }
+    if (e.data && e.data.event === 'calendly.page_height') {
+      var hp = parseInt((e.data.payload && e.data.payload.height) || 0, 10);
+      if (hp > 300) { var c = document.getElementById('cal'), f = c && c.querySelector('iframe'); if (c) c.style.height = (hp + 4) + 'px'; if (f) f.style.height = (hp + 4) + 'px'; }
+      if (slotPicked) setTimeout(toFormBottom, 150);
+      return;
+    }
     if (!e.data || e.data.event !== 'calendly.event_scheduled') return;
     var first = (A.first_name || '').split(' ')[0];
     save({ stage: 'booked', first: first, at: Date.now() });
