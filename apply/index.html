@@ -375,7 +375,8 @@ input.t::placeholder,textarea.t::placeholder{color:#b3b3b8}
     }).catch(function(){}); } catch (e) {}
   })();
   var st = load();
-  if (st && st.stage === 'booked') location.replace('/applied/');
+  if (new URLSearchParams(location.search).get('preview') === 'dq') showDQ(); // team preview of the DQ screen (saves nothing)
+  else if (st && st.stage === 'booked') location.replace('/applied/');
   else if (st && st.stage === 'dq') showDQ();
   else if (st && st.stage === 'applied' && st.a && st.a.email) { A = st.a; show(0, 1); showCal(); }
   else show(0, 1);
