@@ -197,7 +197,8 @@ function sd(at){const p=Object.fromEntries(new Intl.DateTimeFormat('en-CA',{time
 function sdDate(){const[y,m,d]=sd().split('-').map(Number);return new Date(y,m-1,d,12);}
 function shiftBarInner(){const day=sd();const rows=(S.signups||[]).filter(r=>r.date===day);const tot=rows.reduce((a,r)=>a+(Number(r.revenue)||0),0);const pct=Math.min(100,tot/SHIFT_GOAL*100);const lbl=new Date(day+'T12:00:00Z').toLocaleDateString('en-US',{timeZone:'UTC',weekday:'short',day:'numeric',month:'short'});
 return`<div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:10px"><div style="font-size:20px;font-weight:900;letter-spacing:-.3px">Shift total: <span style="color:var(--gl)">$${Math.round(tot).toLocaleString('en-US')}</span> / $${SHIFT_GOAL.toLocaleString('en-US')}</div><div style="font-size:12px;color:var(--dim)">${rows.length} sales · ${lbl} shift · resets 4am LA</div></div><div style="height:14px;background:rgba(255,255,255,.07);border-radius:99px;overflow:hidden"><div style="height:100%;width:${pct}%;background:linear-gradient(90deg,var(--gd),var(--gl));border-radius:99px;transition:width .6s"></div></div>`;}
-function shiftBar(){return`<div class="sec" id="shiftbar" style="margin:0 0 16px">${shiftBarInner()}</div>`;}
+// Shift total bar removed from the dashboard (Ellis, 13 Nov): cleaner screenshots. Code kept; return the line below to bring it back.
+function shiftBar(){return'';} // was: <div class="sec" id="shiftbar">${shiftBarInner()}</div>
 // Keep the bar live without re-rendering the page (so open forms are never wiped): refresh sales every 2 min.
 setInterval(async()=>{try{const r=await fetch(CC_READ_URL,{signal:AbortSignal.timeout(10000)});if(!r.ok)return;const d=await r.json();if(!Array.isArray(d.signups))return;S.signups=d.signups.map(x=>{if(x.date)x.date=normDate(x.date);return x;});const el=document.getElementById('shiftbar');if(el)el.innerHTML=shiftBarInner();}catch(e){}},120000);
 const mn=m=>['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][m];
@@ -519,6 +520,8 @@ function renderDash(){
   const products=Object.keys(S.revenueByPlan||{});
   const byProduct={};
   products.forEach(p=>{byProduct[p]=rows.filter(r=>(r.product||'').replace('Base44 ','')===p)});
+  // Only show plans that actually sold in this range (Ellis, 13 Nov): no empty 0 ($0) tiles.
+  const shownProducts=products.filter(p=>byProduct[p].length>0);
   return`
   <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:16px">
     <div style="font-size:14px;font-weight:700;color:rgba(255,255,255,.6)">Showing: <span style="color:var(--gl)">${b.l}</span></div>
@@ -530,8 +533,8 @@ function renderDash(){
     <div class="hero-c"><div class="lbl">AVG / SALE</div><div class="val" style="color:#eab308">${sm.count>0?fmt(sm.revenue/sm.count):'$0'}</div></div>
     <div class="hero-c"><div class="lbl">COMMISSION OWED</div><div class="val" style="color:#10b981">${fmt(sm.commission)}</div></div>
   </div>
-  ${products.length?`<div style="display:grid;grid-template-columns:repeat(${products.length},1fr);gap:12px;margin-bottom:16px">
-    ${products.map(p=>`<div class="hero-c"><div class="lbl">BASE44 ${p.toUpperCase()}</div><div class="val" style="color:#a855f7">${byProduct[p].length} <span style="font-size:12px;color:var(--dmr)">(${fmt(byProduct[p].reduce((s,r)=>s+(Number(r.revenue)||0),0))})</span></div></div>`).join('')}
+  ${shownProducts.length?`<div style="display:grid;grid-template-columns:repeat(${shownProducts.length},1fr);gap:12px;margin-bottom:16px">
+    ${shownProducts.map(p=>`<div class="hero-c"><div class="lbl">BASE44 ${p.toUpperCase()}</div><div class="val" style="color:#a855f7">${byProduct[p].length} <span style="font-size:12px;color:var(--dmr)">(${fmt(byProduct[p].reduce((s,r)=>s+(Number(r.revenue)||0),0))})</span></div></div>`).join('')}
   </div>`:''}
   <div class="sec">
     <div style="font-size:14px;font-weight:800;margin-bottom:12px">🏆 Leaderboard (live, from Close - all time)</div>
