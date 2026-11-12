@@ -132,8 +132,17 @@ input.t::placeholder,textarea.t::placeholder{color:#b3b3b8}
 #calwrap h2{font-size:clamp(1.1rem,3vw,1.4rem)}#calwrap p{margin:4px 0 10px;font-size:.92rem}
 #cal{min-height:520px;overflow:visible}#cal iframe{min-height:520px}#calwrap h2 em{color:#0e7c5a}
 #calwrap p,#dq p{color:#5e5e63}
-#dq a#replay{background:#0e7c5a !important;color:#fff !important;font-weight:600 !important;text-transform:none !important;border-radius:6px !important}
+
 #cal{border:1px solid #eee}
+.dqh{font-size:clamp(1.6rem,4.6vw,2.2rem);font-weight:500;color:#262627;margin-bottom:10px}
+.dqp{color:#5e5e63;font-size:1.02rem;line-height:1.55;margin:0 auto 20px;max-width:520px}
+.dqvid{position:relative;width:100%;aspect-ratio:16/9;border-radius:12px;overflow:hidden;background:#f2f2f2;border:1px solid #e6e6e6;margin-bottom:22px}
+.dqvid iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.dqbtn{display:inline-block;background:#0e7c5a;color:#fff !important;font-weight:600;font-size:1.05rem;padding:15px 28px;border-radius:8px;text-decoration:none}
+.dqbtn:hover{background:#0b6a4d}
+.dqsmall{color:#8a8a8f;font-size:.85rem;margin-top:10px}
+#stage #dq{padding-top:2vh}
+
 @media(max-width:560px){.nav{display:none}.stage{padding-bottom:40px}}
 </style>
 </head>
@@ -142,10 +151,12 @@ input.t::placeholder,textarea.t::placeholder{color:#b3b3b8}
 <div class="top"><a class="logo" href="/"><span class="chip">AI</span> AGENCY</a></div>
 <div class="stage" id="stage">
   <div id="qs" style="width:100%;max-width:640px"></div>
-  <div id="dq" style="display:none;width:100%;max-width:560px;text-align:center">
-    <h2 style="font-size:clamp(1.6rem,5vw,2.3rem);font-weight:900;line-height:1.15">Thanks for applying.</h2>
-    <p style="color:var(--dim);margin:12px 0 22px">In the meantime, catch the full masterclass replay.</p>
-    <a id="replay" href="#" style="display:inline-block;background:var(--green);color:#04140f;border-radius:10px;font-weight:900;text-transform:uppercase;padding:16px 26px;text-decoration:none">Watch the masterclass replay</a>
+  <div id="dq" style="display:none;width:100%;max-width:640px;text-align:center">
+    <h2 class="dqh">Thanks for applying.</h2>
+    <p class="dqp">Jarvis 2.0 isn't the right fit right now, but you can start building today with the free version. Watch this first:</p>
+    <div class="dqvid"><iframe id="dqyt" title="How to build your free Jarvis" data-src="https://www.youtube-nocookie.com/embed/E5CQDP2c5rQ?rel=0&modestbranding=1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
+    <a id="replay" class="dqbtn" href="/">Claim your free Jarvis</a>
+    <p class="dqsmall">It's free. Pick your access on the next page.</p>
   </div>
   <div id="calwrap">
     <h2>Last step, <em id="fn">you</em>. Pick a time.</h2>
@@ -307,13 +318,15 @@ input.t::placeholder,textarea.t::placeholder{color:#b3b3b8}
       })
       .catch(function(){ b.disabled = false; b.textContent = 'OK'; err('Something went wrong. Please try again.'); });
   }
-  var REPLAY_URL = '#'; // placeholder: masterclass replay link
+  var REPLAY_URL = '/'; // DQ CTA: free Jarvis page (Sarhan, 13 Nov), setters dial them from there
   function showDQ(){
     wrap.style.display = 'none'; document.getElementById('nav').style.display = 'none';
     document.getElementById('calwrap').classList.remove('on');
     document.getElementById('bar').style.width = '100%';
     document.getElementById('replay').href = REPLAY_URL;
     document.getElementById('dq').style.display = 'block';
+    var yt = document.getElementById('dqyt'); if (yt && !yt.src) yt.src = yt.getAttribute('data-src');
+    document.getElementById('stage').style.alignItems = 'flex-start';
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
   // Calendly auto-resizes (resize:true), so the whole form is on the page. After a slot is picked we scroll so the
