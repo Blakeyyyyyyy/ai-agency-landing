@@ -128,8 +128,8 @@ details p{color:var(--dim);margin-top:8px;font-size:.96rem}
 (function(){
   var API = 'https://blake-discord-relay.vercel.app/api/apply';
   var CAL = 'https://calendly.com/d/d2tv-f6t-jdx/jarvis-strategy-call';
-  // Question flow + DQ logic (Sarhan, 12 Nov 2026). Q7 credit only shows for Under $1k / $1k-$3k.
-  // DQ (no Calendly): credit 0-499, OR invest Under $1k with credit N/A, OR will-show-up = No.
+  // Question flow + DQ logic (Sarhan, 12 Nov 2026). Credit score question removed (no financing options yet).
+  // DQ (no Calendly): invest Under $1k, OR will-show-up = No.
   var LOW_INV = ['Under $1k', '$1k-$3k'];
   var Q = [
     {k:'time_trying', t:'How long have you been trying to build an AI agency or make money online?', c:['Not started yet','Less than 3 months','3-12 months','1+ year']},
@@ -138,12 +138,10 @@ details p{color:var(--dim);margin-top:8px;font-size:.96rem}
     {k:'commit', t:'Are you ready to commit to building this?', c:['Yes','No'], keys:['Y','N']},
     {k:'contact', t:'Where can we reach you?', type:'contact'},
     {k:'invest', t:'What investment range do you have available? (USD)', c:['Under $1k','$1k-$3k','$3k-$5k','$5k-$10k','$10k+']},
-    {k:'credit', t:'What is your credit score?', c:['0-499','500-600','600-700','700-800+','N/A'], when:function(){ return LOW_INV.indexOf(A.invest) >= 0; }},
     {k:'show_up', t:'Will you show up at your selected time?', c:["Yes, I'll 100% be there","No, I can't make it"]}
   ];
   function dqReason(){
-    if (A.credit === '0-499') return 'credit';
-    if (A.invest === 'Under $1k' && A.credit === 'N/A') return 'invest';
+    if (A.invest === 'Under $1k') return 'invest';
     if (/^No/.test(A.show_up || '')) return 'show_up';
     return '';
   }
@@ -225,7 +223,6 @@ details p{color:var(--dim);margin-top:8px;font-size:.96rem}
     var el = document.getElementById('q' + i);
     el.querySelectorAll('.ch button').forEach(function(x){ x.classList.remove('sel'); });
     b.classList.add('sel'); A[Q[i].k] = b.getAttribute('data-v');
-    if (Q[i].k === 'invest' && LOW_INV.indexOf(A.invest) < 0) delete A.credit; // credit no longer applies
     busy = true; setTimeout(function(){ busy = false; next(); }, 420);
   }
   function toggle(i, b){
@@ -256,8 +253,8 @@ details p{color:var(--dim);margin-top:8px;font-size:.96rem}
       if (pd.length < pr[0] || pd.length > pr[1]) return err("That phone number doesn't look right for the country you picked");
       A.first_name = first; A.last_name = last; A.email = email; A.phone = cc + pd; A.instagram = ig.replace(/^@+/, '') ? '@' + ig.replace(/^@+/, '').slice(0, 60) : '';
     }
-    // DQ is decided as soon as it is known: credit 0-499 / Under $1k + N/A at Q7, or "No" at Q8.
-    if ((q.k === 'credit' || q.k === 'show_up') && dqReason()) return submit();
+    // DQ is decided as soon as it is known: Under $1k at Q6, or "No" at Q7.
+    if ((q.k === 'invest' || q.k === 'show_up') && dqReason()) return submit();
     var n = nextIdx(cur, 1);
     if (n < Q.length) return show(n, 1);
     submit();
