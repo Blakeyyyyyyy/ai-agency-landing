@@ -103,6 +103,36 @@ details p{color:var(--dim);margin-top:8px;font-size:.96rem}
 @media(max-width:560px){.cg{grid-template-columns:1fr}}
 @media(max-width:560px){.qd,.body{margin-left:0}.qt{flex-direction:column;gap:4px}.qt .n{padding-top:0}#cal{height:780px}.stage{align-items:flex-start;padding-top:8vh}}
 </style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
+<style id="tf-look">
+/* Typeform-style light theme (Sarhan, 13 Nov): calm white page, regular weights, soft choice tiles, no harsh contrast. */
+:root{--bg:#ffffff;--ink:#262627;--dim:#5e5e63;--green:#0e7c5a;--line:#e3e3e3;--display:'Inter',Arial,sans-serif}
+body{background:#fff;color:#262627;font-family:'Inter',Arial,sans-serif;font-weight:400}
+.bar{background:#ececec}.bar i{background:#0e7c5a}
+.logo{color:#262627}.logo .chip{background:#0e7c5a;color:#fff}
+.intro{color:#0e7c5a;font-family:'Inter',Arial,sans-serif;font-weight:500;letter-spacing:.06em}
+.qt{font-weight:400;font-size:clamp(1.25rem,3.6vw,1.6rem);line-height:1.4;color:#262627}
+.qt .n{color:#0e7c5a;font-family:'Inter',Arial,sans-serif;font-size:.85rem;font-weight:500}
+.qd{color:#6b6b70;font-size:1rem}
+input.t,textarea.t{color:#262627;font-family:'Inter',Arial,sans-serif;font-weight:400;border-bottom:1px solid rgba(14,124,90,.45)}
+input.t:focus,textarea.t:focus{border-bottom:2px solid #0e7c5a}
+input.t::placeholder,textarea.t::placeholder{color:#b3b3b8}
+.ph select,.cg .ph select{background:#fff;color:#262627;font-family:'Inter',Arial,sans-serif;font-weight:400;border-bottom:1px solid rgba(14,124,90,.45)}
+.cg label{color:#6b6b70;font-family:'Inter',Arial,sans-serif;letter-spacing:.04em;font-weight:500}
+.ch button{background:rgba(14,124,90,.06);border:1px solid rgba(14,124,90,.35);color:#262627;border-radius:6px;font-family:'Inter',Arial,sans-serif;font-weight:400;font-size:1rem;padding:10px 12px}
+.ch button:hover{background:rgba(14,124,90,.12)}
+.ch button.sel{background:rgba(14,124,90,.16);border:2px solid #0e7c5a;padding:9px 11px}
+.ch .k{background:#fff;color:#0e7c5a;border:1px solid rgba(14,124,90,.5);font-family:'Inter',Arial,sans-serif;font-weight:500}
+.ch button.sel .k{background:#0e7c5a;color:#fff;border-color:#0e7c5a}
+.ok button{background:#0e7c5a;color:#fff;font-family:'Inter',Arial,sans-serif;font-weight:600;border-radius:6px;font-size:1rem;padding:10px 18px}
+.ok span{color:#8a8a8f;font-family:'Inter',Arial,sans-serif}.ok span b{color:#4a4a4f;font-weight:600}
+.err{color:#c0392b}
+.nav button{background:#0e7c5a;color:#fff}
+#calwrap h2,#dq h2{color:#262627;font-weight:500}#calwrap h2 em{color:#0e7c5a}
+#calwrap p,#dq p{color:#5e5e63}
+#dq a#replay{background:#0e7c5a !important;color:#fff !important;font-weight:600 !important;text-transform:none !important;border-radius:6px !important}
+#cal{border:1px solid #eee}
+</style>
 </head>
 <body>
 <div class="bar"><i id="bar"></i></div>
@@ -291,7 +321,7 @@ details p{color:var(--dim);margin-top:8px;font-size:.96rem}
     document.getElementById('stage').style.alignItems = 'flex-start';
     (function init(){
       if (!window.Calendly) return setTimeout(init, 200);
-      Calendly.initInlineWidget({ url: CAL + '?hide_gdpr_banner=1&background_color=ffffff&primary_color=1fa87c', parentElement: document.getElementById('cal'),
+      Calendly.initInlineWidget({ url: CAL + '?hide_gdpr_banner=1&background_color=ffffff&primary_color=0e7c5a', parentElement: document.getElementById('cal'),
         prefill: { name: A.first_name + ' ' + A.last_name, email: A.email, customAnswers: { a1: '+' + String(A.phone || '').replace(/\D/g, '') } } });
     })();
   }
