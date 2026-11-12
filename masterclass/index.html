@@ -621,6 +621,8 @@ footer{border-top:1px solid var(--line);padding:34px 0;text-align:center;font-fa
     if(pdig.length<pr[0]||pdig.length>pr[1]){ err.textContent='That number does not look right for the country you picked. Please check it - we use it to send your reminder.'; return; }
     if(!cost){ err.textContent='Please confirm you understand the $50 a month platform cost.'; return; }
     if(window.abLog) window.abLog('form_submit');
+    // Remember them on this device so /apply can skip the contact questions after the webinar (Rohen, 12 Nov 2026).
+    try{ localStorage.setItem('jarvis_reg', JSON.stringify({first_name:first,last_name:last,email:email,phone:cc+' '+pdig})); }catch(e){}
     send.disabled=true; send.textContent='One moment...';
     // Masterclass = High Ticket funnel (Sarhan, 11 Nov 2026). One call does it all: WebinarJam, Close lead + High Ticket
     // opportunity (no Base44 opp / #new-lead card), Kit, #masterclass-registrants, confirmation email. The old

@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<!-- /applied: completion screen after booking on /apply (Rohen, 12 Nov 2026). Only shown once booked on this device (localStorage jarvis_apply_v1), else back to /apply. No Meta pixel. -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>You're booked: Jarvis Strategy Call</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;900&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<style>
+:root{--bg:#0a0a0a;--ink:#fff;--dim:#cfcfcf;--green:#32d09f;--line:#2c2c2c;--display:'Archivo',Arial,sans-serif;--mono:'IBM Plex Mono',Menlo,monospace}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--display);font-weight:600;line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+.bar{position:fixed;top:0;left:0;right:0;height:4px;background:#1c1c1c;z-index:5}
+.bar i{display:block;height:100%;width:0;background:var(--green);transition:width .35s ease}
+.top{display:flex;justify-content:center;align-items:center;padding:22px 0 0}
+.logo{display:flex;align-items:center;gap:8px;font-weight:900;font-size:1rem;letter-spacing:.5px;text-decoration:none;color:#fff}
+.logo .chip{background:var(--green);color:#04140f;border-radius:7px;padding:2px 7px}
+.stage{min-height:calc(100vh - 140px);display:flex;align-items:center;justify-content:center;padding:20px 22px}
+.q{width:100%;max-width:640px;display:none}
+.q.on{display:block;animation:in .38s cubic-bezier(.2,.7,.3,1) both}
+.q.back{animation:inb .38s cubic-bezier(.2,.7,.3,1) both}
+@keyframes in{from{opacity:0;transform:translateY(34px)}to{opacity:1;transform:none}}
+@keyframes inb{from{opacity:0;transform:translateY(-34px)}to{opacity:1;transform:none}}
+.intro{font-family:var(--mono);font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--green);margin-bottom:18px}
+.qt{display:flex;gap:10px;font-size:clamp(1.3rem,4.4vw,1.8rem);font-weight:800;line-height:1.3}
+.qt .n{color:var(--green);font-size:.9rem;font-family:var(--mono);padding-top:.45em;white-space:nowrap}
+.qt .n:after{content:' \2192'}
+.qd{color:#9a9a9a;font-size:1rem;margin:8px 0 0 36px}
+.body{margin:26px 0 0 36px}
+input.t,textarea.t{width:100%;background:transparent;border:0;border-bottom:2px solid #3a3a3a;color:#fff;font-family:var(--display);font-weight:700;font-size:clamp(1.2rem,4vw,1.6rem);padding:8px 0;outline:none;border-radius:0}
+input.t:focus,textarea.t:focus{border-bottom-color:var(--green)}
+input.t::placeholder,textarea.t::placeholder{color:#555}
+textarea.t{resize:none;min-height:46px;max-height:220px;line-height:1.35}
+.ch{display:flex;flex-direction:column;gap:9px;max-width:440px}
+.ch button{display:flex;align-items:center;gap:12px;text-align:left;background:rgba(50,208,159,.06);border:1.5px solid rgba(50,208,159,.35);color:#fff;border-radius:8px;padding:11px 14px;font-family:var(--display);font-weight:700;font-size:1.02rem;cursor:pointer;transition:background .15s,border-color .15s}
+.ch button:hover{background:rgba(50,208,159,.14)}
+.ch button.sel{background:rgba(50,208,159,.22);border-color:var(--green)}
+.ch button.sel{animation:blink .3s 2}
+@keyframes blink{50%{background:rgba(50,208,159,.06)}}
+.ch .k{flex:0 0 auto;font-family:var(--mono);font-size:.72rem;border:1.5px solid rgba(50,208,159,.5);color:var(--green);border-radius:4px;padding:1px 6px;background:#0a0a0a}
+.ch button.sel .k{background:var(--green);color:#04140f}
+.ok{display:flex;align-items:center;gap:12px;margin-top:22px}
+.ok button{background:var(--green);color:#04140f;border:0;border-radius:8px;font-family:var(--display);font-weight:900;font-size:1.02rem;padding:11px 20px;cursor:pointer}
+.ok button:disabled{opacity:.6;cursor:wait}
+.ok span{font-family:var(--mono);font-size:.72rem;color:#8a8a8a}
+.ok span b{color:#cfcfcf}
+.err{color:#ff8a8a;font-size:.92rem;margin-top:12px;min-height:1.3em}
+.nav{position:fixed;right:18px;bottom:18px;display:flex;gap:2px;z-index:5}
+.nav button{background:var(--green);color:#04140f;border:0;width:38px;height:34px;font-size:1rem;font-weight:900;cursor:pointer}
+.nav button:first-child{border-radius:6px 0 0 6px}.nav button:last-child{border-radius:0 6px 6px 0}
+.nav button:disabled{opacity:.4;cursor:default}
+.hp{position:absolute;left:-9999px}
+#calwrap{width:100%;max-width:1000px;display:none}
+#calwrap.on{display:block;animation:in .38s both}
+#calwrap h2{text-align:center;font-size:clamp(1.4rem,4.5vw,2rem);font-weight:900}
+#calwrap h2 em{font-style:normal;color:var(--green)}
+#calwrap p{text-align:center;color:var(--dim);margin:6px 0 16px}
+#cal{min-width:280px;height:720px;border-radius:14px;overflow:hidden;background:#fff}
+
+#done{width:100%;max-width:720px;display:none}
+#done.on{display:block;animation:in .38s both}
+.dh{text-align:center;margin-bottom:22px}
+.eyebrow{display:inline-block;font-family:var(--mono);font-size:.74rem;letter-spacing:.2em;text-transform:uppercase;color:var(--green);background:rgba(50,208,159,.1);border:1px solid rgba(50,208,159,.28);padding:6px 14px;border-radius:99px;margin-bottom:16px}
+.dh h1{font-size:clamp(1.9rem,6vw,2.7rem);font-weight:900;line-height:1.1}
+.dh h1 em{font-style:normal;color:var(--green)}
+.dh p{color:var(--dim);margin-top:10px}
+.card{background:#141414;border:2px solid #262626;border-radius:18px;padding:26px 22px;margin-bottom:26px;text-align:center}
+.card .sub{color:var(--dim)}
+.vid{max-width:340px;margin:18px auto 0;border-radius:14px;overflow:hidden;border:2px solid #2a2a2a;background:#111}
+.vid wistia-player{display:block;width:100%}
+.vidph{aspect-ratio:9/16;display:flex;align-items:center;justify-content:center;color:#666;font-family:var(--mono);font-size:.75rem;letter-spacing:.1em;text-transform:uppercase}
+.checks{list-style:none;text-align:left;max-width:420px;margin:20px auto 0;color:var(--dim);font-size:.98rem}
+.checks li{padding:7px 0 7px 26px;position:relative}
+.checks li:before{content:'';position:absolute;left:4px;top:15px;width:10px;height:10px;border-radius:3px;background:var(--green)}
+.faq h3{font-size:1.2rem;font-weight:900;margin:6px 0 12px;text-align:center}
+details{border-top:1px solid var(--line);padding:14px 2px}
+details:last-child{border-bottom:1px solid var(--line)}
+summary{cursor:pointer;font-weight:800;list-style:none;display:flex;justify-content:space-between;gap:10px}
+summary::-webkit-details-marker{display:none}
+summary:after{content:'+';color:var(--green);font-weight:900}
+details[open] summary:after{content:'-'}
+details p{color:var(--dim);margin-top:8px;font-size:.96rem}
+.restart{display:block;text-align:center;margin:26px 0 10px;font-family:var(--mono);font-size:.7rem;color:#777;letter-spacing:.05em;background:none;border:0;cursor:pointer;width:100%}
+.restart:hover{color:#bbb}
+@media(max-width:560px){.qd,.body{margin-left:0}.qt{flex-direction:column;gap:4px}.qt .n{padding-top:0}#cal{height:780px}.stage{align-items:flex-start;padding-top:8vh}}
+</style>
+</head>
+<body>
+<div class="top"><a class="logo" href="/"><span class="chip">AI</span> AGENCY</a></div>
+<div class="stage" style="align-items:flex-start">
+  <div id="done">
+    <div class="dh"><div class="eyebrow">Strategy call confirmed</div><h1 id="dh1">You're <em>booked</em></h1><p>Your strategy call with Blake's team is locked in.</p></div>
+  <section class="card booked">
+    
+    <p class="sub" style="margin-top:0">Watch this quick video from Blake before your call.</p>
+    <div class="vid" id="vid"><div class="vidph">Video from Blake</div></div>
+    <ul class="checks">
+      <li>Check your email for the calendar invite and call details.</li>
+      <li>Add it to your calendar so it doesn't get missed.</li>
+      <li>Be somewhere quiet, ready to talk about your goals.</li>
+    </ul>
+  </section>
+
+  <section class="faq">
+    <h3>Questions</h3>
+    <details><summary>What happens on the call?</summary><p>A 30 minute strategy call with Blake's team. We look at where you are now, where you want to be in 90 days, and whether Jarvis 2.0 is the right fit to get you there. If it isn't a fit, we'll tell you straight.</p></details>
+    <details><summary>Do I need tech or AI experience?</summary><p>No. Jarvis 2.0 is built so a complete beginner can go from zero to selling AI services to businesses, step by step.</p></details>
+    <details><summary>What is Jarvis 2.0?</summary><p>A 90-day program with direct support, where Jarvis guides you through finding businesses, selling to them and delivering the work. The call is where we walk you through it properly.</p></details>
+    <details><summary>What if I need to change my time?</summary><p>Use the reschedule link in your confirmation email and pick a new slot.</p></details>
+  </section>
+    <button class="restart" id="restart" type="button">Not you, or need to apply again? Start over</button>
+  </div>
+</div>
+<script>
+(function(){
+  var LS = 'jarvis_apply_v1', st = null;
+  try { st = JSON.parse(localStorage.getItem(LS) || 'null'); } catch (e) {}
+  if (!st || st.stage !== 'booked') { location.replace('/apply/'); return; }
+  var esc = function(x){ return String(x).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); };
+  if (st.first) document.getElementById('dh1').innerHTML = 'You\'re <em>booked</em>, ' + esc(st.first);
+  document.getElementById('done').classList.add('on');
+  var VIDEO_ID = ''; // Wistia media id for the "you're booked" video from Blake
+  if (VIDEO_ID) {
+    var s1 = document.createElement('script'); s1.src = 'https://fast.wistia.com/player.js'; s1.async = true; document.head.appendChild(s1);
+    var s2 = document.createElement('script'); s2.src = 'https://fast.wistia.com/embed/' + VIDEO_ID + '.js'; s2.async = true; s2.type = 'module'; document.head.appendChild(s2);
+    document.getElementById('vid').innerHTML = '<wistia-player media-id="' + VIDEO_ID + '" aspect="0.5625" player-color="32d09f"></wistia-player>';
+  }
+  document.getElementById('restart').addEventListener('click', function(){ try { localStorage.removeItem(LS); localStorage.removeItem('jarvis_reg'); } catch (e) {} location.href = '/apply/'; });
+})();
+</script>
+</body>
+</html>
