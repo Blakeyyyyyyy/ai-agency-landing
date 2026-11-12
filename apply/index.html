@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<!-- Jarvis 2.0 application + inline Calendly booking; after booking the same page shows the completion screen (video + FAQs), remembered per device in localStorage (Rohen, 12 Nov 2026). Answers -> relay /api/apply -> Close + #call-bookings.
+<!-- Jarvis 2.0 application + inline Calendly booking; after booking -> /applied (video + FAQs); booked devices are sent straight to /applied (Rohen, 12 Nov 2026). Answers -> relay /api/apply -> Close + #call-bookings.
      Booking -> Calendly org webhook -> calendly-webhook.js (Call Booked under the closer). No Meta pixel (organic webinar traffic). -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
@@ -99,28 +99,6 @@ details p{color:var(--dim);margin-top:8px;font-size:.96rem}
     <h2>Last step, <em id="fn">you</em>. Pick a time.</h2>
     <p>Your details are already filled in. Choose a slot and confirm.</p>
     <div id="cal"></div>
-  </div>
-  <div id="done">
-    <div class="dh"><div class="eyebrow">Strategy call confirmed</div><h1 id="dh1">You're <em>booked</em></h1><p>Your strategy call with Blake's team is locked in.</p></div>
-  <section class="card booked">
-    
-    <p class="sub" style="margin-top:0">Watch this quick video from Blake before your call.</p>
-    <div class="vid" id="vid"><div class="vidph">Video from Blake</div></div>
-    <ul class="checks">
-      <li>Check your email for the calendar invite and call details.</li>
-      <li>Add it to your calendar so it doesn't get missed.</li>
-      <li>Be somewhere quiet, ready to talk about your goals.</li>
-    </ul>
-  </section>
-
-  <section class="faq">
-    <h3>Questions</h3>
-    <details><summary>What happens on the call?</summary><p>A 30 minute strategy call with Blake's team. We look at where you are now, where you want to be in 90 days, and whether Jarvis 2.0 is the right fit to get you there. If it isn't a fit, we'll tell you straight.</p></details>
-    <details><summary>Do I need tech or AI experience?</summary><p>No. Jarvis 2.0 is built so a complete beginner can go from zero to selling AI services to businesses, step by step.</p></details>
-    <details><summary>What is Jarvis 2.0?</summary><p>A 90-day program with direct support, where Jarvis guides you through finding businesses, selling to them and delivering the work. The call is where we walk you through it properly.</p></details>
-    <details><summary>What if I need to change my time?</summary><p>Use the reschedule link in your confirmation email and pick a new slot.</p></details>
-  </section>
-    <button class="restart" id="restart" type="button">Not you, or need to apply again? Start over</button>
   </div>
 </div>
 <input class="hp" id="website" tabindex="-1" autocomplete="off" aria-hidden="true">
@@ -252,30 +230,14 @@ details p{color:var(--dim);margin-top:8px;font-size:.96rem}
   var LS = 'jarvis_apply_v1';
   function save(o){ try { localStorage.setItem(LS, JSON.stringify(o)); } catch (e) {} }
   function load(){ try { return JSON.parse(localStorage.getItem(LS) || 'null'); } catch (e) { return null; } }
-  var VIDEO_ID = ''; // Wistia media id for the "you're booked" video from Blake
-  function showDone(first){
-    wrap.style.display = 'none'; document.getElementById('nav').style.display = 'none';
-    document.getElementById('calwrap').classList.remove('on');
-    document.getElementById('bar').style.width = '100%';
-    document.getElementById('stage').style.alignItems = 'flex-start';
-    if (first) document.getElementById('dh1').innerHTML = 'You\'re <em>booked</em>, ' + esc(first);
-    document.getElementById('done').classList.add('on');
-    if (VIDEO_ID && !document.querySelector('#vid wistia-player')) {
-      var s1 = document.createElement('script'); s1.src = 'https://fast.wistia.com/player.js'; s1.async = true; document.head.appendChild(s1);
-      var s2 = document.createElement('script'); s2.src = 'https://fast.wistia.com/embed/' + VIDEO_ID + '.js'; s2.async = true; s2.type = 'module'; document.head.appendChild(s2);
-      document.getElementById('vid').innerHTML = '<wistia-player media-id="' + VIDEO_ID + '" aspect="0.5625" player-color="32d09f"></wistia-player>';
-    }
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
   window.addEventListener('message', function(e){
     if (!e.data || e.data.event !== 'calendly.event_scheduled') return;
     var first = (A.first_name || '').split(' ')[0];
     save({ stage: 'booked', first: first, at: Date.now() });
-    showDone(first);
+    location.href = '/applied/';
   });
-  document.getElementById('restart').addEventListener('click', function(){ try { localStorage.removeItem(LS); } catch (e) {} location.reload(); });
   var st = load();
-  if (st && st.stage === 'booked') showDone(st.first);
+  if (st && st.stage === 'booked') location.replace('/applied/');
   else if (st && st.stage === 'applied' && st.a && st.a.email) { A = st.a; show(0, 1); showCal(); }
   else show(0, 1);
 })();
