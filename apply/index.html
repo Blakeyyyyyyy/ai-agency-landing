@@ -177,7 +177,7 @@ details p{color:var(--dim);margin-top:8px;font-size:.96rem}
       '<div><label>Last name</label><input class="t" data-f="last_name" autocomplete="family-name" placeholder="Smith"></div>' +
       '<div class="full"><label>Email</label><input class="t" data-f="email" type="email" autocomplete="email" placeholder="name@example.com"></div>' +
       '<div class="full"><label>Phone</label><div class="ph"><select class="cc" aria-label="Country code">' + CC_OPTS + '</select><input class="t" data-f="phone" type="tel" inputmode="tel" autocomplete="tel-national" placeholder="412 345 678"></div></div>' +
-      '<div class="full"><label>Instagram</label><input class="t" data-f="instagram" autocomplete="off" autocapitalize="off" placeholder="@yourhandle"></div>' +
+      '<div class="full"><label>Instagram (optional)</label><input class="t" data-f="instagram" autocomplete="off" autocapitalize="off" placeholder="@yourhandle"></div>' +
       '</div>';
   }
   Q.forEach(function(q, i){
@@ -254,8 +254,7 @@ details p{color:var(--dim);margin-top:8px;font-size:.96rem}
       if (cc === '+1' && pd.length === 11 && pd.charAt(0) === '1') pd = pd.slice(1);
       var pr = PLEN[cc] || [7, 15];
       if (pd.length < pr[0] || pd.length > pr[1]) return err("That phone number doesn't look right for the country you picked");
-      if (!ig) return err('Please add your Instagram handle');
-      A.first_name = first; A.last_name = last; A.email = email; A.phone = cc + pd; A.instagram = '@' + ig.replace(/^@+/, '').slice(0, 60);
+      A.first_name = first; A.last_name = last; A.email = email; A.phone = cc + pd; A.instagram = ig.replace(/^@+/, '') ? '@' + ig.replace(/^@+/, '').slice(0, 60) : '';
     }
     // DQ is decided as soon as it is known: credit 0-499 / Under $1k + N/A at Q7, or "No" at Q8.
     if ((q.k === 'credit' || q.k === 'show_up') && dqReason()) return submit();
