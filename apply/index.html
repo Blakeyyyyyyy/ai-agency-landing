@@ -146,7 +146,7 @@ input.t::placeholder,textarea.t::placeholder{color:#b3b3b8}
     <a id="replay" href="#" style="display:inline-block;background:var(--green);color:#04140f;border-radius:10px;font-weight:900;text-transform:uppercase;padding:16px 26px;text-decoration:none">Watch the masterclass replay</a>
   </div>
   <div id="calwrap">
-    <h2>Last step, <em id="fn">you</em>. Pick a time.</h2>
+    <h2>Last step: pick a time for your <em>strategy call</em>.</h2>
     <p>Your details are already filled in. Choose a slot and confirm.</p>
     <div id="cal"></div>
   </div>
@@ -317,7 +317,6 @@ input.t::placeholder,textarea.t::placeholder{color:#b3b3b8}
   function showCal(){
     wrap.style.display = 'none'; document.getElementById('nav').style.display = 'none';
     document.getElementById('bar').style.width = '100%';
-    document.getElementById('fn').textContent = (A.first_name || 'you').split(' ')[0];
     document.getElementById('calwrap').classList.add('on');
     document.getElementById('stage').style.alignItems = 'flex-start';
     (function init(){
