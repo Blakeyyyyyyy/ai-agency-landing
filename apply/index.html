@@ -132,7 +132,7 @@ details p{color:var(--dim);margin-top:8px;font-size:.96rem}
   var API = 'https://blake-discord-relay.vercel.app/api/apply';
   var CAL = 'https://calendly.com/d/d2tv-f6t-jdx/jarvis-strategy-call';
   var Q = [
-    {k:'first_name', t:"What's your first name?", type:'text', ph:'Type your answer here...', intro:'Jarvis 2.0 application &middot; takes 2 minutes', ac:'given-name'},
+    {k:'first_name', t:"What's your first name?", type:'text', ph:'Type your answer here...', ac:'given-name'},
     {k:'last_name', t:'And your last name, {first}?', type:'text', ph:'Type your answer here...', ac:'family-name'},
     {k:'email', t:"What's the best email to reach you on?", type:'email', ph:'name@example.com', ac:'email'},
     {k:'phone', t:"And your phone number?", d:"Include your country code. We'll text you before the call.", type:'tel', ph:'+1 555 123 4567', ac:'tel'},
@@ -145,6 +145,29 @@ details p{color:var(--dim);margin-top:8px;font-size:.96rem}
     {k:'ready', t:'If accepted, can you start within 7 days?', c:['Yes','No'], keys:['Y','N']}
   ];
   var A = {}, cur = 0, busy = false, wrap = document.getElementById('qs');
+  // Skip the contact questions we already know: from the link (?first_name=&last_name=&email=&phone=, e.g. WebinarJam
+  // offer button or a Kit email) or from the masterclass registration on this device (localStorage 'jarvis_reg').
+  var KNOWN = {};
+  (function(){
+    var p = new URLSearchParams(location.search), reg = null;
+    if (p.get('reset') === '1') { try { localStorage.removeItem('jarvis_reg'); } catch (e) {} return; }
+    try { reg = JSON.parse(localStorage.getItem('jarvis_reg') || 'null'); } catch (e) {}
+    reg = reg || {};
+    var nm = (p.get('name') || '').trim().split(/\s+/);
+    var v = {
+      first_name: p.get('first_name') || p.get('firstname') || (nm[0] || '') || reg.first_name,
+      last_name: p.get('last_name') || p.get('lastname') || nm.slice(1).join(' ') || reg.last_name,
+      email: p.get('email') || reg.email,
+      phone: p.get('phone') || reg.phone
+    };
+    Object.keys(v).forEach(function(k){ var x = String(v[k] || '').trim().slice(0, 160); if (x) KNOWN[k] = x; });
+    if (KNOWN.email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(KNOWN.email)) delete KNOWN.email;
+    if (KNOWN.phone && KNOWN.phone.replace(/\D/g, '').length < 7) delete KNOWN.phone;
+  })();
+  Object.keys(KNOWN).forEach(function(k){ A[k] = KNOWN[k]; });
+  Q = Q.filter(function(q){ return !KNOWN[q.k]; });
+  if (KNOWN.first_name || KNOWN.email) Q[0].intro = 'Jarvis 2.0 application &middot; applying as <b style="color:#fff">' + String(KNOWN.first_name || KNOWN.email).replace(/[<>&"]/g, '') + '</b> &middot; <a href="?reset=1" style="color:#8a8a8a">not you?</a>';
+  else Q[0].intro = 'Jarvis 2.0 application &middot; takes 2 minutes';
   var esc = function(x){ return String(x).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); };
 
   Q.forEach(function(q, i){
