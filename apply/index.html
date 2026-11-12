@@ -147,7 +147,8 @@ details p{color:var(--dim);margin-top:8px;font-size:.96rem}
     };
     Object.keys(v).forEach(function(k){ var x = String(v[k] || '').trim().slice(0, 160); if (x) KNOWN[k] = x; });
     if (KNOWN.email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(KNOWN.email)) delete KNOWN.email;
-    if (KNOWN.phone && KNOWN.phone.replace(/\D/g, '').length < 7) delete KNOWN.phone;
+    // Links may carry an unencoded '+', which arrives as a space: rebuild as +digits (E.164).
+    if (KNOWN.phone) { var pdg = KNOWN.phone.replace(/\D/g, ''); KNOWN.phone = pdg.length >= 8 && pdg.length <= 15 ? '+' + pdg : ''; if (!KNOWN.phone) delete KNOWN.phone; }
   })();
   Object.keys(KNOWN).forEach(function(k){ A[k] = KNOWN[k]; });
   Q = Q.filter(function(q){ return !KNOWN[q.k]; });
@@ -205,7 +206,7 @@ details p{color:var(--dim);margin-top:8px;font-size:.96rem}
       var pr = PLEN[cc] || [7, 15];
       if (!pd) return err('Please fill this in');
       if (pd.length < pr[0] || pd.length > pr[1]) return err("That number doesn't look right for the country you picked");
-      A.phone = cc + ' ' + pd;
+      A.phone = cc + pd; // E.164, no spaces: the format Calendly parses most reliably
       return show(cur + 1, 1);
     }
     var v = A[q.k] || '';
@@ -231,7 +232,7 @@ details p{color:var(--dim);margin-top:8px;font-size:.96rem}
     (function init(){
       if (!window.Calendly) return setTimeout(init, 200);
       Calendly.initInlineWidget({ url: CAL + '?hide_gdpr_banner=1&background_color=ffffff&primary_color=1fa87c', parentElement: document.getElementById('cal'),
-        prefill: { name: A.first_name + ' ' + A.last_name, email: A.email, customAnswers: { a1: A.phone } } });
+        prefill: { name: A.first_name + ' ' + A.last_name, email: A.email, customAnswers: { a1: '+' + String(A.phone || '').replace(/\D/g, '') } } });
     })();
   }
   document.addEventListener('keydown', function(e){
