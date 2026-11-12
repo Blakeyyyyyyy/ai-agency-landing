@@ -130,7 +130,7 @@ input.t::placeholder,textarea.t::placeholder{color:#b3b3b8}
 .nav button{background:#0e7c5a;color:#fff}
 #calwrap h2,#dq h2{color:#262627;font-weight:500}
 #calwrap h2{font-size:clamp(1.1rem,3vw,1.4rem)}#calwrap p{margin:4px 0 10px;font-size:.92rem}
-#cal{height:auto;min-height:520px}#calwrap h2 em{color:#0e7c5a}
+#cal{height:auto !important;min-height:520px;overflow:visible}#calwrap h2 em{color:#0e7c5a}
 #calwrap p,#dq p{color:#5e5e63}
 #dq a#replay{background:#0e7c5a !important;color:#fff !important;font-weight:600 !important;text-transform:none !important;border-radius:6px !important}
 #cal{border:1px solid #eee}
@@ -316,16 +316,15 @@ input.t::placeholder,textarea.t::placeholder{color:#b3b3b8}
     document.getElementById('dq').style.display = 'block';
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
-  // Fit the Calendly frame to the visible screen so the Schedule button is reachable without page scrolling (Sarhan, 13 Nov).
-  function fitCal(){
+  // Calendly auto-resizes (resize:true), so the whole form is on the page. After a slot is picked we scroll so the
+  // bottom of the form (Schedule button) sits at the bottom of the screen: name/email are prefilled, so nothing
+  // needs scrolling to submit (Sarhan, 13 Nov).
+  var slotPicked = false;
+  function toFormBottom(){
     var c = document.getElementById('cal'); if (!c) return;
-    var top = c.getBoundingClientRect().top + window.scrollY;
-    var h = Math.max(520, window.innerHeight - 12);
-    c.style.height = h + 'px';
-    var f = c.querySelector('iframe'); if (f) f.style.height = h + 'px';
-    return top;
+    var r = c.getBoundingClientRect(), y = r.bottom + window.scrollY - window.innerHeight + 8;
+    window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
   }
-  window.addEventListener('resize', fitCal);
   function showCal(){
     wrap.style.display = 'none'; document.getElementById('nav').style.display = 'none';
     document.getElementById('bar').style.width = '100%';
@@ -333,7 +332,7 @@ input.t::placeholder,textarea.t::placeholder{color:#b3b3b8}
     document.getElementById('stage').style.alignItems = 'flex-start';
     (function init(){
       if (!window.Calendly) return setTimeout(init, 200);
-      Calendly.initInlineWidget({ url: CAL + '?hide_gdpr_banner=1&hide_event_type_details=1&hide_landing_page_details=1&background_color=ffffff&primary_color=0e7c5a', parentElement: document.getElementById('cal'),
+      Calendly.initInlineWidget({ url: CAL + '?hide_gdpr_banner=1&hide_event_type_details=1&hide_landing_page_details=1&background_color=ffffff&primary_color=0e7c5a', parentElement: document.getElementById('cal'), resize: true,
         prefill: { name: A.first_name + ' ' + A.last_name, email: A.email, customAnswers: { a1: '+' + String(A.phone || '').replace(/\D/g, '') } } });
     })();
   }
@@ -352,8 +351,8 @@ input.t::placeholder,textarea.t::placeholder{color:#b3b3b8}
   function save(o){ try { localStorage.setItem(LS, JSON.stringify(o)); } catch (e) {} }
   function load(){ try { return JSON.parse(localStorage.getItem(LS) || 'null'); } catch (e) { return null; } }
   window.addEventListener('message', function(e){
-    if (e.data && e.data.event === 'calendly.date_and_time_selected') { var t = fitCal(); window.scrollTo({ top: t - 6, behavior: 'smooth' }); return; }
-    if (e.data && e.data.event === 'calendly.event_type_viewed') { fitCal(); return; }
+    if (e.data && e.data.event === 'calendly.date_and_time_selected') { slotPicked = true; setTimeout(toFormBottom, 400); setTimeout(toFormBottom, 1200); return; }
+    if (e.data && e.data.event === 'calendly.page_height' && slotPicked) { setTimeout(toFormBottom, 150); return; }
     if (!e.data || e.data.event !== 'calendly.event_scheduled') return;
     var first = (A.first_name || '').split(' ')[0];
     save({ stage: 'booked', first: first, at: Date.now() });
