@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<!-- Jarvis 2.0 application + inline Calendly booking; on booking -> /apply-confirm/ (Rohen, 12 Nov 2026). Answers -> relay /api/apply -> Close + #call-bookings.
+<!-- Jarvis 2.0 application + inline Calendly booking; after booking the same page shows the completion screen (video + FAQs), remembered per device in localStorage (Rohen, 12 Nov 2026). Answers -> relay /api/apply -> Close + #call-bookings.
      Booking -> Calendly org webhook -> calendly-webhook.js (Call Booked under the closer). No Meta pixel (organic webinar traffic). -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
@@ -61,6 +61,32 @@ textarea.t{resize:none;min-height:46px;max-height:220px;line-height:1.35}
 #calwrap h2 em{font-style:normal;color:var(--green)}
 #calwrap p{text-align:center;color:var(--dim);margin:6px 0 16px}
 #cal{min-width:280px;height:720px;border-radius:14px;overflow:hidden;background:#fff}
+
+#done{width:100%;max-width:720px;display:none}
+#done.on{display:block;animation:in .38s both}
+.dh{text-align:center;margin-bottom:22px}
+.eyebrow{display:inline-block;font-family:var(--mono);font-size:.74rem;letter-spacing:.2em;text-transform:uppercase;color:var(--green);background:rgba(50,208,159,.1);border:1px solid rgba(50,208,159,.28);padding:6px 14px;border-radius:99px;margin-bottom:16px}
+.dh h1{font-size:clamp(1.9rem,6vw,2.7rem);font-weight:900;line-height:1.1}
+.dh h1 em{font-style:normal;color:var(--green)}
+.dh p{color:var(--dim);margin-top:10px}
+.card{background:#141414;border:2px solid #262626;border-radius:18px;padding:26px 22px;margin-bottom:26px;text-align:center}
+.card .sub{color:var(--dim)}
+.vid{max-width:340px;margin:18px auto 0;border-radius:14px;overflow:hidden;border:2px solid #2a2a2a;background:#111}
+.vid wistia-player{display:block;width:100%}
+.vidph{aspect-ratio:9/16;display:flex;align-items:center;justify-content:center;color:#666;font-family:var(--mono);font-size:.75rem;letter-spacing:.1em;text-transform:uppercase}
+.checks{list-style:none;text-align:left;max-width:420px;margin:20px auto 0;color:var(--dim);font-size:.98rem}
+.checks li{padding:7px 0 7px 26px;position:relative}
+.checks li:before{content:'';position:absolute;left:4px;top:15px;width:10px;height:10px;border-radius:3px;background:var(--green)}
+.faq h3{font-size:1.2rem;font-weight:900;margin:6px 0 12px;text-align:center}
+details{border-top:1px solid var(--line);padding:14px 2px}
+details:last-child{border-bottom:1px solid var(--line)}
+summary{cursor:pointer;font-weight:800;list-style:none;display:flex;justify-content:space-between;gap:10px}
+summary::-webkit-details-marker{display:none}
+summary:after{content:'+';color:var(--green);font-weight:900}
+details[open] summary:after{content:'-'}
+details p{color:var(--dim);margin-top:8px;font-size:.96rem}
+.restart{display:block;text-align:center;margin:26px 0 10px;font-family:var(--mono);font-size:.7rem;color:#777;letter-spacing:.05em;background:none;border:0;cursor:pointer;width:100%}
+.restart:hover{color:#bbb}
 @media(max-width:560px){.qd,.body{margin-left:0}.qt{flex-direction:column;gap:4px}.qt .n{padding-top:0}#cal{height:780px}.stage{align-items:flex-start;padding-top:8vh}}
 </style>
 </head>
@@ -73,6 +99,28 @@ textarea.t{resize:none;min-height:46px;max-height:220px;line-height:1.35}
     <h2>Last step, <em id="fn">you</em>. Pick a time.</h2>
     <p>Your details are already filled in. Choose a slot and confirm.</p>
     <div id="cal"></div>
+  </div>
+  <div id="done">
+    <div class="dh"><div class="eyebrow">Strategy call confirmed</div><h1 id="dh1">You're <em>booked</em></h1><p>Your strategy call with Blake's team is locked in.</p></div>
+  <section class="card booked">
+    
+    <p class="sub" style="margin-top:0">Watch this quick video from Blake before your call.</p>
+    <div class="vid" id="vid"><div class="vidph">Video from Blake</div></div>
+    <ul class="checks">
+      <li>Check your email for the calendar invite and call details.</li>
+      <li>Add it to your calendar so it doesn't get missed.</li>
+      <li>Be somewhere quiet, ready to talk about your goals.</li>
+    </ul>
+  </section>
+
+  <section class="faq">
+    <h3>Questions</h3>
+    <details><summary>What happens on the call?</summary><p>A 30 minute strategy call with Blake's team. We look at where you are now, where you want to be in 90 days, and whether Jarvis 2.0 is the right fit to get you there. If it isn't a fit, we'll tell you straight.</p></details>
+    <details><summary>Do I need tech or AI experience?</summary><p>No. Jarvis 2.0 is built so a complete beginner can go from zero to selling AI services to businesses, step by step.</p></details>
+    <details><summary>What is Jarvis 2.0?</summary><p>A 90-day program with direct support, where Jarvis guides you through finding businesses, selling to them and delivering the work. The call is where we walk you through it properly.</p></details>
+    <details><summary>What if I need to change my time?</summary><p>Use the reschedule link in your confirmation email and pick a new slot.</p></details>
+  </section>
+    <button class="restart" id="restart" type="button">Not you, or need to apply again? Start over</button>
   </div>
 </div>
 <input class="hp" id="website" tabindex="-1" autocomplete="off" aria-hidden="true">
@@ -152,7 +200,7 @@ textarea.t{resize:none;min-height:46px;max-height:220px;line-height:1.35}
     var payload = Object.assign({ website: document.getElementById('website').value }, A);
     fetch(API, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) })
       .then(function(r){ return r.json(); })
-      .then(function(r){ if (!r.ok) throw new Error(r.error || 'error'); showCal(); })
+      .then(function(r){ if (!r.ok) throw new Error(r.error || 'error'); save({ stage: 'applied', a: { first_name: A.first_name, last_name: A.last_name, email: A.email, phone: A.phone }, at: Date.now() }); showCal(); })
       .catch(function(){ b.disabled = false; b.textContent = 'Submit'; err('Something went wrong. Please try again.'); });
   }
   function showCal(){
@@ -177,11 +225,36 @@ textarea.t{resize:none;min-height:46px;max-height:220px;line-height:1.35}
   });
   document.getElementById('up').addEventListener('click', function(){ if (cur > 0) show(cur - 1, -1); });
   document.getElementById('down').addEventListener('click', function(){ next(); });
+  // Remember progress on this device: applied -> straight to the calendar, booked -> completion screen.
+  var LS = 'jarvis_apply_v1';
+  function save(o){ try { localStorage.setItem(LS, JSON.stringify(o)); } catch (e) {} }
+  function load(){ try { return JSON.parse(localStorage.getItem(LS) || 'null'); } catch (e) { return null; } }
+  var VIDEO_ID = ''; // Wistia media id for the "you're booked" video from Blake
+  function showDone(first){
+    wrap.style.display = 'none'; document.getElementById('nav').style.display = 'none';
+    document.getElementById('calwrap').classList.remove('on');
+    document.getElementById('bar').style.width = '100%';
+    document.getElementById('stage').style.alignItems = 'flex-start';
+    if (first) document.getElementById('dh1').innerHTML = 'You\'re <em>booked</em>, ' + esc(first);
+    document.getElementById('done').classList.add('on');
+    if (VIDEO_ID && !document.querySelector('#vid wistia-player')) {
+      var s1 = document.createElement('script'); s1.src = 'https://fast.wistia.com/player.js'; s1.async = true; document.head.appendChild(s1);
+      var s2 = document.createElement('script'); s2.src = 'https://fast.wistia.com/embed/' + VIDEO_ID + '.js'; s2.async = true; s2.type = 'module'; document.head.appendChild(s2);
+      document.getElementById('vid').innerHTML = '<wistia-player media-id="' + VIDEO_ID + '" aspect="0.5625" player-color="32d09f"></wistia-player>';
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
   window.addEventListener('message', function(e){
     if (!e.data || e.data.event !== 'calendly.event_scheduled') return;
-    location.href = '/apply-confirm/?name=' + encodeURIComponent((A.first_name || '').split(' ')[0]);
+    var first = (A.first_name || '').split(' ')[0];
+    save({ stage: 'booked', first: first, at: Date.now() });
+    showDone(first);
   });
-  show(0, 1);
+  document.getElementById('restart').addEventListener('click', function(){ try { localStorage.removeItem(LS); } catch (e) {} location.reload(); });
+  var st = load();
+  if (st && st.stage === 'booked') showDone(st.first);
+  else if (st && st.stage === 'applied' && st.a && st.a.email) { A = st.a; show(0, 1); showCal(); }
+  else show(0, 1);
 })();
 </script>
 </body>
