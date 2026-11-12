@@ -119,6 +119,8 @@ details p{color:var(--dim);margin-top:8px;font-size:.96rem}
 (function(){
   var LS = 'jarvis_apply_v1', st = null;
   try { st = JSON.parse(localStorage.getItem(LS) || 'null'); } catch (e) {}
+  var preview = new URLSearchParams(location.search).get('preview') === '1'; // team preview
+  if (preview) st = { stage: 'booked', first: '' };
   if (!st || st.stage !== 'booked') { location.replace('/apply/'); return; }
   var esc = function(x){ return String(x).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); };
   if (st.first) document.getElementById('dh1').innerHTML = 'You\'re <em>booked</em>, ' + esc(st.first);
