@@ -288,7 +288,7 @@ footer{border-top:1px solid rgba(255,255,255,.06)}
 </style>
 <style>
 .cc-vid169{max-width:780px;margin:26px auto 0;aspect-ratio:16/9;border-radius:20px;overflow:hidden;border:1px solid rgba(255,255,255,.08);background:#000;box-shadow:0 20px 60px rgba(0,0,0,.45)}
-.cc-vid169 wistia-player{display:block;width:100%;height:100%}
+.cc-vid169 wistia-player,.vbox wistia-player{display:block;width:100%;height:100%}
 .cc-vid169 iframe,.vbox iframe{width:100%;height:100%;border:0;display:block}
 .vfaq{max-width:780px;margin:26px auto 0}
 .vfaq details{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:16px;margin-bottom:12px;overflow:hidden}
@@ -346,10 +346,10 @@ footer{border-top:1px solid rgba(255,255,255,.06)}
 <section id="faq" class="cc-faq" style="background:var(--bg2)"><div class="wrap">
   <div style="text-align:center"><div class="eyebrow">Before your call</div><h2>Most Frequently Asked Questions.<br><em>Blake Answered Them Below.</em></h2><p class="cc-lead" style="margin:10px auto 0">About a minute each. Watch them before your call.</p></div>
   <div class="vfaq">
-    <details open><summary><span class="vn">1</span>"I'm not technical. Can I actually build an AI business?"</summary><div class="vbox" data-id="1YkkFFO9feA60k9DxfWBo7KhdPMKB129A"></div></details>
-    <details><summary><span class="vn">2</span>"How is this different from the free course?"</summary><div class="vbox" data-id="1n2qGFZu7o3J3nQFKfqcrJQSpIYlpnmkH"></div></details>
-    <details><summary><span class="vn">3</span>"I don't have any clients. Where do they come from?"</summary><div class="vbox" data-id="16EARZdRW48_Z-NLMKC9swzkaiPUBWyDy"></div></details>
-    <details><summary><span class="vn">4</span>"How fast can I start making money?"</summary><div class="vbox" data-id="11VV-AXWiVObN8uCkw_f_ngHAnLgS4g8F"></div></details>
+    <details open><summary><span class="vn">1</span>"I'm not technical. Can I actually build an AI business?"</summary><div class="vbox" data-id="uj65maet2r"></div></details>
+    <details><summary><span class="vn">2</span>"How is this different from the free course?"</summary><div class="vbox" data-id="xlqfwgmza6"></div></details>
+    <details><summary><span class="vn">3</span>"I don't have any clients. Where do they come from?"</summary><div class="vbox" data-id="fjbako4nx9"></div></details>
+    <details><summary><span class="vn">4</span>"How fast can I start making money?"</summary><div class="vbox" data-id="tw9zldsff2"></div></details>
   </div>
   <div class="faq" style="margin-top:22px">
     <details><summary>What happens on the call?</summary><p>A 45 minute strategy call with Blake's team. We look at where you are now, where you want to be in 90 days, and whether Jarvis 2.0 is the right fit to get you there. If it isn't a fit, we'll tell you straight.</p></details>
@@ -358,7 +358,7 @@ footer{border-top:1px solid rgba(255,255,255,.06)}
 </div></section>
 <script>
 (function(){
-  function load(d){ var b=d.querySelector('.vbox'); if(b && !b.querySelector('iframe')) b.innerHTML='<iframe src="https://drive.google.com/file/d/'+b.getAttribute('data-id')+'/preview" allow="autoplay; fullscreen" allowfullscreen></iframe>'; }
+  function load(d){ var b=d.querySelector('.vbox'); if(b && !b.querySelector('iframe')) var id=b.getAttribute('data-id'); if(!document.querySelector('script[src="https://fast.wistia.com/player.js"]')){var p=document.createElement('script');p.src='https://fast.wistia.com/player.js';p.async=true;document.head.appendChild(p);} var e=document.createElement('script');e.src='https://fast.wistia.com/embed/'+id+'.js';e.async=true;e.type='module';document.head.appendChild(e); b.innerHTML='<wistia-player media-id="'+id+'" aspect="1.7777777777777777" player-color="3ddba8"></wistia-player>'; }
   document.querySelectorAll('.vfaq details').forEach(function(d){ if(d.open) load(d); d.addEventListener('toggle',function(){ if(d.open) load(d); }); });
 })();
 </script>
