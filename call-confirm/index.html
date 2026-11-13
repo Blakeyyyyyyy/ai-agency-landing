@@ -286,7 +286,19 @@ nav{background:rgba(12,13,13,.85);backdrop-filter:blur(10px);border-bottom:1px s
 footer{border-top:1px solid rgba(255,255,255,.06)}
 @media(max-width:560px){.cc-stp{padding:20px}.cc-hero{padding:40px 0 28px}}
 </style>
-</head>
+<style>
+.cc-vid169{max-width:780px;margin:26px auto 0;aspect-ratio:16/9;border-radius:20px;overflow:hidden;border:1px solid rgba(255,255,255,.08);background:#000;box-shadow:0 20px 60px rgba(0,0,0,.45)}
+.cc-vid169 iframe,.vbox iframe{width:100%;height:100%;border:0;display:block}
+.vfaq{max-width:780px;margin:26px auto 0}
+.vfaq details{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:16px;margin-bottom:12px;overflow:hidden}
+.vfaq summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:14px;padding:18px 20px;font-weight:600;color:#f2f4f3;font-size:1.05rem}
+.vfaq summary::-webkit-details-marker{display:none}
+.vfaq summary:after{content:'+';margin-left:auto;color:#3ddba8;font-weight:700;font-size:1.3rem}
+.vfaq details[open] summary:after{content:'-'}
+.vn{flex:0 0 30px;height:30px;border-radius:8px;background:rgba(61,219,168,.14);border:1px solid rgba(61,219,168,.35);color:#3ddba8;display:flex;align-items:center;justify-content:center;font-size:.9rem;font-weight:700}
+.vbox{aspect-ratio:16/9;background:#000;margin:0 20px 20px;border-radius:12px;overflow:hidden}
+@media(max-width:560px){.vbox{margin:0 12px 12px}.vfaq summary{font-size:.98rem;padding:16px}}
+</style></head>
 <body>
 <nav><div class="wrap navin">
   <a class="logo" href="/"><span class="chip">AI</span> AGENCY</a>
@@ -296,7 +308,7 @@ footer{border-top:1px solid rgba(255,255,255,.06)}
   <div class="cc-alert">Your call is booked, but not confirmed yet</div>
   <h1>Your Call Is Booked.<br><em>Please Confirm It Below.</em></h1>
   <p class="cc-lead">Watch this short video from Blake first, then do the steps below so we know you're coming.</p>
-  <div class="cc-vid" id="ccvid"><div class="ph">Video from Blake</div></div>
+  <div class="cc-vid169"><iframe src="https://drive.google.com/file/d/18WVO2mXGRi8uqiEekDipj7UVKg1pCUiC/preview" title="A quick message from Blake" allow="autoplay; fullscreen" allowfullscreen loading="eager"></iframe></div>
 </div></header>
 
 <section id="confirm"><div class="wrap">
@@ -324,21 +336,31 @@ footer{border-top:1px solid rgba(255,255,255,.06)}
     </div></div>
     <div class="cc-stp"><div class="cc-num" id="faqnum">3</div><div>
       <div class="cc-tag" id="faqtag">Step 3</div>
-      <h3>Read the FAQ and watch the student stories below</h3>
-      <p>The questions people ask most before their call are answered below. Read them before you jump on.</p>
+      <h3>Watch the FAQ videos below</h3>
+      <p>Blake answered the questions people ask most before their call. About a minute each, watch them before you jump on.</p>
     </div></div>
   </div>
 </div></section>
 
 <section id="faq" class="cc-faq" style="background:var(--bg2)"><div class="wrap">
-  <div style="text-align:center"><div class="eyebrow">Before your call</div><h2>Most Frequently Asked Questions.</h2></div>
-  <div class="faq">
-    <details open><summary>What happens on the call?</summary><p>A 45 minute strategy call with Blake's team. We look at where you are now, where you want to be in 90 days, and whether Jarvis 2.0 is the right fit to get you there. If it isn't a fit, we'll tell you straight.</p></details>
-    <details><summary>Do I need tech or AI experience?</summary><p>No. Jarvis 2.0 is built so a complete beginner can go from zero to selling AI services to businesses, step by step.</p></details>
-    <details><summary>What is Jarvis 2.0?</summary><p>A 90-day program with direct support, where Jarvis guides you through finding businesses, selling to them and delivering the work. The call is where we walk you through it properly.</p></details>
+  <div style="text-align:center"><div class="eyebrow">Before your call</div><h2>Most Frequently Asked Questions.<br><em>Blake Answered Them Below.</em></h2><p class="cc-lead" style="margin:10px auto 0">About a minute each. Watch them before your call.</p></div>
+  <div class="vfaq">
+    <details open><summary><span class="vn">1</span>"I'm not technical. Can I actually build an AI business?"</summary><div class="vbox" data-id="1YkkFFO9feA60k9DxfWBo7KhdPMKB129A"></div></details>
+    <details><summary><span class="vn">2</span>"How is this different from the free course?"</summary><div class="vbox" data-id="1n2qGFZu7o3J3nQFKfqcrJQSpIYlpnmkH"></div></details>
+    <details><summary><span class="vn">3</span>"I don't have any clients. Where do they come from?"</summary><div class="vbox" data-id="16EARZdRW48_Z-NLMKC9swzkaiPUBWyDy"></div></details>
+    <details><summary><span class="vn">4</span>"How fast can I start making money?"</summary><div class="vbox" data-id="11VV-AXWiVObN8uCkw_f_ngHAnLgS4g8F"></div></details>
+  </div>
+  <div class="faq" style="margin-top:22px">
+    <details><summary>What happens on the call?</summary><p>A 45 minute strategy call with Blake's team. We look at where you are now, where you want to be in 90 days, and whether Jarvis 2.0 is the right fit to get you there. If it isn't a fit, we'll tell you straight.</p></details>
     <details><summary>What if I need to change my time?</summary><p>Use the reschedule link in your confirmation email and pick a new slot.</p></details>
   </div>
 </div></section>
+<script>
+(function(){
+  function load(d){ var b=d.querySelector('.vbox'); if(b && !b.querySelector('iframe')) b.innerHTML='<iframe src="https://drive.google.com/file/d/'+b.getAttribute('data-id')+'/preview" allow="autoplay; fullscreen" allowfullscreen></iframe>'; }
+  document.querySelectorAll('.vfaq details').forEach(function(d){ if(d.open) load(d); d.addEventListener('toggle',function(){ if(d.open) load(d); }); });
+})();
+</script>
 
 <style>
 /* Video testimonials: staggered 3-column masonry (desktop), bento (mobile) */
@@ -440,7 +462,7 @@ footer{border-top:1px solid rgba(255,255,255,.06)}
 
 <script>
 (function(){
-  var VIDEO_ID = ''; // Wistia id of Blake's "you're booked" video
+  var VIDEO_ID = ''; // unused: confirmation video now embedded from Drive
   var IG = '';       // Blake's Instagram handle, without @
   var st = null; try { st = JSON.parse(localStorage.getItem('jarvis_apply_v1') || 'null'); } catch (e) {}
   if (st && st.stage === 'booked' && st.first) { var h = document.querySelector('.cc-hero h1'); h.innerHTML = 'Your Call Is Booked, ' + String(st.first).replace(/[<>&"]/g, '') + '.<br><em>Please Confirm It Below.</em>'; }
