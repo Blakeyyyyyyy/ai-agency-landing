@@ -102,6 +102,7 @@ input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-
 
 ::-webkit-scrollbar{width:6px;height:6px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px}
 @media(max-width:768px){.g4,.g5,.g7{grid-template-columns:1fr 1fr}.g3{grid-template-columns:1fr 1fr}.hero-c .val{font-size:24px}.hdr,.cnt{padding-left:16px;padding-right:16px}.nav{padding:10px 16px}.dr{display:none}}
+@media(max-width:700px){.g4{grid-template-columns:1fr 1fr}}
 </style>
 </head>
 <body>
@@ -647,7 +648,7 @@ async function submitSetter(){
 }
 
 // ── Closer ──
-function renderCloser(){return`<div style="max-width:650px;margin:0 auto"><div class="sub-tabs"><button class="${S.closerSub==='eod'?'a':''}" onclick="S.closerSub='eod';render()">📊 Daily EOD</button><button class="${S.closerSub==='call'?'a':''}" onclick="S.closerSub='call';render()">📋 Call Report</button></div>${S.closerSub==='eod'?renderEOD():renderCall()}</div>`}
+function renderCloser(){return`<div style="max-width:680px;margin:0 auto"><div class="sub-tabs"><button class="${S.closerSub!=='eod'?'a':''}" onclick="S.closerSub='call';render()">End of Call Report</button><button class="${S.closerSub==='eod'?'a':''}" onclick="S.closerSub='eod';render()">Closer EOD</button></div>${S.closerSub==='eod'?renderHtEod():renderHtCall()}</div>`}
 
 function renderEOD(){
   const rec=S.closer_reports.slice(-8).reverse();
@@ -1805,6 +1806,91 @@ function renderPayouts(){
 }
 
 
+
+// ── High Ticket closer reports (Sarhan, 14 Nov 2026) ──
+// End of Call Report (15 questions, one per call) + Closer EOD. Saved by the relay (/api/ht-reports) into its
+// sheet, as a note on the Close lead, and posted to #call-bookings. Shown in the High Ticket tab.
+const HTR_URL='https://blake-discord-relay.vercel.app/api/ht-reports';
+const HTR_KEY='htr_f65ccb9f1ca4048d257dce2c';
+let HTR={call:[],eod:[],loaded:false,loading:false};
+async function loadHtr(force){
+  if(HTR.loading||(HTR.loaded&&!force))return; HTR.loading=true;
+  try{const r=await fetch(HTR_URL+'?key='+HTR_KEY+'&t='+Date.now());const d=await r.json();if(d.ok){HTR.call=d.call||[];HTR.eod=d.eod||[];}}catch(e){}
+  HTR.loading=false;HTR.loaded=true;if(S.view==='high_ticket'||S.view==='closer')render();
+}
+function htrEsc(v){return String(v??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+function htrSetters(){const cut=new Date(Date.now()-21*864e5).toISOString().slice(0,10);const n=[...new Set((S.signups||[]).filter(r=>(r.date||'')>=cut).map(r=>(r.repName||'').trim()).filter(x=>x&&!/^(blake|setter leads)/i.test(x)))].sort();return ['No setter / self-booked',...n,'Other'];}
+function htrTa(l,id,ph){return`<div class="fl"><label>${l}</label><textarea id="${id}" rows="3" placeholder="${ph||''}" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#fff;padding:10px 12px;font-size:13px;font-family:inherit;resize:vertical"></textarea></div>`}
+function renderHtCall(){
+  const closers=['Saad',...(S.closers||[]).filter(c=>c&&c!=='Saad'&&c!=='Closer 1')];
+  return`<div class="sec"><div style="font-size:18px;font-weight:800;margin-bottom:4px">End of Call Report</div><div style="font-size:12px;color:var(--dim);margin-bottom:22px">Fill this in after every Jarvis 2.0 call. It saves to the Command Center, the lead in Close and #call-bookings.</div>
+  <div style="display:flex;flex-direction:column;gap:14px">
+    <div class="g g2">${ff('1. Lead name','ht-ln','text','')}${ff('2. Lead email','ht-em','text','')}</div>
+    <div class="g g2">${ff('3. Deal closed?','ht-dc','text','No',['No','Yes'])}${ff('4. Closer name','ht-cl','text','Saad',closers)}</div>
+    <div class="g g2">${ff('5. Setter name','ht-st','text','No setter / self-booked',htrSetters())}${ff('6. Source','ht-src','text','Masterclass',['Masterclass','Paid ads','Organic','Setter booked','Referral','Other'])}</div>
+    <div class="g g2">${ff('7. Date call taken','ht-d','date',td())}${ff('8. Call type','ht-ct','text','Initial Sales Call',['Initial Sales Call','Follow-up'])}</div>
+    <div class="g g2">${ff('9. Offer made?','ht-om','text','Yes',['Yes','No'])}${ff('10. Sales qualification score (1-5)','ht-sq','text','3',['1','2','3','4','5'])}</div>
+    <div class="g g2">${ff('11. Main objection','ht-ob','text','None',['None','Money','Logistical','Spouse','Timing','Trust','Other'])}${ff('13. Cash collected on the call (USD)','ht-cash','number','0')}</div>
+    ${htrTa('12. Additional notes on this lead','ht-no','What happened on the call, where they are at, anything the next person needs to know')}
+    <div class="g g2">${ff('14. Next step','ht-ns','text','')}${ff('14b. Follow-up date','ht-fu','date','')}</div>
+    ${ff('15. Fathom link of call for review','ht-fa','text','')}
+    <button class="btn" style="background:var(--green)" onclick="submitHtCall()">Submit End of Call Report</button>
+  </div></div>`;
+}
+async function submitHtCall(){
+  const g=id=>(document.getElementById(id)?.value||'').trim();
+  const d={leadName:g('ht-ln'),leadEmail:g('ht-em'),dealClosed:g('ht-dc'),closerName:g('ht-cl'),setterName:g('ht-st'),source:g('ht-src'),date:g('ht-d'),callType:g('ht-ct'),offerMade:g('ht-om'),score:g('ht-sq'),objection:g('ht-ob'),notes:g('ht-no'),cash:g('ht-cash').replace(/[^\d.]/g,''),nextStep:g('ht-ns'),followUp:g('ht-fu'),fathom:g('ht-fa')};
+  const need=[['leadName','Lead name'],['leadEmail','Lead email'],['date','Date call taken'],['notes','Additional notes'],['nextStep','Next step'],['fathom','Fathom link']];
+  for(const [k,l] of need){if(!d[k]){toast('"'+l+'" is required');return;}}
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(d.leadEmail)){toast('Lead email does not look right');return;}
+  if(!/^https?:\/\//i.test(d.fathom)){toast('Fathom link should start with https://');return;}
+  toast('Saving...');
+  try{const r=await fetch(HTR_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({key:HTR_KEY,type:'call',data:d})});const j=await r.json();if(!j.ok)throw new Error(j.error||'failed');
+    toast(j.lead?'Saved - also added to the lead in Close':'Saved (no Close lead found for that email)');S.view='high_ticket';await loadHtr(true);render();}catch(e){toast('Could not save - try again');}
+}
+function renderHtEod(){
+  const closers=['Saad',...(S.closers||[]).filter(c=>c&&c!=='Saad'&&c!=='Closer 1')];
+  return`<div class="sec"><div style="font-size:18px;font-weight:800;margin-bottom:4px">Closer EOD</div><div style="font-size:12px;color:var(--dim);margin-bottom:22px">One per closer at the end of each day.</div>
+  <div style="display:flex;flex-direction:column;gap:14px">
+    <div class="g g2">${ff('Date','he-d','date',td())}${ff('Closer','he-cl','text','Saad',closers)}</div>
+    <div class="g g4">${ff('Calls on calendar','he-bk','number','0')}${ff('Calls showed','he-sh','number','0')}${ff('No-shows','he-ns','number','0')}${ff('Rescheduled','he-rs','number','0')}</div>
+    <div class="g g4">${ff('Offers made','he-of','number','0')}${ff('Closes','he-cs','number','0')}${ff('Deposits','he-dp','number','0')}${ff('Follow-ups booked','he-fu','number','0')}</div>
+    <div class="g g2">${ff('Cash collected (USD)','he-cash','number','0')}${ff('Contract value (USD)','he-cv','number','0')}</div>
+    ${htrTa('Wins / what went well','he-w','')}
+    ${htrTa('Blockers / what to fix','he-b','')}
+    <button class="btn" style="background:var(--gb)" onclick="submitHtEod()">Submit Closer EOD</button>
+  </div></div>`;
+}
+async function submitHtEod(){
+  const g=id=>(document.getElementById(id)?.value||'').trim();const n=id=>g(id).replace(/[^\d.]/g,'')||'0';
+  const d={date:g('he-d'),closerName:g('he-cl'),booked:n('he-bk'),showed:n('he-sh'),noShows:n('he-ns'),rescheduled:n('he-rs'),offers:n('he-of'),closes:n('he-cs'),deposits:n('he-dp'),followUps:n('he-fu'),cash:n('he-cash'),contract:n('he-cv'),wins:g('he-w'),blockers:g('he-b')};
+  if(!d.date||!d.closerName){toast('Date and closer are required');return;}
+  if(+d.showed>+d.booked){toast('Calls showed cannot be more than calls on calendar');return;}
+  if(+d.closes>+d.offers){toast('Closes cannot be more than offers made');return;}
+  toast('Saving...');
+  try{const r=await fetch(HTR_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({key:HTR_KEY,type:'eod',data:d})});const j=await r.json();if(!j.ok)throw new Error(j.error||'failed');
+    toast('Closer EOD saved');S.view='high_ticket';await loadHtr(true);render();}catch(e){toast('Could not save - try again');}
+}
+function renderHtReports(){
+  loadHtr(false);
+  const calls=HTR.call.slice().reverse(), eods=HTR.eod.slice().reverse();
+  const closed=HTR.call.filter(r=>r.dealClosed==='Yes').length, offers=HTR.call.filter(r=>r.offerMade==='Yes').length;
+  const cash=HTR.call.reduce((t,r)=>t+(parseFloat(r.cash)||0),0);
+  const obj={};HTR.call.forEach(r=>{if(r.objection&&r.objection!=='None')obj[r.objection]=(obj[r.objection]||0)+1});
+  const topObj=Object.entries(obj).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([k,v])=>k+' ('+v+')').join(', ')||'-';
+  const th='style="text-align:left;padding:8px 10px;font-size:11px;color:var(--dim);font-weight:700;white-space:nowrap"', td_='style="padding:8px 10px;font-size:12px;border-top:1px solid rgba(255,255,255,.06);vertical-align:top"';
+  return`<div class="sec"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><div style="font-size:14px;font-weight:800">Closer reports</div><button class="btn" style="width:auto;padding:6px 12px;font-size:12px" onclick="loadHtr(true)">Refresh</button></div>
+    <div class="g g4" style="margin-bottom:14px">${kpi('Calls reported',HTR.call.length,'#38bdf8',1)}${kpi('Offers made',offers,'#eab308',1)}${kpi('Closed',closed,'#10b981',1)}${kpi('Cash on calls (USD)',Math.round(cash),'#22c55e',1)}</div>
+    <div style="font-size:12px;color:var(--dim);margin-bottom:10px">Top objections: ${htrEsc(topObj)}</div>
+    <div style="font-size:13px;font-weight:700;margin:6px 0 8px">End of call reports</div>
+    ${calls.length?`<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse"><tr><th ${th}>Date</th><th ${th}>Lead</th><th ${th}>Closer</th><th ${th}>Setter</th><th ${th}>Closed</th><th ${th}>Offer</th><th ${th}>Score</th><th ${th}>Objection</th><th ${th}>Cash</th><th ${th}>Next step</th><th ${th}>Fathom</th></tr>
+      ${calls.map(r=>`<tr title="${htrEsc(r.notes)}"><td ${td_}>${htrEsc(r.date)}</td><td ${td_}>${htrEsc(r.leadName)}<div style="color:var(--dmr);font-size:11px">${htrEsc(r.leadEmail)}</div></td><td ${td_}>${htrEsc(r.closerName)}</td><td ${td_}>${htrEsc(r.setterName)}</td><td ${td_} style="color:${r.dealClosed==='Yes'?'#10b981':'inherit'}">${htrEsc(r.dealClosed)}</td><td ${td_}>${htrEsc(r.offerMade)}</td><td ${td_}>${htrEsc(r.score)}</td><td ${td_}>${htrEsc(r.objection)}</td><td ${td_}>${htrEsc(r.cash)}</td><td ${td_}>${htrEsc(r.nextStep)}${r.followUp?'<div style="color:var(--dmr);font-size:11px">'+htrEsc(r.followUp)+'</div>':''}</td><td ${td_}>${/^https?:/.test(r.fathom||'')?`<a href="${htrEsc(r.fathom)}" target="_blank" rel="noopener" style="color:var(--gl)">Watch</a>`:'-'}</td></tr>`).join('')}</table></div>`:`<div style="color:var(--dmr);font-size:12px">${HTR.loaded?'No end of call reports yet':'Loading...'}</div>`}
+    <div style="font-size:13px;font-weight:700;margin:18px 0 8px">Closer EODs</div>
+    ${eods.length?`<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse"><tr><th ${th}>Date</th><th ${th}>Closer</th><th ${th}>On cal</th><th ${th}>Showed</th><th ${th}>No-shows</th><th ${th}>Offers</th><th ${th}>Closes</th><th ${th}>Cash</th><th ${th}>Contract</th><th ${th}>Blockers</th></tr>
+      ${eods.map(r=>`<tr><td ${td_}>${htrEsc(r.date)}</td><td ${td_}>${htrEsc(r.closerName)}</td><td ${td_}>${htrEsc(r.booked)}</td><td ${td_}>${htrEsc(r.showed)}</td><td ${td_}>${htrEsc(r.noShows)}</td><td ${td_}>${htrEsc(r.offers)}</td><td ${td_}>${htrEsc(r.closes)}</td><td ${td_}>${htrEsc(r.cash)}</td><td ${td_}>${htrEsc(r.contract)}</td><td ${td_}>${htrEsc(r.blockers)}</td></tr>`).join('')}</table></div>`:`<div style="color:var(--dmr);font-size:12px">${HTR.loaded?'No closer EODs yet':'Loading...'}</div>`}
+  </div>`;
+}
+
 // ── High Ticket (Sarhan, 11 Nov 2026) ──
 // Live from Close's "High Ticket" pipeline via /api/ht-stats (masterclass registrants -> applied -> call booked ->
 // showed -> Won High Ticket / Downsell Base44 / Lost). Funnel counts use the opportunity's created date inside the
@@ -1917,7 +2003,7 @@ function render(){
   const dq=[['q1','Q1'],['q2','Q2'],['q3','Q3'],['q4','Q4']];
   const dx=[['ytd','YTD'],['all_time','All Time']];
   let c='';
-  switch(S.view){case'dashboard':c=renderDash();break;case'discrepancy':c=renderDisc();break;case'high_ticket':c=renderHT();break;case'sales_tracker':c=renderSalesTracker();break;case'setter_tracker':c=renderSetterTracker()+renderEodList();break;case'setter':c=renderSetter();break;case'closer':c=renderCloser();break;case'enrollments':c=renderEnroll();break;case'settings':c=renderSettings();break;case'payouts':c=renderPayouts();break;case'ab_test':c=renderAbTest();break;case'lead_source':c=renderLeadSource();break;default:c=renderDash()}
+  switch(S.view){case'dashboard':c=renderDash();break;case'discrepancy':c=renderDisc();break;case'high_ticket':c=renderHT()+renderHtReports();break;case'sales_tracker':c=renderSalesTracker();break;case'setter_tracker':c=renderSetterTracker()+renderEodList();break;case'setter':c=renderSetter();break;case'closer':c=renderCloser();break;case'enrollments':c=renderEnroll();break;case'settings':c=renderSettings();break;case'payouts':c=renderPayouts();break;case'ab_test':c=renderAbTest();break;case'lead_source':c=renderLeadSource();break;default:c=renderDash()}
   $('app').innerHTML=`<div class="hdr"><div><div class="brand-sub">COMMAND CENTER</div><div class="brand"><span>AI Agency</span> Command Center</div></div><div class="dr">${dr.map(([k,l])=>`<button class="${S.dateRange===k?'a':''}" onclick="S.dateRange='${k}';render()">${l}</button>`).join('')}<div class="sep"></div>${dq.map(([k,l])=>`<button class="${S.dateRange===k?'a':''}" onclick="S.dateRange='${k}';render()">${l}</button>`).join('')}<div class="sep"></div>${dx.map(([k,l])=>`<button class="${S.dateRange===k?'a':''}" onclick="S.dateRange='${k}';render()">${l}</button>`).join('')}<div class="sep"></div><input type="date" id="dr-start" class="${S.dateRange==='custom'?'a':''}" value="${S.customStart}" onchange="S.customStart=this.value;S.dateRange='custom';render()"><span style="color:var(--dmr);font-size:11px">→</span><input type="date" id="dr-end" class="${S.dateRange==='custom'?'a':''}" value="${S.customEnd}" onchange="S.customEnd=this.value;S.dateRange='custom';render()"></div></div><div class="nav">${tabs.map(([v,i,l])=>`<button class="${S.view===v?'a':''}" onclick="S.view='${v}';render()"><span style="font-size:16px">${i}</span>${l}</button>`).join('')}</div><div class="cnt">${shiftBar()}${c}</div>`;
   setTimeout(watchDealClosed,0);
 }
