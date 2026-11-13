@@ -1819,7 +1819,7 @@ async function loadHtr(force){
   HTR.loading=false;HTR.loaded=true;if(S.view==='high_ticket'||S.view==='closer')render();
 }
 function htrEsc(v){return String(v??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
-function htrSetters(){const n=[...new Set((S.signups||[]).map(r=>(r.repName||'').trim()).filter(Boolean))].sort();return ['No setter / self-booked',...n,'Other'];}
+function htrSetters(){const cut=new Date(Date.now()-21*864e5).toISOString().slice(0,10);const n=[...new Set((S.signups||[]).filter(r=>(r.date||'')>=cut).map(r=>(r.repName||'').trim()).filter(x=>x&&!/^(blake|setter leads)/i.test(x)))].sort();return ['No setter / self-booked',...n,'Other'];}
 function htrTa(l,id,ph){return`<div class="fl"><label>${l}</label><textarea id="${id}" rows="3" placeholder="${ph||''}" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#fff;padding:10px 12px;font-size:13px;font-family:inherit;resize:vertical"></textarea></div>`}
 function renderHtCall(){
   const closers=['Saad',...(S.closers||[]).filter(c=>c&&c!=='Saad'&&c!=='Closer 1')];
