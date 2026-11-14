@@ -2027,7 +2027,11 @@ function renderDisc(){
   </div>`;
 }
 // ── Main render (YouTube tab removed) ──
+// Direct links (Sarhan 15 Nov): /command-center/#eoc, #eod, #agreement open that Closer form after login.
+let _deepDone=false;
+function applyDeepLink(){if(_deepDone||!userRole)return;_deepDone=true;const h=(location.hash||'').toLowerCase();const map={'#eoc':'call','#eod':'eod','#agreement':'agr'};if(map[h]&&(ROLE_TABS[userRole]||[]).includes('closer')){S.view='closer';S.closerSub=map[h];}}
 function render(){
+  applyDeepLink();
   const allTabs=[['dashboard','📊','Dashboard'],['high_ticket','◆','High Ticket'],['discrepancy','≠','Discrepancy Leaderboard'],['sales_tracker','📈','Sales Tracker'],['setter_tracker','📋','Setter Tracker'],['setter','📞','Setter'],['closer','💰','Closer'],['enrollments','🎓','Enrollments'],['payouts','💸','Payouts'],['ab_test','🧪','A/B Test'],['lead_source','🎯','Paid vs Organic'],['settings','⚙️','Settings']];
   const allowed=ROLE_TABS[userRole]||[];
   const tabs=userRole==='closer'?allowed.map(v=>allTabs.find(t=>t[0]===v)).filter(Boolean):allTabs.filter(([v])=>allowed.includes(v));
