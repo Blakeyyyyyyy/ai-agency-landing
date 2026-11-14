@@ -648,7 +648,7 @@ async function submitSetter(){
 }
 
 // ── Closer ──
-function renderCloser(){return`<div style="max-width:680px;margin:0 auto"><div class="sub-tabs"><button class="${S.closerSub!=='eod'?'a':''}" onclick="S.closerSub='call';render()">End of Call Report</button><button class="${S.closerSub==='eod'?'a':''}" onclick="S.closerSub='eod';render()">Closer EOD</button></div>${S.closerSub==='eod'?renderHtEod():renderHtCall()}</div>`}
+function renderCloser(){const sub=S.closerSub||'call';return`<div style="max-width:680px;margin:0 auto"><div class="sub-tabs"><button class="${sub==='call'?'a':''}" onclick="S.closerSub='call';render()">End of Call Report</button><button class="${sub==='eod'?'a':''}" onclick="S.closerSub='eod';render()">Closer EOD</button><button class="${sub==='agr'?'a':''}" onclick="S.closerSub='agr';render()">Send Agreement</button></div>${sub==='eod'?renderHtEod():sub==='agr'?renderHtAgr():renderHtCall()}</div>`}
 
 function renderEOD(){
   const rec=S.closer_reports.slice(-8).reverse();
@@ -1891,6 +1891,39 @@ function renderHtReports(){
   </div>`;
 }
 
+
+// ── Client agreements (Sarhan, 15 Nov 2026) ── closer fills name/email/total/instalments; the relay emails the client
+// a signing link from Blake's Close mailbox and logs it on the lead. Signed status shows in the High Ticket tab.
+const AGR_URL='https://blake-discord-relay.vercel.app/api/agreement';
+let AGR={rows:[],loaded:false,loading:false};
+async function loadAgr(force){if(AGR.loading||(AGR.loaded&&!force))return;AGR.loading=true;try{const d=await (await fetch(AGR_URL+'?list=1&key='+HTR_KEY+'&t='+Date.now())).json();if(d.ok)AGR.rows=d.rows||[];}catch(e){}AGR.loading=false;AGR.loaded=true;if(S.view==='high_ticket')render();}
+function renderHtAgr(){
+  const closers=['Saad',...(S.closers||[]).filter(c=>c&&c!=='Saad'&&c!=='Closer 1')];
+  return`<div class="sec"><div style="font-size:18px;font-weight:800;margin-bottom:4px">Send Agreement</div><div style="font-size:12px;color:var(--dim);margin-bottom:22px">Send this right after a close. The client gets an email from Blake with a link to read and sign. Signed agreements show in the High Ticket tab, on the lead in Close and in #call-bookings.</div>
+  <div style="display:flex;flex-direction:column;gap:14px">
+    <div class="g g2">${ff('Client full name','ag-nm','text','')}${ff('Client email (same as in Close)','ag-em','text','')}</div>
+    <div class="g g3">${ff('Total program price (USD)','ag-tot','number','7500')}${ff('Number of payments','ag-k','text','3',['1','2','3','4','5','6'])}${ff('Closer','ag-cl','text','Saad',closers)}</div>
+    <div id="ag-prev" style="font-size:13px;color:var(--dim)"></div>
+    <button class="btn" style="background:var(--green)" onclick="submitAgr()">Send agreement to client</button>
+  </div></div>`;
+}
+async function submitAgr(){
+  const g=id=>(document.getElementById(id)?.value||'').trim();
+  const d={name:g('ag-nm'),email:g('ag-em'),total:g('ag-tot').replace(/[^\d.]/g,''),instalments:g('ag-k'),closer:g('ag-cl')};
+  if(d.name.length<2||!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(d.email)||!(+d.total>0)){toast('Name, email and total are required');return;}
+  if(!confirm('Send the agreement to '+d.name+' ('+d.email+') for USD '+(+d.total).toLocaleString()+' in '+d.instalments+' payment(s)?'))return;
+  toast('Sending...');
+  try{const j=await (await fetch(AGR_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(Object.assign({action:'send',key:HTR_KEY},d))})).json();
+    if(!j.ok){toast(j.error||'Could not send');return;}toast('Agreement sent to '+d.name);await loadAgr(true);S.view='high_ticket';render();}catch(e){toast('Could not send - try again');}
+}
+function renderAgrList(){
+  loadAgr(false);
+  const by={};AGR.rows.forEach(r=>{const id=r['Agreement ID'];by[id]=by[id]||{};if(r.Status==='Sent')by[id].sent=r;if(r.Status==='Signed')by[id].signed=r;});
+  const list=Object.values(by).filter(x=>x.sent||x.signed).sort((a,b)=>((b.sent||b.signed).At||'').localeCompare((a.sent||a.signed).At||''));
+  const th='style="text-align:left;padding:8px 10px;font-size:11px;color:var(--dim);font-weight:700"',td_='style="padding:8px 10px;font-size:12px;border-top:1px solid rgba(255,255,255,.06)"';
+  return`<div class="sec"><div style="font-size:14px;font-weight:800;margin-bottom:10px">Client agreements</div>${list.length?`<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse"><tr><th ${th}>Sent</th><th ${th}>Client</th><th ${th}>Total</th><th ${th}>Payments</th><th ${th}>Closer</th><th ${th}>Status</th></tr>${list.map(x=>{const r=x.sent||x.signed;return`<tr><td ${td_}>${htrEsc((r.At||'').slice(0,10))}</td><td ${td_}>${htrEsc(r.Client)}<div style="color:var(--dmr);font-size:11px">${htrEsc(r.Email)}</div></td><td ${td_}>USD ${htrEsc(r['Total USD'])}</td><td ${td_}>${htrEsc(r.Instalments)}</td><td ${td_}>${htrEsc((x.sent||{}).Closer||'')}</td><td ${td_} style="color:${x.signed?'#10b981':'#eab308'};font-weight:700">${x.signed?'Signed '+htrEsc((x.signed.At||'').slice(0,10)):'Waiting for signature'}</td></tr>`}).join('')}</table></div>`:`<div style="color:var(--dmr);font-size:12px">${AGR.loaded?'No agreements sent yet':'Loading...'}</div>`}</div>`;
+}
+
 // ── High Ticket (Sarhan, 11 Nov 2026) ──
 // Live from Close's "High Ticket" pipeline via /api/ht-stats (masterclass registrants -> applied -> call booked ->
 // showed -> Won High Ticket / Downsell Base44 / Lost). Funnel counts use the opportunity's created date inside the
@@ -2003,7 +2036,7 @@ function render(){
   const dq=[['q1','Q1'],['q2','Q2'],['q3','Q3'],['q4','Q4']];
   const dx=[['ytd','YTD'],['all_time','All Time']];
   let c='';
-  switch(S.view){case'dashboard':c=renderDash();break;case'discrepancy':c=renderDisc();break;case'high_ticket':c=renderHT()+renderHtReports();break;case'sales_tracker':c=renderSalesTracker();break;case'setter_tracker':c=renderSetterTracker()+renderEodList();break;case'setter':c=renderSetter();break;case'closer':c=renderCloser();break;case'enrollments':c=renderEnroll();break;case'settings':c=renderSettings();break;case'payouts':c=renderPayouts();break;case'ab_test':c=renderAbTest();break;case'lead_source':c=renderLeadSource();break;default:c=renderDash()}
+  switch(S.view){case'dashboard':c=renderDash();break;case'discrepancy':c=renderDisc();break;case'high_ticket':c=renderHT()+renderAgrList()+renderHtReports();break;case'sales_tracker':c=renderSalesTracker();break;case'setter_tracker':c=renderSetterTracker()+renderEodList();break;case'setter':c=renderSetter();break;case'closer':c=renderCloser();break;case'enrollments':c=renderEnroll();break;case'settings':c=renderSettings();break;case'payouts':c=renderPayouts();break;case'ab_test':c=renderAbTest();break;case'lead_source':c=renderLeadSource();break;default:c=renderDash()}
   $('app').innerHTML=`<div class="hdr"><div><div class="brand-sub">COMMAND CENTER</div><div class="brand"><span>AI Agency</span> Command Center</div></div><div class="dr">${dr.map(([k,l])=>`<button class="${S.dateRange===k?'a':''}" onclick="S.dateRange='${k}';render()">${l}</button>`).join('')}<div class="sep"></div>${dq.map(([k,l])=>`<button class="${S.dateRange===k?'a':''}" onclick="S.dateRange='${k}';render()">${l}</button>`).join('')}<div class="sep"></div>${dx.map(([k,l])=>`<button class="${S.dateRange===k?'a':''}" onclick="S.dateRange='${k}';render()">${l}</button>`).join('')}<div class="sep"></div><input type="date" id="dr-start" class="${S.dateRange==='custom'?'a':''}" value="${S.customStart}" onchange="S.customStart=this.value;S.dateRange='custom';render()"><span style="color:var(--dmr);font-size:11px">→</span><input type="date" id="dr-end" class="${S.dateRange==='custom'?'a':''}" value="${S.customEnd}" onchange="S.customEnd=this.value;S.dateRange='custom';render()"></div></div><div class="nav">${tabs.map(([v,i,l])=>`<button class="${S.view===v?'a':''}" onclick="S.view='${v}';render()"><span style="font-size:16px">${i}</span>${l}</button>`).join('')}</div><div class="cnt">${shiftBar()}${c}</div>`;
   setTimeout(watchDealClosed,0);
 }
