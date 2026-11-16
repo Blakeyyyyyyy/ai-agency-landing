@@ -190,7 +190,9 @@ const V=id=>$(id)?.value||'';
 const N=id=>Number(V(id))||0;
 const fmt=n=>{if(n==null||isNaN(n))return'$0';return'$'+Number(n).toLocaleString('en-US',{minimumFractionDigits:n%1!==0?2:0,maximumFractionDigits:2})};
 const pct=n=>(isNaN(n)||!isFinite(n)?'0%':(n*100).toFixed(1)+'%');
-const td=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+// Default date = the LA shift day (4am-4am Los Angeles), not the device's local date. Setters in other timezones
+// kept getting tomorrow's date on evening EODs (Colt/Logan/Elijah, 15-17 Nov).
+const td=()=>new Date(Date.now()-4*3600e3).toLocaleDateString('en-CA',{timeZone:'America/Los_Angeles'});
 // Shift day (26 Oct 2026): sales days run 4am to 4am America/Los_Angeles for every viewer, matching
 // shiftDay() in the relay that dates each sale. IANA zone, so the cutoff stays 4am LA across DST.
 const SHIFT_TZ='America/Los_Angeles',SHIFT_START_HOUR=4,SHIFT_GOAL=10000;
