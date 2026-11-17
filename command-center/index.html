@@ -601,6 +601,27 @@ async function refreshSetterReports(){
     }
   }catch(e){console.error('setter refresh failed',e);reload();}
 }
+// Review-before-submit pop-up (Rohen 17 Nov, after a run of wrong-date EODs): shows what's about to be saved,
+// date first and large, with a warning when it isn't today's LA shift day. Resolves true only on "Confirm".
+function confirmSubmit(title,date,rows){
+  return new Promise(res=>{
+    const today=td(), off=date&&date!==today;
+    const nice=d=>{try{return new Date(d+'T12:00:00Z').toLocaleDateString('en-US',{timeZone:'UTC',weekday:'long',month:'short',day:'numeric'})}catch(e){return d}};
+    const w=document.createElement('div');
+    w.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px';
+    w.innerHTML=`<div style="background:#0f1513;border:1px solid rgba(255,255,255,.12);border-radius:16px;max-width:440px;width:100%;padding:22px;font-family:inherit;color:#fff;max-height:90vh;overflow:auto">
+      <div style="font-size:17px;font-weight:800;margin-bottom:12px">${title}</div>
+      <div style="font-size:12px;color:rgba(255,255,255,.55)">Report date</div>
+      <div style="font-size:24px;font-weight:800;margin:2px 0 ${off?'8':'14'}px;color:${off?'#f59e0b':'#10b981'}">${nice(date)}</div>
+      ${off?`<div style="background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.4);color:#fbbf24;border-radius:10px;padding:10px 12px;font-size:13px;font-weight:600;margin-bottom:14px">This isn't today's shift day (${nice(today)}). Is that right?</div>`:''}
+      ${rows.map(([k,v])=>`<div style="display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-top:1px solid rgba(255,255,255,.07);font-size:13px"><span style="color:rgba(255,255,255,.6)">${k}</span><span style="font-weight:700;text-align:right">${String(v??'').replace(/[<>&]/g,'')}</span></div>`).join('')}
+      <div style="display:flex;gap:10px;margin-top:18px"><button data-a="0" style="flex:1;padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,.2);background:transparent;color:#fff;font-weight:700;cursor:pointer">Go back and edit</button><button data-a="1" style="flex:1;padding:12px;border-radius:10px;border:0;background:#10b981;color:#04140f;font-weight:800;cursor:pointer">Confirm and submit</button></div>
+    </div>`;
+    w.addEventListener('click',e=>{const a=e.target.getAttribute&&e.target.getAttribute('data-a');if(a!==null){w.remove();res(a==='1');}});
+    document.body.appendChild(w);
+  });
+}
+
 async function submitSetter(){
   // Validate all fields are filled
   const reqFields=[{id:'sf-d',label:'Work Date'},{id:'sf-nm',label:'Setter Name'},{id:'sf-di',label:'Total Dials'},{id:'sf-ul',label:'Unique Leads Dialed'},{id:'sf-pu',label:'Pick Ups'},{id:'sf-b4m',label:'Base 44 Monthly Sales'},{id:'sf-b4y',label:'Base 44 Yearly Sales'},{id:'sf-w',label:'Win For The Day'},{id:'sf-i',label:'Improvement'}];
@@ -623,6 +644,7 @@ async function submitSetter(){
     const dup=S.setter_reports.some(r=>r.setterName===V('sf-nm')&&normDate(r.date)===V('sf-d'));
     if(dup&&!confirm(V('sf-nm')+' already has an EOD report for '+V('sf-d')+'. Submitting again will double-count it. Submit anyway?\n\n(Cancel, then tap the existing report under Recent Reports to edit it instead.)'))return;
   }
+  if(!(await confirmSubmit(S.editingSetterRow?'Update this EOD?':'Submit this EOD?',V('sf-d'),[['Setter',V('sf-nm')],['Didn\'t work today',$('sf-nowork')?.checked?'Yes':'No'],['Total dials',N('sf-di')],['Unique leads dialed',N('sf-ul')],['Pick ups',N('sf-pu')],['Base44 monthly sales',N('sf-b4m')],['Base44 yearly sales',N('sf-b4y')],['Win',V('sf-w')],['Improvement',V('sf-i')]])))return;
   toast('Saving...');
   const b4m=N('sf-b4m'),b4y=N('sf-b4y');
   const data={date:V('sf-d'),setterName:V('sf-nm'),didntWorkToday:$('sf-nowork')?.checked?'Yes':'No',totalDials:N('sf-di'),uniqueLeadsDialed:N('sf-ul'),pickUps:N('sf-pu'),base44MonthlySales:b4m,base44YearlySales:b4y,totalLTSalesAuto:b4m+b4y,ltRevenueAuto:b4m*((S.revenueByPlan||{})['Builder Monthly']||250)+b4y*((S.revenueByPlan||{})['Builder Yearly']||475),winForTheDay:V('sf-w'),improvementForNextDay:V('sf-i')};
@@ -1869,6 +1891,7 @@ async function submitHtEod(){
   if(!d.date||!d.closerName){toast('Date and closer are required');return;}
   if(+d.showed>+d.booked){toast('Calls showed cannot be more than calls on calendar');return;}
   if(+d.closes>+d.offers){toast('Closes cannot be more than offers made');return;}
+  if(!(await confirmSubmit('Submit this Closer EOD?',d.date,[['Closer',d.closerName],['Calls on calendar',d.booked],['Showed',d.showed],['No-shows',d.noShows],['Rescheduled',d.rescheduled],['Offers',d.offers],['Closes',d.closes],['Deposits',d.deposits],['Cash collected (USD)',d.cash],['Contract value (USD)',d.contract]])))return;
   toast('Saving...');
   try{const r=await fetch(HTR_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({key:HTR_KEY,type:'eod',data:d})});const j=await r.json();if(!j.ok)throw new Error(j.error||'failed');
     toast('Closer EOD saved');S.view='high_ticket';await loadHtr(true);render();}catch(e){toast('Could not save - try again');}
